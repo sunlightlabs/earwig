@@ -76,7 +76,7 @@ class Message(models.Model):
 
 class MessageRecipient(models.Model):
     """ allows association of a status with a message & recipient """
-    message = models.ForeignKey(Message, related_name='recipients')
+    message = models.ForeignKey(Message)  # , related_name='recipients')
     recipient = models.ForeignKey(Person, related_name='messages')
     status = models.CharField(max_length=10, choices=MESSAGE_STATUSES)
 
