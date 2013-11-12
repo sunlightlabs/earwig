@@ -6,7 +6,7 @@ import uuid
 class FnordContact(ContactPlugin):
     def send_message(self, attempt):
         recept = uuid.uuid1()
-        obj = FnordStatus.create(attempt=attempt, remote_id=recept)
+        obj = FnordStatus.objects.create(attempt=attempt, remote_id=recept)
         # Will raise exception if we've done this before.
         print("Would have sent %s" % (attempt.id))
         print("  -> recept is " % (obj.remote_id))
