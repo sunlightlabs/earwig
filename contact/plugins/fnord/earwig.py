@@ -13,5 +13,6 @@ class FnordContact(ContactPlugin):
         #print("  -> recept is %s" % (obj.remote_id))
 
     def check_message_status(self, attempt):
-        obj = FnordStatus.get(attempt=attempt)
+        obj = FnordStatus.objects.get(attempt=attempt)
         #print("Checking up on %s" % (obj.remote_id))
+        return obj.remote_id
