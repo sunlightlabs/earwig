@@ -43,6 +43,7 @@ class FnordTests(TestCase):
 
         try:
             self.plugin.send_message(attempt)
-            assert True is False, "We didn't get an IntegrityError out of send_message"
+            assert True is False, ("We didn't get an IntegrityError out of "
+                                   "send_message")
         except IntegrityError:
             pass
