@@ -126,6 +126,7 @@ INSTALLED_APPS = (
 
     'contact',
     'contact.plugins.fnord',
+    'contact.plugins.twilio',
 )
 
 # A sample logging configuration. The only tangible logging

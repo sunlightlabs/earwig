@@ -1,12 +1,29 @@
 from contact.plugins import ContactPlugin
 from .models import TwilioStatus
-import uuid
+from twilio.rest import TwilioRestClient
 
 
 class TwilioContact(ContactPlugin):
+    def __init__(self):
+        # XXX: How do we get these?
+        self.client = TwilioRestClient(account_sid, auth_token)
+
     def send_message(self, attempt):
-        recept = uuid.uuid1()
-        obj = TwilioStatus.objects.create(attempt=attempt, remote_id=recept)
+        obj = TwilioStatus.objects.create(
+            attempt=attempt,
+            sent_to=to_number,
+            sent_from=from_number,
+            sent=False
+        )
+
+        try:
+            client.messages.create(to=to_number,
+                                   from_=from_number,
+                                   body=body)
+            obj.sent = True
+        except twilio.TwilioRestException:
+            pass # XXX: Capture what's gone wrong here. Invalid? Down?
+
         obj.save()
 
     def check_message_status(self, attempt):
