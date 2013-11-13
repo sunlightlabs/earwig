@@ -61,4 +61,3 @@ class FnordTests(TestCase):
 
         assert id1 == id2, ("We got a different result from a check when"
                             " given a new plugin object. DB issue?")
-
