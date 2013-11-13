@@ -1,2 +1,4 @@
 *.pyc
-
+*swp
+*earwig*egg*
+earwig.db
