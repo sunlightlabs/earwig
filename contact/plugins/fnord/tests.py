@@ -1,5 +1,6 @@
 from django.test import TestCase
 import datetime as dt
+import pytz
 
 from contact.models import (
     Person,
@@ -26,7 +27,8 @@ def create_test_attempt():
     message = Message(type='fnord', sender=send,
                       subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
-                              date=dt.datetime.utcnow(), engine="default")
+                              date=dt.datetime.now(pytz.timezone('US/Eastern')),
+                              engine="default")
     attempt.save()
     return attempt
 
