@@ -1,3 +1,4 @@
+import unittest
 from django.test import TestCase
 import datetime as dt
 import pytz
@@ -37,6 +38,7 @@ class TwilioTests(TestCase):
     def setUp(self):
         self.plugin = TwilioContact()
 
+    @unittest.skip("can't test sanely")
     def test_duplicate(self):
         """ Ensure that we blow up with two identical inserts """
         attempt = create_test_attempt()
@@ -49,6 +51,7 @@ class TwilioTests(TestCase):
         except IntegrityError:
             pass
 
+    @unittest.skip("can't test sanely")
     def test_status(self):
         """ Ensure that we can properly fetch the status out of the DB """
         plugin = TwilioContact()
