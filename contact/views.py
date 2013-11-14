@@ -1,6 +1,15 @@
-from django.views.decorators.http import require_POST
-from django.http import HttpResponseBadRequest, HttpResponse
+import json
+from django.views.decorators.http import require_GET, require_POST
+from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
 from .models import Sender, Person, Message, MessageRecipient
+
+def _msg_to_json(msg):
+    data = {'type': msg.type, 'sender': msg.sender_id, 'subject': msg.subject,
+            'message': msg.message, 'recipients': []}
+    for recip in MessageRecipient.objects.filter(message=msg):
+        data['recipients'].append({'recipient_id': recip.recipient_id, 'status': recip.status})
+
+    return json.dumps(data)
 
 
 @require_POST
@@ -32,4 +41,13 @@ def create_message(request):
     for recip in recipients:
         MessageRecipient.objects.create(message=msg, recipient=recip, status='pending')
 
-    return HttpResponse(msg.id)
+    return HttpResponse(_msg_to_json(msg))
+
+
+@require_GET
+def get_message(request, msg_id):
+    try:
+        msg = Message.objects.get(pk=msg_id)
+        return HttpResponse(_msg_to_json(msg))
+    except Message.DoesNotExist:
+        return HttpResponseNotFound('no such object')

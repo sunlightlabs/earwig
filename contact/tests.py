@@ -1,3 +1,4 @@
+import json
 from django.test import TestCase, Client
 from .models import Person, Sender, Message, MessageRecipient
 
@@ -9,7 +10,7 @@ class TestCreateMessage(TestCase):
     def setUp(self):
         Person.objects.create(ocd_id='ocd-person/1', title='President', name='Gerald Fnord')
         Person.objects.create(ocd_id='ocd-person/2', title='Mayor', name='Rob Fnord')
-        Sender.objects.create(uid='1-2-3-4')
+        Sender.objects.create(id='1-2-3-4')
 
     def test_required_fields(self):
         """ test that type, subject, message, sender are required """
@@ -51,6 +52,12 @@ class TestCreateMessage(TestCase):
         assert response.status_code == 200
         assert Message.objects.count() == 1
         assert MessageRecipient.objects.count() == 1
+
+        # reconstitute message out of response
+        data = json.loads(response.content)
+        assert data['type'] == GOOD_MESSAGE['type']
+        assert data['subject'] == GOOD_MESSAGE['subject']
+        assert data['message'] == GOOD_MESSAGE['message']
 
     def test_multi_recipient(self):
         c = Client()

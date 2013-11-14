@@ -32,7 +32,7 @@ class ContactDetail(models.Model):
 
 class Sender(models.Model):
     """ a user (anonymous or not) that can send messages """
-    uid = models.CharField(max_length=36, primary_key=True)
+    id = models.CharField(max_length=36, primary_key=True)
     user = models.OneToOneField(User, null=True)
     verified = models.BooleanField(default=False)
     # tie to a session id?
