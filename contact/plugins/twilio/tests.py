@@ -12,8 +12,8 @@ from contact.models import (
     DeliveryAttempt,
 )
 
-from contact.plugins.fnord.earwig import TwilioContact
-from contact.plugins.fnord.models import TwilioStatus
+from contact.plugins.twilio.earwig import TwilioContact
+from contact.plugins.twilio.models import TwilioStatus
 
 from django.db import IntegrityError
 
@@ -21,8 +21,8 @@ from django.db import IntegrityError
 def create_test_attempt():
     pt = Person.objects.create(ocd_id='test', title='Mr.',
                           name='Paul Tagliamonte', photo_url="")
-    cd = ContactDetail.objects.create(person=pt, type='fnord',
-            value='@fnord', note='Twilio!', blacklisted=False)
+    cd = ContactDetail.objects.create(person=pt, type='sms',
+            value='', note='Twilio!', blacklisted=False)
     send = Sender.objects.create()
     message = Message(type='fnord', sender=send,
                       subject="Hello, World", message="HELLO WORLD")
