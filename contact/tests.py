@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from .models import Person, Sender, Message
+from .models import Person, Sender, Message, MessageRecipient
 
 GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message',
                 'sender': '1-2-3-4', 'recipients': ['ocd-person/1']}
@@ -7,7 +7,8 @@ GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message
 class TestCreateMessage(TestCase):
 
     def setUp(self):
-        Person.objects.create(ocd_id='ocd-person/1', title='Mayor', name='Ford')
+        Person.objects.create(ocd_id='ocd-person/1', title='President', name='Gerald Fnord')
+        Person.objects.create(ocd_id='ocd-person/2', title='Mayor', name='Rob Fnord')
         Sender.objects.create(uid='1-2-3-4')
 
     def test_required_fields(self):
@@ -49,3 +50,13 @@ class TestCreateMessage(TestCase):
         response = c.post('/message/', GOOD_MESSAGE.copy())
         assert response.status_code == 200
         assert Message.objects.count() == 1
+        assert MessageRecipient.objects.count() == 1
+
+    def test_multi_recipient(self):
+        c = Client()
+        msg = GOOD_MESSAGE.copy()
+        msg['recipients'] = ['ocd-person/1', 'ocd-person/2']
+        response = c.post('/message/', msg)
+        assert response.status_code == 200
+        assert Message.objects.count() == 1
+        assert MessageRecipient.objects.count() == 2
