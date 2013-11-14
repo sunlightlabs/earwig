@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from contact.errors import InvalidContactType, InvalidContactValue
 from contact.plugins import ContactPlugin
 from .models import TwilioStatus
@@ -7,15 +9,18 @@ from twilio.rest import TwilioRestClient
 class TwilioContact(ContactPlugin):
     def __init__(self):
         # XXX: How do we get these?
-        self.client = TwilioRestClient(account_sid, auth_token)
+        twilio_settings = settings.CONTACT_PLUGIN_TWILIO
+
+        self.client = TwilioRestClient(
+            twilio_settings['account_sid'],
+            twilio_settings['auth_token'],
+        )
 
     def send_message(self, attempt):
         # OK. let's ensure this is something we can handle.
 
         cd = attempt.contact
-        if cd.type not in [
-            'sms',
-        ]:
+        if cd.type not in ['sms',]:
             raise InvalidContactType("Contact Detail type is not `sms`")
 
         obj = TwilioStatus.objects.create(
