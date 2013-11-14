@@ -126,6 +126,7 @@ INSTALLED_APPS = (
 
     'contact',
     'contact.plugins.fnord',
+    'contact.plugins.twilio',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -156,3 +157,14 @@ LOGGING = {
         },
     }
 }
+
+
+CONTACT_PLUGIN_TWILIO = {
+    "account_sid": "",
+    "auth_token": "",
+}
+
+try:
+    from local_settings import *
+except ImportError:
+    print("Don't have any local settings")
