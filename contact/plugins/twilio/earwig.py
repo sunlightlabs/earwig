@@ -1,3 +1,4 @@
+from contact.errors import InvalidContactType, InvalidContactValue
 from contact.plugins import ContactPlugin
 from .models import TwilioStatus
 from twilio.rest import TwilioRestClient
@@ -9,6 +10,14 @@ class TwilioContact(ContactPlugin):
         self.client = TwilioRestClient(account_sid, auth_token)
 
     def send_message(self, attempt):
+        # OK. let's ensure this is something we can handle.
+
+        cd = attempt.contact
+        if cd.type not in [
+            'sms',
+        ]:
+            raise InvalidContactType("Contact Detail type is not `sms`")
+
         obj = TwilioStatus.objects.create(
             attempt=attempt,
             sent_to=to_number,
@@ -22,7 +31,7 @@ class TwilioContact(ContactPlugin):
                                    body=body)
             obj.sent = True
         except twilio.TwilioRestException:
-            pass # XXX: Capture what's gone wrong here. Invalid? Down?
+            raise InvalidContactValue("Contact detail value seems wrong")
 
         obj.save()
 

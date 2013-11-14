@@ -8,3 +8,11 @@ class ContactError(Exception):
 class CantCancelMessage(ContactError):
     """ """
     pass
+
+
+class InvalidContactType(ContactError):
+    pass
+
+
+class InvalidContactValue(ContactError):
+    pass
