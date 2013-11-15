@@ -45,9 +45,9 @@ def create_message(request):
 
 
 @require_GET
-def get_message(request, msg_id):
+def get_message(request, message_id):
     try:
-        msg = Message.objects.get(pk=msg_id)
+        msg = Message.objects.get(pk=message_id)
         return HttpResponse(_msg_to_json(msg))
     except Message.DoesNotExist:
         return HttpResponseNotFound('no such object')

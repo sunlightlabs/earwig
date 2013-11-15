@@ -6,7 +6,7 @@ from .views import _msg_to_json
 GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message',
                 'sender': '1-2-3-4', 'recipients': ['ocd-person/1']}
 
-class TestViews(TestCase):
+class TestCreateMessage(TestCase):
 
     def setUp(self):
         self.person1 = Person.objects.create(ocd_id='ocd-person/1', title='President',
@@ -15,7 +15,7 @@ class TestViews(TestCase):
                                              name='Rob Fnord')
         self.sender = Sender.objects.create(id='1-2-3-4')
 
-    def test_msg_to_json(self):
+    def test_get_message(self):
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
                                      message='hello everyone')
         MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')
@@ -88,3 +88,37 @@ class TestViews(TestCase):
         assert response.status_code == 200
         assert Message.objects.count() == 1
         assert MessageRecipient.objects.count() == 2
+
+
+class TestGetMessage(TestCase):
+
+    def setUp(self):
+        self.person1 = Person.objects.create(ocd_id='ocd-person/1', title='President',
+                                             name='Gerald Fnord')
+        self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
+                                             name='Rob Fnord')
+        self.sender = Sender.objects.create(id='1-2-3-4')
+        msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
+                                     message='hello everyone')
+        MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')
+        MessageRecipient.objects.create(message=msg, recipient=self.person2, status='expired')
+
+    def test_get_message(self):
+        c = Client()
+        resp = c.get('/message/1/')
+        data = json.loads(resp.content)
+
+        assert data['message'] == 'hello everyone'
+        assert data['type'] == 'private'
+        assert data['sender'] == self.sender.id
+        assert data['subject'] == 'subject'
+        assert len(data['recipients']) == 2
+        assert data['recipients'][0]['status'] == 'pending'
+        assert data['recipients'][0]['recipient_id'] == self.person1.id
+        assert data['recipients'][1]['status'] == 'expired'
+        assert data['recipients'][1]['recipient_id'] == self.person2.id
+
+    def test_get_message_404(self):
+        c = Client()
+        resp = c.get('/message/33/')
+        assert resp.status_code == 404
