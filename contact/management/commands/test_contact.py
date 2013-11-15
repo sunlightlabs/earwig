@@ -70,3 +70,5 @@ class Command(BaseCommand):
         print ""
         print plugin.check_message_status(attempt)
         print ""
+
+        attempt.delete()

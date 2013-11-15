@@ -7,3 +7,5 @@ class TwilioStatus(models.Model):
     sent_to = models.CharField(max_length=80)  # Phone number
     sent_from = models.CharField(max_length=80)  # Phone number36)
     sent = models.BooleanField()
+
+    objects = models.Manager()
