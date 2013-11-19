@@ -1,8 +1,11 @@
 import re
 import json
+import hashlib
+import datetime
 from django.views.decorators.http import require_GET, require_POST
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
 from django.utils.timezone import utc
+from django.conf import settings
 from .models import Sender, Person, Message, MessageRecipient
 
 
@@ -16,11 +19,12 @@ def _msg_to_json(msg):
 
 def _sender_to_json(sender):
     data = {'id': sender.id, 'name': sender.name, 'email': sender.email,
-            'created_at': sender.created_at, 'email_expires_at': sender.email_expires_at}
+            'created_at': sender.created_at.isoformat(),
+            'email_expires_at': sender.email_expires_at.isoformat()}
     return json.dumps(data)
 
 def _get_or_create_sender(email, name, ttl):
-    uid = hashlib.sha256(email + settings.EARWIG_SENDER_SALT)
+    uid = hashlib.sha256(email + settings.EARWIG_SENDER_SALT).hexdigest()
     # ttl has to be at least one day
     ttl = max(1, ttl)
     expiry = datetime.datetime.utcnow().replace(tzinfo=utc) + datetime.timedelta(days=ttl)

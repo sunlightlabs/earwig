@@ -10,6 +10,16 @@ GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message
 EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
 
 
+class TestCreateSender(TestCase):
+
+    def test_basic_sender(self):
+        c = Client()
+        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
+        data = json.loads(resp.content)
+        assert data['email'] == 'test@example.com'
+        # TODO: more tests here
+
+
 class TestCreateMessage(TestCase):
 
     def setUp(self):

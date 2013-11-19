@@ -163,6 +163,8 @@ CONTACT_PLUGIN_TWILIO = {
     "from_number": "",
 }
 
+EARWIG_SENDER_SALT = 'the-very-saltiest'
+
 try:
     from local_settings import *
 except ImportError:
