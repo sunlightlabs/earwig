@@ -3,7 +3,7 @@ import uuid
 import boto.ses
 
 from .models import SESEmailStatus
-from contact.plugins import ContactPlugin
+from .. import ContactPlugin
 
 
 class SESContact(ContactPlugin):

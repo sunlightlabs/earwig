@@ -12,8 +12,8 @@ from contact.models import (
     DeliveryAttempt,
 )
 
-from plugins.fnord.earwig import FnordContact
-from plugins.fnord.models import FnordStatus
+from .earwig import FnordContact
+from .models import FnordStatus
 
 from django.db import IntegrityError
 
