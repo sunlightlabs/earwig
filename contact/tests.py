@@ -1,11 +1,14 @@
 import json
 import datetime
 from django.test import TestCase, Client
+from django.utils.timezone import utc
 from .models import Person, Sender, Message, MessageRecipient
 from .views import _msg_to_json
 
 GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message',
                 'sender': '1-2-3-4', 'recipients': ['ocd-person/1']}
+EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
+
 
 class TestCreateMessage(TestCase):
 
@@ -14,7 +17,7 @@ class TestCreateMessage(TestCase):
                                              name='Gerald Fnord')
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
-        self.sender = Sender.objects.create(id='1-2-3-4', email_expires_at=datetime.datetime.now())
+        self.sender = Sender.objects.create(id='1-2-3-4', email_expires_at=EXPIRY)
 
     def test_get_message(self):
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
@@ -98,7 +101,7 @@ class TestGetMessage(TestCase):
                                              name='Gerald Fnord')
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
-        self.sender = Sender.objects.create(id='1-2-3-4', email_expires_at=datetime.datetime.now())
+        self.sender = Sender.objects.create(id='1-2-3-4', email_expires_at=EXPIRY)
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
                                      message='hello everyone')
         MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')
