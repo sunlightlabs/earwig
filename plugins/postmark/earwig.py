@@ -1,7 +1,11 @@
+'''
+Incoming mail and bounce requests are each handled with a webhook.
+http://developer.postmarkapp.com/developer-inbound-configure.html
+'''
 import pystmark
 
-from .plugins import ContactPlugin
-from .models import PostmarkEmailStatus
+from ..plugins import ContactPlugin, EmailDeliveryStatus
+from .models import PostmarkDeliveryMeta
 
 
 class PostmarkContact(ContactPlugin):
@@ -25,28 +29,11 @@ class PostmarkContact(ContactPlugin):
             )
         response = pystmark.send(message, api_key=settings.POSTMARK_API_KEY)
         message_id = response['MessageID']
-        PostmarkEmailStatus.create(attempt=attempt, message_id=message_id)
-
+        PostmarkDeliveryMetad.create(attempt=attempt, message_id=message_id)
 
     def check_message_status(self, attempt):
-        '''To do this, we need to set up an email address to recieve bounce
-        requests and a job to process the messages in the mail box and update
-        their SESEmailStatus.
-        '''
-        obj = PostmarkEmailStatus.get(attempt=attempt)
+        obj = PostmarkDeliveryMetad.get(attempt=attempt)
         response = pystmark.get_bounces(settings.POSTMARK_API_KEY)
         for bounce in response.json()['Bounces']:
-            if bounce['MessageID'] == attempt.message_id:
-                return 'cow'
-
-    def get_body_template(self, attempt):
-        raise NotImplementedError()
-
-    def get_subject_template(self, attempt):
-        raise NotImplementedError()
-
-    def get_sender_address(self, attempt):
-        raise NotImplementedError()
-
-    def get_reply_addreses(self, attempt):
-        raise NotImplementedError()
+            if bounce['MessageID'] == obj.message_id:
+                return EmailDeliveryStatus(bounce['Type'], bounce)
