@@ -158,10 +158,10 @@ LOGGING = {
     }
 }
 
-
 CONTACT_PLUGIN_TWILIO = {
     "account_sid": "",
     "auth_token": "",
+    "from_number": "",
 }
 
 try:
