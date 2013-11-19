@@ -1,4 +1,4 @@
-from contact.plugins import ContactPlugin
+from plugins import ContactPlugin
 from .models import FnordStatus
 import uuid
 

@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from contact.errors import InvalidContactType, InvalidContactValue
-from contact.plugins import ContactPlugin
+from plugins import ContactPlugin
 from .models import TwilioStatus
 
 import twilio

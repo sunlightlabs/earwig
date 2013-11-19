@@ -13,8 +13,8 @@ from contact.models import (
     DeliveryAttempt,
 )
 
-from contact.plugins.twilio.earwig import TwilioContact
-from contact.plugins.twilio.models import TwilioStatus
+from plugins.twilio.earwig import TwilioContact
+from plugins.twilio.models import TwilioStatus
 
 from django.db import IntegrityError
 

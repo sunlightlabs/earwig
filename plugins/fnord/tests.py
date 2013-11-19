@@ -12,8 +12,8 @@ from contact.models import (
     DeliveryAttempt,
 )
 
-from contact.plugins.fnord.earwig import FnordContact
-from contact.plugins.fnord.models import FnordStatus
+from plugins.fnord.earwig import FnordContact
+from plugins.fnord.models import FnordStatus
 
 from django.db import IntegrityError
 
@@ -23,7 +23,7 @@ def create_test_attempt():
                           name='Paul Tagliamonte', photo_url="")
     cd = ContactDetail.objects.create(person=pt, type='fnord',
             value='@fnord', note='Fnord!', blacklisted=False)
-    send = Sender.objects.create()
+    send = Sender.objects.create(email_expires_at=dt.datetime.now())
     message = Message(type='fnord', sender=send,
                       subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",

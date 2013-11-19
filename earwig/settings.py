@@ -124,8 +124,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 
     'contact',
-    'contact.plugins.fnord',
-    'contact.plugins.twilio',
+    'plugins.fnord',
+    'plugins.twilio',
 )
 
 # A sample logging configuration. The only tangible logging
