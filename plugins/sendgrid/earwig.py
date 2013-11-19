@@ -1,31 +1,21 @@
-import uuid
+'''Sendgrid handles incoming email and unsubscribe/bounce
+ with webhooks. You set up a endpoints and they post data to them.
+ http://sendgrid.com/docs/API_Reference/Webhooks/index.html
+'''
+import sendgrid
 
-import boto.ses
-
-from .models import SESEmailStatus
-from contact.plugins import ContactPlugin
+from ..plugins import ContactPlugin
+from .models import SendgridDeliveryMeta
 
 
-class SESContact(ContactPlugin):
-    '''Amazon SES contact plugin.
-
-    Bounce requests would be configured with SNS:
-    http://aws.amazon.com/about-aws/whats-new/2012/06/26/amazon-ses-announces-bounce-and-complaint-notifications/
-
-    The alternative is setting up a special address to reveive them
-    by email, which would suck.
-
-    Tests this probably needs:
-        - verify no message sent to blacklisted address
-        - verify bounce/complaints get handled correctly
-        - verify undeliverable gets handled correctly
+class SendgridContact(ContactPlugin):
+    '''Send an email from through the postmark API.
     '''
-    def send_message(self, attempt, extra_context=None):
+    medium = 'email'
 
-        assert contact_detail.type == 'email'
-        assert not contact_detail.blacklisted
+    def send_message(self, attempt, extra_context=None):
         contact_detail = attempt.contact
-        email_address = contact_detail.value
+        recipient_email_address = contact_detail.value
 
         body_template = self.get_body_template(attempt)
         subject_template = self.get_subject_template(attempt)
@@ -33,37 +23,24 @@ class SESContact(ContactPlugin):
         message = body_template.render(attempt=attempt, **extra_context or {})
         subject = subject_template.render(attempt=attempt, **extra_context or {})
 
-        conn = boto.ses.connect_to_region()
-        resp = conn.send_email(
-             source=self.get_sender_address(attempt),
-             subject=subject,
-             body=body,
-             to_addresses=[email_address],
-             # bcc_addresses=people_who_requested_contact, ?
-             reply_addresses=self.get_reply_addreses(attempt)
-             )
+        api = sendgrid.Sendgrid(
+            settings.SENDGRID_USERNAME,
+            settings.SENDGRID_PASSWORD,
+            secure=True)
 
-        request_id = resp['SendEmailResponse']['ResponseMetadata']['RequestID']
-        message_id = resp['SendEmailResult']['MessageId']
-        obj = SentEmailStatus.create(
-            attempt=attempt, request_id=request_id, message_id=message_id)
+        message = sendgrid.Message(
+            self.get_sender(attempt),
+            subject,
+            message)
+        message.add_tp(recipient_email_address)
+
+        response = api.web.send(message)
+        message_id = response['MessageID']
+        SendgridDeliveryMeta.create(attempt=attempt, message_id=message_id)
 
     def check_message_status(self, attempt):
-        '''To do this, we need to set up an email address to recieve bounce
-        requests and a job to process the messages in the mail box and update
-        their SESEmailStatus.
-        '''
-        obj = SESEmailStatus.get(attempt=attempt)
-        # maybe return some JSON? print("Checking up on %s" % (obj.remote_id))
-
-    def get_body_template(self, attempt):
-        raise NotImplementedError()
-
-    def get_subject_template(self, attempt):
-        raise NotImplementedError()
-
-    def get_sender_address(self, attempt):
-        raise NotImplementedError()
-
-    def get_reply_addreses(self, attempt):
-        raise NotImplementedError()
+        obj = SendgridDeliveryMetad.get(attempt=attempt)
+        response = pystmark.get_bounces(settings.POSTMARK_API_KEY)
+        for bounce in response.json()['Bounces']:
+            if bounce['MessageID'] == obj.message_id:
+                return EmailDeliveryStatus(bounce['Type'], bounce)
