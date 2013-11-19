@@ -31,11 +31,13 @@ class ContactDetail(models.Model):
 
 
 class Sender(models.Model):
-    """ a user (anonymous or not) that can send messages """
+    """ a user that can send messages """
     id = models.CharField(max_length=36, primary_key=True)
-    user = models.OneToOneField(User, null=True)
-    verified = models.BooleanField(default=False)
-    # tie to a session id?
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    email_expires_at = models.DateTimeField()
+
 
 MESSAGE_TYPES = (
     ('public', 'Public'),
@@ -77,7 +79,7 @@ class Message(models.Model):
 
 class MessageRecipient(models.Model):
     """ allows association of a status with a message & recipient """
-    message = models.ForeignKey(Message)  # , related_name='recipients')
+    message = models.ForeignKey(Message)
     recipient = models.ForeignKey(Person, related_name='messages')
     status = models.CharField(max_length=10, choices=MESSAGE_STATUSES)
 

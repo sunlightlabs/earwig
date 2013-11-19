@@ -1,4 +1,4 @@
-from contact.plugins import ContactPlugin
+from plugins import ContactPlugin
 from django.core.management.base import BaseCommand, CommandError
 
 import importlib
@@ -27,7 +27,11 @@ def create_test_attempt(value, type_):
             value=value, note='Manual test', blacklisted=False)
 
 
-    send = Sender.objects.create(id=uuid.uuid4())
+    send = Sender.objects.create(
+        id=uuid.uuid4(),
+        email="example@example.com",
+        email_expires_at=datetime.datetime.now(pytz.timezone('US/Eastern')),
+    )
 
     message = Message(type=type_,
                       sender=send,
@@ -47,7 +51,7 @@ class Command(BaseCommand):
     help = 'Send a test message'
 
     def handle(self, plugin_id, type_, value, *args, **options):
-        module_name = "contact.plugins.%s.earwig" % (plugin_id)
+        module_name = "plugins.%s.earwig" % (plugin_id)
         mod = importlib.import_module(module_name)
         name = "%sContact" % (plugin_id.title())
 

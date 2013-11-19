@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.timezone import utc
 import datetime as dt
 import pytz
 
@@ -12,8 +13,8 @@ from contact.models import (
     DeliveryAttempt,
 )
 
-from contact.plugins.fnord.earwig import FnordContact
-from contact.plugins.fnord.models import FnordStatus
+from .earwig import FnordContact
+from .models import FnordStatus
 
 from django.db import IntegrityError
 
@@ -23,7 +24,7 @@ def create_test_attempt():
                           name='Paul Tagliamonte', photo_url="")
     cd = ContactDetail.objects.create(person=pt, type='fnord',
             value='@fnord', note='Fnord!', blacklisted=False)
-    send = Sender.objects.create()
+    send = Sender.objects.create(email_expires_at=dt.datetime(2020, 1, 1, tzinfo=utc))
     message = Message(type='fnord', sender=send,
                       subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
