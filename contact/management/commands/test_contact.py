@@ -47,7 +47,7 @@ class Command(BaseCommand):
     help = 'Send a test message'
 
     def handle(self, plugin_id, type_, value, *args, **options):
-        module_name = "contact.plugins.%s.earwig" % (plugin_id)
+        module_name = "plugins.%s.earwig" % (plugin_id)
         mod = importlib.import_module(module_name)
         name = "%sContact" % (plugin_id.title())
 
