@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from contact.errors import InvalidContactType, InvalidContactValue
+from ..utils import template_to_string
 from .. import ContactPlugin
 from .models import TwilioStatus
 
@@ -35,7 +36,7 @@ class TwilioContact(ContactPlugin):
             sent=False
         )
 
-        body = "This will be from a template"
+        body = template_to_string('default', 'sms', attempt)
 
         try:
             self.client.messages.create(to=cd.value,

@@ -27,7 +27,11 @@ def create_test_attempt(value, type_):
             value=value, note='Manual test', blacklisted=False)
 
 
-    send = Sender.objects.create(id=uuid.uuid4())
+    send = Sender.objects.create(
+        id=uuid.uuid4(),
+        email="example@example.com",
+        email_expires_at=datetime.datetime.now(pytz.timezone('US/Eastern')),
+    )
 
     message = Message(type=type_,
                       sender=send,
