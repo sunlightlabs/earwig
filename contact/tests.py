@@ -1,4 +1,5 @@
 import json
+import datetime
 from django.test import TestCase, Client
 from .models import Person, Sender, Message, MessageRecipient
 from .views import _msg_to_json
@@ -13,7 +14,7 @@ class TestCreateMessage(TestCase):
                                              name='Gerald Fnord')
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
-        self.sender = Sender.objects.create(id='1-2-3-4')
+        self.sender = Sender.objects.create(id='1-2-3-4', email_expires_at=datetime.datetime.now())
 
     def test_get_message(self):
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
@@ -97,7 +98,7 @@ class TestGetMessage(TestCase):
                                              name='Gerald Fnord')
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
-        self.sender = Sender.objects.create(id='1-2-3-4')
+        self.sender = Sender.objects.create(id='1-2-3-4', email_expires_at=datetime.datetime.now())
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
                                      message='hello everyone')
         MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')
