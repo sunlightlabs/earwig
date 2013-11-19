@@ -2,6 +2,7 @@ import uuid
 
 import boto.ses
 
+from ..utils import template_to_string
 from .models import SESEmailStatus
 from .. import ContactPlugin
 
