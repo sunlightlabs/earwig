@@ -1,4 +1,4 @@
-from contact.plugins import ContactPlugin
+from plugins import ContactPlugin
 from django.core.management.base import BaseCommand, CommandError
 
 import importlib
