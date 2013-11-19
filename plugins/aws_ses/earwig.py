@@ -28,11 +28,8 @@ class SESContact(ContactPlugin):
         contact_detail = attempt.contact
         email_address = contact_detail.value
 
-        body_template = self.get_body_template(attempt)
-        subject_template = self.get_subject_template(attempt)
-
-        message = body_template.render(attempt=attempt, **extra_context or {})
-        subject = subject_template.render(attempt=attempt, **extra_context or {})
+        message = body_template_to_string('default', 'email', attempt)
+        subject = subject_template_to_string('default', 'email', attempt)
 
         conn = boto.ses.connect_to_region()
         resp = conn.send_email(
