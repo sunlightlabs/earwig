@@ -2,6 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Sender(models.Model):
+    """ a user that can send messages """
+    id = models.CharField(max_length=64, primary_key=True)
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    email_expires_at = models.DateTimeField()
+
+
 CONTACT_TYPES = (
     ('voice', 'Voice Phone'),
     ('sms', 'SMS'),
@@ -28,15 +37,6 @@ class ContactDetail(models.Model):
     value = models.CharField(max_length=100)
     note = models.CharField(max_length=100)
     blacklisted = models.BooleanField(default=False)
-
-
-class Sender(models.Model):
-    """ a user that can send messages """
-    id = models.CharField(max_length=36, primary_key=True)
-    name = models.CharField(max_length=200)
-    email = models.EmailField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    email_expires_at = models.DateTimeField()
 
 
 MESSAGE_TYPES = (
