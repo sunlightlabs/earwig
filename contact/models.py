@@ -98,11 +98,12 @@ class DeliveryAttempt(models.Model):
 
     def _unsubscribe_token(self):
         m = hashlib.md5()
-        m.update(self.id)
+        m.update(str(self.id))
         m.update(settings.SECRET_KEY)  # THIS IS CRITICAL TO GET RIGHT
         return m.hexdigest()
 
     @property
     def unsubscribe_url(self):
-        r = reverse('unsubscribe', args=(
-            str(self.id), str(self._unsubscribe_token())))
+        return "%s%s" % (settings.EARWIG_PUBLIC_LINK_ROOT,
+                         reverse('unsubscribe', args=(
+                             str(self.id), str(self._unsubscribe_token()))))

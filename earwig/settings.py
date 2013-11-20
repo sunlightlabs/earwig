@@ -1,6 +1,9 @@
 import os
 # Django settings for earwig project.
 
+
+EARWIG_PUBLIC_LINK_ROOT = "http://localhost:8000"  # XXX: Change this for prod.
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
