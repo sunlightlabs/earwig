@@ -1,3 +1,7 @@
 This is the future unsubscribe view.
 
+{% if valid %}
 If you can see this, the secret token was valid.
+{% else %}
+If you can see this, the secret token was <b>INVALID</b>
+{% endif %}

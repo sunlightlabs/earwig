@@ -129,6 +129,10 @@ def unsubscribe(request, transaction, secret):
     if attempt.verify_token(secret):
         return render_to_response('contact/unsubscribe.html', {
             "attempt": attempt,
+            "valid": True,
         })
 
-    return HttpResponseNotFound("Invalid secret.")
+    return render_to_response('contact/unsubscribe.html', {
+        "attempt": attempt,
+        "valid": False,
+    })
