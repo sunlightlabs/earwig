@@ -8,5 +8,5 @@ urlpatterns = patterns('',
         name='get_message'),
 
     # other views
-    url(r'^unsubscribe/(?P<transaction>.*)/(?P<secret>.*)/$', 'contact.views.unsubscribe', name='unsubscribe'),
+    url(r'^flag/(?P<transaction>.*)/(?P<secret>.*)/$', 'contact.views.flag', name='flag'),
 )

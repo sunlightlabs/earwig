@@ -11,7 +11,3 @@ class ContactPlugin(object):
     def check_message_status(self, attempt):
         """ """
         raise NotImplementedError()
-
-    def cancel_message(self, attempt):
-        """ """
-        raise CantCancelMessage("Can't cancel the message")
