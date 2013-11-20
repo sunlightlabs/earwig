@@ -119,9 +119,7 @@ def get_message(request, message_id):
         return HttpResponseNotFound('no such object')
 
 
-# The following are public-use endpoints to allow for one-click
-# unsubscribe, etc.
-def unsubscribe(request, transaction, secret):
+def flag(request, transaction, secret):
     try:
         attempt = DeliveryAttempt.objects.get(id=int(transaction))
     except DeliveryAttempt.DoesNotExist:
@@ -130,7 +128,7 @@ def unsubscribe(request, transaction, secret):
     if attempt.verify_token(secret):
         # Do the blacklisting of this person off the CD
         if attempt.contact.blacklisted:
-            return render_to_response('contact/unsubscribe.html', {
+            return render_to_response('contact/flag.html', {
                 "attempt": attempt,
                 "valid_token": True,
                 "blacklisted": False,
@@ -140,13 +138,13 @@ def unsubscribe(request, transaction, secret):
         c.blacklisted = True
         c.save()
 
-        return render_to_response('contact/unsubscribe.html', {
+        return render_to_response('contact/flag.html', {
             "attempt": attempt,
             "valid_token": True,
             "blacklisted": True,
         })
 
-    return render_to_response('contact/unsubscribe.html', {
+    return render_to_response('contact/flag.html', {
         "attempt": attempt,
         "valid_token": False,
         "blacklisted": False,
