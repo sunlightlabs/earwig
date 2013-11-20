@@ -78,8 +78,6 @@ class TestCreateSender(TestCase):
                 datetime.timedelta(days=6, hours=23))
 
 
-
-
 class TestCreateMessage(TestCase):
 
     def setUp(self):
@@ -87,7 +85,8 @@ class TestCreateMessage(TestCase):
                                              name='Gerald Fnord')
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
-        self.sender = Sender.objects.create(id='1'*64, email_expires_at=EXPIRY)
+        self.sender = Sender.objects.create(id='1'*64, email="test@example.com",
+                                            email_expires_at=EXPIRY)
 
     def test_get_message(self):
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
@@ -122,6 +121,27 @@ class TestCreateMessage(TestCase):
             assert response.status_code == 400
             # ensure fieldname is mentioned in response
             assert field in response.content
+
+    def test_sender_payload_good(self):
+        c = Client()
+        Sender.objects.all().delete()
+        msg = GOOD_MESSAGE.copy()
+        msg['sender'] = '{"email": "phil@example.com", "name": "Phil", "ttl": 7}'
+        resp1 = c.post('/message/', msg)
+        msg['sender'] = '{"email": "phil@example.com", "name": "Phillip", "ttl": 7}'
+        resp2 = c.post('/message/', msg)
+        assert resp1.status_code == 200
+        assert resp2.status_code == 200
+        # creates one and only one
+        assert Sender.objects.count() == 1
+
+    def test_sender_payload_bad(self):
+        c = Client()
+        msg = GOOD_MESSAGE.copy()
+        msg['sender'] = '{"junk": "stuff"}'
+        resp = c.post('/message/', msg)
+        assert resp.status_code == 400
+        assert 'missing field' in resp.content
 
     def test_bad_sender(self):
         """ ensure that bad senders are flagged """
