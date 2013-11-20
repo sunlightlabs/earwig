@@ -6,8 +6,18 @@ from .models import Person, Sender, Message, MessageRecipient
 from .views import _msg_to_json
 
 GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message',
-                'sender': '1-2-3-4', 'recipients': ['ocd-person/1']}
+                'sender': '1'*64, 'recipients': ['ocd-person/1']}
 EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
+
+
+class TestCreateSender(TestCase):
+
+    def test_basic_sender(self):
+        c = Client()
+        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
+        data = json.loads(resp.content)
+        assert data['email'] == 'test@example.com'
+        # TODO: more tests here
 
 
 class TestCreateMessage(TestCase):
@@ -17,7 +27,7 @@ class TestCreateMessage(TestCase):
                                              name='Gerald Fnord')
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
-        self.sender = Sender.objects.create(id='1-2-3-4', email_expires_at=EXPIRY)
+        self.sender = Sender.objects.create(id='1'*64, email_expires_at=EXPIRY)
 
     def test_get_message(self):
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
@@ -57,7 +67,7 @@ class TestCreateMessage(TestCase):
         """ ensure that bad senders are flagged """
         c = Client()
         msg = GOOD_MESSAGE.copy()
-        msg['sender'] = 'not-even-a-uuid'
+        msg['sender'] = '9'*64      # bad id
         response = c.post('/message/', msg)
         assert response.status_code == 400
         assert 'sender' in response.content
@@ -101,7 +111,7 @@ class TestGetMessage(TestCase):
                                              name='Gerald Fnord')
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
-        self.sender = Sender.objects.create(id='1-2-3-4', email_expires_at=EXPIRY)
+        self.sender = Sender.objects.create(id='1'*64, email_expires_at=EXPIRY)
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
                                      message='hello everyone')
         MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')

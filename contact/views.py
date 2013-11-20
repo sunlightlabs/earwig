@@ -1,9 +1,16 @@
+from django.conf import settings
+from django.utils.timezone import utc
 from django.views.decorators.http import require_GET, require_POST
 from django.http import (HttpResponseBadRequest, HttpResponse,
                          HttpResponseNotFound)
 
 from .models import Sender, Person, Message, MessageRecipient
+
+import re
 import json
+import hashlib
+import datetime
+
 
 
 def _msg_to_json(msg):
@@ -14,6 +21,50 @@ def _msg_to_json(msg):
 
     return json.dumps(data)
 
+def _sender_to_json(sender):
+    data = {'id': sender.id, 'name': sender.name, 'email': sender.email,
+            'created_at': sender.created_at.isoformat(),
+            'email_expires_at': sender.email_expires_at.isoformat()}
+    return json.dumps(data)
+
+def _get_or_create_sender(email, name, ttl):
+    uid = hashlib.sha256(email + settings.EARWIG_SENDER_SALT).hexdigest()
+    # ttl has to be at least one day
+    ttl = max(1, ttl)
+    expiry = datetime.datetime.utcnow().replace(tzinfo=utc) + datetime.timedelta(days=ttl)
+    try:
+        # look up sender and possibly update
+        sender = Sender.objects.get(pk=uid)
+        updated = False
+        if sender.email != email:
+            sender.email = email
+            updated = True
+        if sender.name != name:
+            sender.name = name
+            updated = True
+        if expiry > sender.email_expires_at:
+            sender.email_expires_at = expiry
+            updated = True
+        if updated:
+            sender.save()
+    except Sender.DoesNotExist:
+        # create a new sender if uid hasn't been seen before
+        sender = Sender.objects.create(id=uid, email=email, name=name,
+                                       email_expires_at=datetime.datetime.utcnow())
+    return sender
+
+
+@require_POST
+def create_sender(request):
+    try:
+        email = request.POST['email']
+        name = request.POST['name']
+        ttl = int(request.POST['ttl'])
+    except KeyError as e:
+        return HttpResponseBadRequest('missing parameter: {0}'.format(e))
+    sender = _get_or_create_sender(email, name, ttl)
+    return HttpResponse(_sender_to_json(sender))
+
 
 @require_POST
 def create_message(request):
@@ -21,15 +72,25 @@ def create_message(request):
         msg_type = request.POST['type']
         subject = request.POST['subject']
         message = request.POST['message']
-        sender_uid = request.POST['sender']
+        sender_payload = request.POST['sender']
     except KeyError as e:
         return HttpResponseBadRequest('missing parameter: {0}'.format(e))
 
-    # look up sender
-    try:
-        sender = Sender.objects.get(pk=sender_uid)
-    except Sender.DoesNotExist:
-        return HttpResponseBadRequest('invalid sender')
+    if re.match('[0-9a-f]{64}', sender_payload):
+        # look up sender if it is a sha256
+        try:
+            sender = Sender.objects.get(pk=sender_payload)
+        except Sender.DoesNotExist:
+            return HttpResponseBadRequest('invalid sender')
+    else:
+        # otherwise it is a json payload
+        # {'email': 'j@t.com', 'name': 'j', 'ttl': 4}
+        sender_data = json.loads(sender_payload)
+        try:
+            sender = _get_or_create_sender(sender_data['email'], sender_data['name'],
+                                           sender_data['ttl'])
+        except KeyError as e:
+            return HttpResponseBadRequest('sender payload missing field: {0}'.format(e))
 
     # add recipients by ocd_id
     recipients = []
