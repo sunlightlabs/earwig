@@ -1,19 +1,25 @@
 {% extends "contact/base.html" %}
 
 {% block content %}
-This is the future unsubscribe view.
+<h1>Flag the communication you've received</h1>
 
 {% if valid_token %}
-If you can see this, the secret token was valid.<br />
-<br />
-{% if blacklisted %}
-    So, we've blacklisted you.<br />
+
+We're really quite sorry about this, could you please let us know what
+in particular is the problem with the mail, so we can work to fix it?
+
+<ul>
+    <li><input type="radio" name="flag_type" value="offensive">Message was offensive</input></li>
+    <li><input type="radio" name="flag_type" value="not-rep">I'm not an elected representive</input></li>
+    <li><input type="radio" name="flag_type" value="blacklist-contact-detail">Please don't use this number</input></li>
+    <li><input type="radio" name="flag_type" value="blacklist-person">Please don't contact me</input></li>
+</ul>
+<textarea rows="10" cols="50" name="text_info" ></textarea><br />
+<input type="submit" name="submit" value="submit" />
+
 {% else %}
-    You were <b>already blacklisted</b>, no need to visit this link again.
-    <br />
-{% endif %}
-<br />
-{% else %}
-If you can see this, the secret token was <b>INVALID</b><br />
+Very sorry about that, it appears that the token that was passed to us
+was invalid. Something must have got mixed up. Please email us so we
+can properly fix this manually.
 {% endif %}
 {% endblock %}
