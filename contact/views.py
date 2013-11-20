@@ -1,7 +1,10 @@
-import json
 from django.views.decorators.http import require_GET, require_POST
-from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
+from django.http import (HttpResponseBadRequest, HttpResponse,
+                         HttpResponseNotFound)
+
 from .models import Sender, Person, Message, MessageRecipient
+import json
+
 
 def _msg_to_json(msg):
     data = {'type': msg.type, 'sender': msg.sender_id, 'subject': msg.subject,
@@ -55,6 +58,6 @@ def get_message(request, message_id):
 
 # The following are public-use endpoints to allow for one-click
 # unsubscribe, etc.
-def unsubscribe(request, secret):
+def unsubscribe(request, transaction, secret):
     print secret
     return HttpResponseNotFound('no such object')

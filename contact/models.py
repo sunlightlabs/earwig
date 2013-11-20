@@ -1,5 +1,9 @@
+import hashlib
+
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.conf import settings
 
 
 CONTACT_TYPES = (
@@ -91,3 +95,14 @@ class DeliveryAttempt(models.Model):
     status = models.CharField(max_length=10, choices=DELIVERY_STATUSES, default='scheduled')
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
+
+    def _unsubscribe_token(self):
+        m = hashlib.md5()
+        m.update(self.id)
+        m.update(settings.SECRET_KEY)  # THIS IS CRITICAL TO GET RIGHT
+        return m.hexdigest()
+
+    @property
+    def unsubscribe_url(self):
+        r = reverse('unsubscribe', args=(
+            str(self.id), str(self._unsubscribe_token())))
