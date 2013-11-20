@@ -1,10 +1,11 @@
-from django.conf import settings
-from django.utils.timezone import utc
 from django.views.decorators.http import require_GET, require_POST
 from django.http import (HttpResponseBadRequest, HttpResponse,
                          HttpResponseNotFound)
+from django.shortcuts import render_to_response
+from django.utils.timezone import utc
+from django.conf import settings
 
-from .models import Sender, Person, Message, MessageRecipient
+from .models import Sender, Person, Message, MessageRecipient, DeliveryAttempt
 
 import re
 import json
@@ -120,5 +121,14 @@ def get_message(request, message_id):
 # The following are public-use endpoints to allow for one-click
 # unsubscribe, etc.
 def unsubscribe(request, transaction, secret):
-    print secret
-    return HttpResponseNotFound('no such object')
+    try:
+        attempt = DeliveryAttempt.objects.get(id=int(transaction))
+    except DeliveryAttempt.DoesNotExist:
+        return HttpResponseNotFound(str(attempt))
+
+    if attempt.verify_token(secret):
+        return render_to_response('contact/unsubscribe.html', {
+            "attempt": attempt,
+        })
+
+    return HttpResponseNotFound("Invalid secret.")

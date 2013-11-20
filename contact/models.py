@@ -102,6 +102,9 @@ class DeliveryAttempt(models.Model):
         m.update(settings.SECRET_KEY)  # THIS IS CRITICAL TO GET RIGHT
         return m.hexdigest()
 
+    def verify_token(self, token):
+        return token == self._unsubscribe_token()
+
     @property
     def unsubscribe_url(self):
         return "%s%s" % (settings.EARWIG_PUBLIC_LINK_ROOT,
