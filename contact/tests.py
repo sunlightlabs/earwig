@@ -88,7 +88,8 @@ class TestCreateMessage(TestCase):
         self.sender = Sender.objects.create(id='1'*64, email="test@example.com",
                                             email_expires_at=EXPIRY)
 
-    def test_get_message(self):
+    def test_msg_to_json(self):
+        """ test that msg to json works """
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
                                      message='hello everyone')
         MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')
@@ -123,6 +124,7 @@ class TestCreateMessage(TestCase):
             assert field in response.content
 
     def test_sender_payload_good(self):
+        """ ensure that a sender payload is created and used properly """
         c = Client()
         Sender.objects.all().delete()
         msg = GOOD_MESSAGE.copy()
@@ -136,12 +138,21 @@ class TestCreateMessage(TestCase):
         assert Sender.objects.count() == 1
 
     def test_sender_payload_bad(self):
+        """ 400 returned when payload isn't complete or invalid JSON """
         c = Client()
         msg = GOOD_MESSAGE.copy()
+
+        # incomplete
         msg['sender'] = '{"junk": "stuff"}'
         resp = c.post('/message/', msg)
         assert resp.status_code == 400
         assert 'missing field' in resp.content
+
+        # non-JSON
+        msg['sender'] = '~not even json~'
+        resp = c.post('/message/', msg)
+        assert resp.status_code == 400
+        assert 'invalid JSON' in resp.content
 
     def test_bad_sender(self):
         """ ensure that bad senders are flagged """
@@ -153,6 +164,7 @@ class TestCreateMessage(TestCase):
         assert 'sender' in response.content
 
     def test_bad_recipient(self):
+        """ invalid recipients should raise an error """
         c = Client()
         msg = GOOD_MESSAGE.copy()
         msg['recipients'] = ['ocd-person/NaN']
@@ -175,6 +187,7 @@ class TestCreateMessage(TestCase):
         assert data['message'] == GOOD_MESSAGE['message']
 
     def test_multi_recipient(self):
+        """ multiple recipients should work """
         c = Client()
         msg = GOOD_MESSAGE.copy()
         msg['recipients'] = ['ocd-person/1', 'ocd-person/2']
@@ -198,6 +211,7 @@ class TestGetMessage(TestCase):
         MessageRecipient.objects.create(message=msg, recipient=self.person2, status='expired')
 
     def test_get_message(self):
+        """ basic get message """
         c = Client()
         resp = c.get('/message/1/')
         data = json.loads(resp.content)
@@ -213,6 +227,7 @@ class TestGetMessage(TestCase):
         assert data['recipients'][1]['recipient_id'] == self.person2.id
 
     def test_get_message_404(self):
+        """ make-believe message """
         c = Client()
         resp = c.get('/message/33/')
         assert resp.status_code == 404

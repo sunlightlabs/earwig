@@ -85,12 +85,14 @@ def create_message(request):
     else:
         # otherwise it is a json payload
         # {'email': 'j@t.com', 'name': 'j', 'ttl': 4}
-        sender_data = json.loads(sender_payload)
         try:
+            sender_data = json.loads(sender_payload)
             sender = _get_or_create_sender(sender_data['email'], sender_data['name'],
                                            sender_data['ttl'])
         except KeyError as e:
             return HttpResponseBadRequest('sender payload missing field: {0}'.format(e))
+        except ValueError:
+            return HttpResponseBadRequest('invalid JSON')
 
     # add recipients by ocd_id
     recipients = []
