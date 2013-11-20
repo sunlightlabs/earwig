@@ -205,15 +205,15 @@ class TestGetMessage(TestCase):
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
         self.sender = Sender.objects.create(id='1'*64, email_expires_at=EXPIRY)
-        msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
-                                     message='hello everyone')
-        MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')
-        MessageRecipient.objects.create(message=msg, recipient=self.person2, status='expired')
+        self.msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
+                                          message='hello everyone')
+        MessageRecipient.objects.create(message=self.msg, recipient=self.person1, status='pending')
+        MessageRecipient.objects.create(message=self.msg, recipient=self.person2, status='expired')
 
     def test_get_message(self):
         """ basic get message """
         c = Client()
-        resp = c.get('/message/1/')
+        resp = c.get('/message/{0}/'.format(self.msg.id))
         data = json.loads(resp.content)
 
         assert data['message'] == 'hello everyone'
@@ -229,5 +229,5 @@ class TestGetMessage(TestCase):
     def test_get_message_404(self):
         """ make-believe message """
         c = Client()
-        resp = c.get('/message/33/')
+        resp = c.get('/message/11112222333344445555666677778888/')
         assert resp.status_code == 404

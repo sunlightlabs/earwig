@@ -1,9 +1,19 @@
+import uuid
 import hashlib
 import datetime
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
+
+def random_uuid():
+    return uuid.uuid4().get_hex()
+
+
+class Service(models.Model):
+    name = models.CharField(max_length=200)
+    contact = models.EmailField()
+    key = models.CharField(max_length=32, default=random_uuid)
 
 
 class Sender(models.Model):
@@ -74,6 +84,7 @@ DELIVERY_STATUSES = (
 
 class Message(models.Model):
     """ a message to one or more people """
+    id = models.CharField(max_length=32, default=random_uuid, primary_key=True)
     type = models.CharField(max_length=10, choices=MESSAGE_TYPES)
     sender = models.ForeignKey(Sender, related_name='messages')
     subject = models.CharField(max_length=100)
