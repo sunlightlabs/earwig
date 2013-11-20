@@ -10,7 +10,7 @@ class Sender(models.Model):
     """ a user that can send messages """
     id = models.CharField(max_length=64, primary_key=True)
     name = models.CharField(max_length=200)
-    email = models.EmailField()
+    email = models.EmailField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     email_expires_at = models.DateTimeField()
 

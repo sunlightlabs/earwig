@@ -50,8 +50,7 @@ def _get_or_create_sender(email, name, ttl):
             sender.save()
     except Sender.DoesNotExist:
         # create a new sender if uid hasn't been seen before
-        sender = Sender.objects.create(id=uid, email=email, name=name,
-                                       email_expires_at=datetime.datetime.utcnow())
+        sender = Sender.objects.create(id=uid, email=email, name=name, email_expires_at=expiry)
     return sender
 
 
