@@ -111,3 +111,10 @@ def get_message(request, message_id):
         return HttpResponse(_msg_to_json(msg))
     except Message.DoesNotExist:
         return HttpResponseNotFound('no such object')
+
+
+# The following are public-use endpoints to allow for one-click
+# unsubscribe, etc.
+def unsubscribe(request, secret):
+    print secret
+    return HttpResponseNotFound('no such object')
