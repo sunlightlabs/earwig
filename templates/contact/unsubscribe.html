@@ -1,7 +1,15 @@
 This is the future unsubscribe view.
 
-{% if valid %}
+{% if valid_token %}
 If you can see this, the secret token was valid.
+
+{% if blacklisted %}
+    So, we've blacklisted you.
+{% else %}
+    So, we've <b>NOT</b> blacklisted you, since you were already
+    blacklisted.
+{% endif %}
+
 {% else %}
 If you can see this, the secret token was <b>INVALID</b>
 {% endif %}
