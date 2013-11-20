@@ -1,15 +1,19 @@
+{% extends "contact/base.html" %}
+
+{% block content %}
 This is the future unsubscribe view.
 
 {% if valid_token %}
-If you can see this, the secret token was valid.
-
+If you can see this, the secret token was valid.<br />
+<br />
 {% if blacklisted %}
-    So, we've blacklisted you.
+    So, we've blacklisted you.<br />
 {% else %}
-    So, we've <b>NOT</b> blacklisted you, since you were already
-    blacklisted.
+    You were <b>already blacklisted</b>, no need to visit this link again.
+    <br />
 {% endif %}
-
+<br />
 {% else %}
-If you can see this, the secret token was <b>INVALID</b>
+If you can see this, the secret token was <b>INVALID</b><br />
 {% endif %}
+{% endblock %}
