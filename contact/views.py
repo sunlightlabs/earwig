@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response
 from django.utils.timezone import utc
 from django.conf import settings
 
-from .models import Sender, Person, Message, MessageRecipient, DeliveryAttempt
+from .models import Application, Sender, Person, Message, MessageRecipient, DeliveryAttempt
 
 import re
 import json
@@ -73,8 +73,14 @@ def create_message(request):
         subject = request.POST['subject']
         message = request.POST['message']
         sender_payload = request.POST['sender']
+        app_key = request.POST['key']
     except KeyError as e:
         return HttpResponseBadRequest('missing parameter: {0}'.format(e))
+
+    try:
+        app = Application.objects.get(key=app_key)
+    except Application.DoesNotExist:
+        return HttpResponseBadRequest('invalid application key')
 
     if re.match('[0-9a-f]{64}', sender_payload):
         # look up sender if it is a sha256
@@ -103,7 +109,8 @@ def create_message(request):
             return HttpResponseBadRequest('invalid recipient: {0}'.format(recip_id))
 
     # create message and recipient objects
-    msg = Message.objects.create(type=msg_type, sender=sender, subject=subject, message=message)
+    msg = Message.objects.create(type=msg_type, sender=sender, application=app, subject=subject,
+                                 message=message)
     for recip in recipients:
         MessageRecipient.objects.create(message=msg, recipient=recip, status='pending')
 

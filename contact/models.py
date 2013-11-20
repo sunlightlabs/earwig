@@ -6,14 +6,17 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-def random_uuid():
+def _random_uuid():
     return uuid.uuid4().get_hex()
 
 
-class Service(models.Model):
+class Application(models.Model):
+    """ a service that makes use of the contact API """
     name = models.CharField(max_length=200)
     contact = models.EmailField()
-    key = models.CharField(max_length=32, default=random_uuid)
+    key = models.CharField(max_length=32, default=_random_uuid)
+    template_set = models.CharField(max_length=100)
+    active = models.BooleanField(default=True)
 
 
 class Sender(models.Model):
@@ -84,9 +87,10 @@ DELIVERY_STATUSES = (
 
 class Message(models.Model):
     """ a message to one or more people """
-    id = models.CharField(max_length=32, default=random_uuid, primary_key=True)
+    id = models.CharField(max_length=32, default=_random_uuid, primary_key=True)
     type = models.CharField(max_length=10, choices=MESSAGE_TYPES)
     sender = models.ForeignKey(Sender, related_name='messages')
+    application = models.ForeignKey(Application, related_name='messages')
     subject = models.CharField(max_length=100)
     message = models.TextField()
     recipients = models.ManyToManyField(Person, through='MessageRecipient')

@@ -2,11 +2,9 @@ import json
 import datetime
 from django.test import TestCase, Client
 from django.utils.timezone import utc
-from .models import Person, Sender, Message, MessageRecipient
+from .models import Person, Sender, Message, MessageRecipient, Application
 from .views import _msg_to_json
 
-GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message',
-                'sender': '1'*64, 'recipients': ['ocd-person/1']}
 EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
 ISOFORMAT = '%Y-%m-%dT%H:%M:%S.%f+00:00'
 
@@ -87,11 +85,16 @@ class TestCreateMessage(TestCase):
                                              name='Rob Fnord')
         self.sender = Sender.objects.create(id='1'*64, email="test@example.com",
                                             email_expires_at=EXPIRY)
+        self.application = Application.objects.create(name='test', contact='test@example.com',
+                                                      template_set='default', active=True)
+        self.GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message',
+                             'sender': '1'*64, 'recipients': ['ocd-person/1'],
+                             'key': self.application.key}
 
     def test_msg_to_json(self):
         """ test that msg to json works """
         msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
-                                     message='hello everyone')
+                                     message='hello everyone', application=self.application)
         MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')
         MessageRecipient.objects.create(message=msg, recipient=self.person2, status='expired')
 
@@ -112,7 +115,7 @@ class TestCreateMessage(TestCase):
         c = Client()
 
         for field in ('type', 'subject', 'message', 'sender'):
-            msg = GOOD_MESSAGE.copy()
+            msg = self.GOOD_MESSAGE.copy()
             # remove field
             msg.pop(field)
             # post to endpoint
@@ -127,7 +130,7 @@ class TestCreateMessage(TestCase):
         """ ensure that a sender payload is created and used properly """
         c = Client()
         Sender.objects.all().delete()
-        msg = GOOD_MESSAGE.copy()
+        msg = self.GOOD_MESSAGE.copy()
         msg['sender'] = '{"email": "phil@example.com", "name": "Phil", "ttl": 7}'
         resp1 = c.post('/message/', msg)
         msg['sender'] = '{"email": "phil@example.com", "name": "Phillip", "ttl": 7}'
@@ -140,7 +143,7 @@ class TestCreateMessage(TestCase):
     def test_sender_payload_bad(self):
         """ 400 returned when payload isn't complete or invalid JSON """
         c = Client()
-        msg = GOOD_MESSAGE.copy()
+        msg = self.GOOD_MESSAGE.copy()
 
         # incomplete
         msg['sender'] = '{"junk": "stuff"}'
@@ -154,10 +157,19 @@ class TestCreateMessage(TestCase):
         assert resp.status_code == 400
         assert 'invalid JSON' in resp.content
 
+    def test_bad_key(self):
+        """ ensure that bad API keys are flagged """
+        c = Client()
+        msg = self.GOOD_MESSAGE.copy()
+        msg['key'] = 'nonsense'
+        response = c.post('/message/', msg)
+        assert response.status_code == 400
+        assert 'key' in response.content
+
     def test_bad_sender(self):
         """ ensure that bad senders are flagged """
         c = Client()
-        msg = GOOD_MESSAGE.copy()
+        msg = self.GOOD_MESSAGE.copy()
         msg['sender'] = '9'*64      # bad id
         response = c.post('/message/', msg)
         assert response.status_code == 400
@@ -166,7 +178,7 @@ class TestCreateMessage(TestCase):
     def test_bad_recipient(self):
         """ invalid recipients should raise an error """
         c = Client()
-        msg = GOOD_MESSAGE.copy()
+        msg = self.GOOD_MESSAGE.copy()
         msg['recipients'] = ['ocd-person/NaN']
         response = c.post('/message/', msg)
         assert response.status_code == 400
@@ -175,21 +187,21 @@ class TestCreateMessage(TestCase):
     def test_ok_message(self):
         """ ensure that good messages return OK & create a Message object """
         c = Client()
-        response = c.post('/message/', GOOD_MESSAGE.copy())
+        response = c.post('/message/', self.GOOD_MESSAGE.copy())
         assert response.status_code == 200
         assert Message.objects.count() == 1
         assert MessageRecipient.objects.count() == 1
 
         # reconstitute message out of response
         data = json.loads(response.content)
-        assert data['type'] == GOOD_MESSAGE['type']
-        assert data['subject'] == GOOD_MESSAGE['subject']
-        assert data['message'] == GOOD_MESSAGE['message']
+        assert data['type'] == self.GOOD_MESSAGE['type']
+        assert data['subject'] == self.GOOD_MESSAGE['subject']
+        assert data['message'] == self.GOOD_MESSAGE['message']
 
     def test_multi_recipient(self):
         """ multiple recipients should work """
         c = Client()
-        msg = GOOD_MESSAGE.copy()
+        msg = self.GOOD_MESSAGE.copy()
         msg['recipients'] = ['ocd-person/1', 'ocd-person/2']
         response = c.post('/message/', msg)
         assert response.status_code == 200
@@ -205,8 +217,10 @@ class TestGetMessage(TestCase):
         self.person2 = Person.objects.create(ocd_id='ocd-person/2', title='Mayor',
                                              name='Rob Fnord')
         self.sender = Sender.objects.create(id='1'*64, email_expires_at=EXPIRY)
+        self.application = Application.objects.create(name='test', contact='test@example.com',
+                                                      template_set='default', active=True)
         self.msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
-                                          message='hello everyone')
+                                          message='hello everyone', application=self.application)
         MessageRecipient.objects.create(message=self.msg, recipient=self.person1, status='pending')
         MessageRecipient.objects.create(message=self.msg, recipient=self.person2, status='expired')
 
