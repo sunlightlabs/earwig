@@ -127,12 +127,26 @@ def unsubscribe(request, transaction, secret):
         return HttpResponseNotFound(str(attempt))
 
     if attempt.verify_token(secret):
+        # Do the blacklisting of this person off the CD
+        if attempt.contact.blacklisted:
+            return render_to_response('contact/unsubscribe.html', {
+                "attempt": attempt,
+                "valid_token": True,
+                "blacklisted": False,
+            })
+
+        c = attempt.contact
+        c.blacklisted = True
+        c.save()
+
         return render_to_response('contact/unsubscribe.html', {
             "attempt": attempt,
-            "valid": True,
+            "valid_token": True,
+            "blacklisted": True,
         })
 
     return render_to_response('contact/unsubscribe.html', {
         "attempt": attempt,
-        "valid": False,
+        "valid_token": False,
+        "blacklisted": False,
     })
