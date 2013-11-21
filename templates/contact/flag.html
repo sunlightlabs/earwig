@@ -8,14 +8,18 @@
 We're really quite sorry about this, could you please let us know what
 in particular is the problem with the mail, so we can work to fix it?
 
-<ul>
-    <li><input type="radio" name="flag_type" value="offensive">Message was offensive</input></li>
-    <li><input type="radio" name="flag_type" value="not-rep">I'm not an elected representive</input></li>
-    <li><input type="radio" name="flag_type" value="blacklist-contact-detail">Please don't use this number</input></li>
-    <li><input type="radio" name="flag_type" value="blacklist-person">Please don't contact me</input></li>
-</ul>
-<textarea rows="10" cols="50" name="text_info" ></textarea><br />
-<input type="submit" name="submit" value="submit" />
+<form method="post" action="" >
+    {% csrf_token %}
+    <ul>
+        <li><input type="radio" name="flag_type" value="offensive">Message was offensive</input></li>
+        <li><input type="radio" name="flag_type" value="not-rep">I'm not an elected representive</input></li>
+        <li><input type="radio" name="flag_type" value="blacklist-contact-detail">Please don't use this number</input></li>
+        <li><input type="radio" name="flag_type" value="blacklist-person">Please don't contact me</input></li>
+    </ul>
+    <textarea rows="10" cols="50" name="text_info" ></textarea><br />
+    <input type="submit" name="submit" value="submit" />
+    <input type="hidden" name="token" value="{{token}}" />
+</form>
 
 {% else %}
 Very sorry about that, it appears that the token that was passed to us

@@ -111,17 +111,33 @@ class DeliveryAttempt(models.Model):
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
 
-    def _unsubscribe_token(self):
+    def unsubscribe_token(self):
         m = hashlib.md5()
         m.update(str(self.id))
         m.update(settings.SECRET_KEY)  # THIS IS CRITICAL TO GET RIGHT
         return m.hexdigest()
 
     def verify_token(self, token):
-        return token == self._unsubscribe_token()
+        return token == self.unsubscribe_token()
 
     @property
     def unsubscribe_url(self):
         return "%s%s" % (settings.EARWIG_PUBLIC_LINK_ROOT,
                          reverse('flag', args=(
-                             str(self.id), str(self._unsubscribe_token()))))
+                             str(self.id), str(self.unsubscribe_token()))))
+
+
+
+FEEDBACK_TYPES = (
+    ('offensive', 'Offensive'),
+    ('wrong-person', "Wrong person"),
+    ('contact-detail-blacklist', "Bad method"),
+    ('unsubscribe', 'Unsubscribe'),
+)
+
+class ReceiverFeedback(models.Model):
+    """ Marks feedback from a user """
+    attempt = models.ForeignKey(DeliveryAttempt, related_name='feedback')
+    note = models.TextField()
+    date = models.DateTimeField()
+    feedback_type = models.CharField(max_length=64, choices=FEEDBACK_TYPES)  # Flag type.

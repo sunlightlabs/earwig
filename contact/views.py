@@ -1,7 +1,8 @@
 from django.views.decorators.http import require_GET, require_POST
 from django.http import (HttpResponseBadRequest, HttpResponse,
                          HttpResponseNotFound)
-from django.shortcuts import render_to_response
+from django.views.decorators.csrf import csrf_protect
+from django.shortcuts import render
 from django.utils.timezone import utc
 from django.conf import settings
 
@@ -135,8 +136,9 @@ def flag(request, transaction, secret):
     if attempt.verify_token(secret):
         # Do the blacklisting of this person off the CD
         if attempt.contact.blacklisted:
-            return render_to_response('contact/flag.html', {
+            return render(request, 'contact/flag.html', {
                 "attempt": attempt,
+                "token": secret,
                 "valid_token": True,
                 "blacklisted": False,
             })
@@ -145,14 +147,16 @@ def flag(request, transaction, secret):
         c.blacklisted = True
         c.save()
 
-        return render_to_response('contact/flag.html', {
+        return render(request, 'contact/flag.html', {
             "attempt": attempt,
+            "token": secret,
             "valid_token": True,
             "blacklisted": True,
         })
 
-    return render_to_response('contact/flag.html', {
+    return render(request, 'contact/flag.html', {
         "attempt": attempt,
+        "token": secret,
         "valid_token": False,
         "blacklisted": False,
     })
