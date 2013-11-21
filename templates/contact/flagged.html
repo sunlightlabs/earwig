@@ -1,0 +1,11 @@
+{% extends "contact/base.html" %}
+
+{% block content %}
+OK. We've made a note of that. Sorry again!
+
+Your message:<br />
+<br />
+Issue type: {{feedback.feedback_type}}.<br />
+<br />
+<pre>{{feedback.note}}</pre>
+{% endblock %}

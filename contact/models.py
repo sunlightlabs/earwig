@@ -135,6 +135,7 @@ FEEDBACK_TYPES = (
     ('unsubscribe', 'Unsubscribe'),
 )
 
+
 class ReceiverFeedback(models.Model):
     """ Marks feedback from a user """
     attempt = models.ForeignKey(DeliveryAttempt, related_name='feedback')

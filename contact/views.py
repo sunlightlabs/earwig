@@ -6,7 +6,8 @@ from django.shortcuts import render
 from django.utils.timezone import utc
 from django.conf import settings
 
-from .models import Application, Sender, Person, Message, MessageRecipient, DeliveryAttempt
+from .models import (Application, Sender, Person, Message, MessageRecipient,
+                     DeliveryAttempt, ReceiverFeedback)
 
 import re
 import json
@@ -127,6 +128,19 @@ def get_message(request, message_id):
         return HttpResponseNotFound('no such object')
 
 
+def handle_flag(request, transaction, secret, attempt):
+    token = request.POST['token']
+    flag_type = request.POST['flag_type']
+    text_info = request.POST['text_info']
+
+    fb = ReceiverFeedback(attempt=attempt, note=text_info,
+                         date=datetime.datetime.utcnow(),
+                         feedback_type=flag_type)
+    fb.save()
+
+    return render(request, 'contact/flagged.html', {"feedback": fb})
+
+
 def flag(request, transaction, secret):
     try:
         attempt = DeliveryAttempt.objects.get(id=int(transaction))
@@ -134,18 +148,9 @@ def flag(request, transaction, secret):
         return HttpResponseNotFound(str(attempt))
 
     if attempt.verify_token(secret):
-        # Do the blacklisting of this person off the CD
-        if attempt.contact.blacklisted:
-            return render(request, 'contact/flag.html', {
-                "attempt": attempt,
-                "token": secret,
-                "valid_token": True,
-                "blacklisted": False,
-            })
 
-        c = attempt.contact
-        c.blacklisted = True
-        c.save()
+        if request.method == "POST":
+            return handle_flag(request, transaction, secret, attempt)
 
         return render(request, 'contact/flag.html', {
             "attempt": attempt,
