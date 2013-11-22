@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.utils.timezone import utc
 from django.conf import settings
 
+from .forms import FlaggingForm
 from .models import (Application, Sender, Person, Message, MessageRecipient,
                      DeliveryAttempt, ReceiverFeedback)
 
@@ -128,40 +129,60 @@ def get_message(request, message_id):
         return HttpResponseNotFound('no such object')
 
 
-def handle_flag(request, transaction, secret, attempt):
-    token = request.POST['token']
-    flag_type = request.POST['flag_type']
-    text_info = request.POST['text_info']
-
-    fb = ReceiverFeedback(attempt=attempt, note=text_info,
-                         date=datetime.datetime.utcnow(),
-                         feedback_type=flag_type)
-    fb.save()
-
-    return render(request, 'contact/flagged.html', {"feedback": fb})
-
-
 def flag(request, transaction, secret):
     try:
         attempt = DeliveryAttempt.objects.get(id=int(transaction))
     except DeliveryAttempt.DoesNotExist:
         return HttpResponseNotFound(str(attempt))
 
+    if request.method == 'POST':
+        form = FlaggingForm(request.POST)
+        if form.is_valid():
+            feedback = ReceiverFeedback(
+                attempt=attempt,
+                note=form.cleaned_data['note'],
+                date=datetime.datetime.utcnow(),
+                feedback_type=form.cleaned_data['feedback_type'],
+            )
+            feedback.save()
+
+            return render(request, 'contact/flagged.html', {
+                "feedback": feedback,
+                'form': form,
+                "attempt": attempt,
+            })
+
+        if attempt.verify_token(secret):
+            return render(request, 'contact/flag.html', {
+                'form': form,
+                "attempt": attempt,
+                "token": secret,
+                "valid_token": True,
+            })
+        #else:
+        #    No need to handle it, we'll re-check down below with a new form.
+
+    form = FlaggingForm()
+
     if attempt.verify_token(secret):
-
-        if request.method == "POST":
-            return handle_flag(request, transaction, secret, attempt)
-
         return render(request, 'contact/flag.html', {
+            'form': form,
             "attempt": attempt,
             "token": secret,
             "valid_token": True,
-            "blacklisted": True,
         })
 
     return render(request, 'contact/flag.html', {
+        'form': form,
         "attempt": attempt,
         "token": secret,
         "valid_token": False,
-        "blacklisted": False,
     })
+
+
+#    return render(request, 'contact/flag.html', {
+#        "attempt": attempt,
+#        "token": secret,
+#        "valid_token": False,
+#        "blacklisted": False,
+#    })

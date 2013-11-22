@@ -1,6 +1,9 @@
 {% extends "contact/base.html" %}
 
 {% block content %}
+{% if feedback == None %}
+Hum, something went wrong. Please re-visit the link.
+{% else %}
 OK. We've made a note of that. Sorry again!
 
 Your message:<br />
@@ -8,4 +11,5 @@ Your message:<br />
 Issue type: {{feedback.feedback_type}}.<br />
 <br />
 <pre>{{feedback.note}}</pre>
+{% endif %}
 {% endblock %}
