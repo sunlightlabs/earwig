@@ -138,7 +138,8 @@ FEEDBACK_TYPES = (
 
 class ReceiverFeedback(models.Model):
     """ Marks feedback from a user """
-    attempt = models.ForeignKey(DeliveryAttempt, related_name='feedback')
+    attempt = models.ForeignKey(DeliveryAttempt, related_name='feedback',
+                                unique=True)
     note = models.TextField()
     date = models.DateTimeField()
     feedback_type = models.CharField(max_length=64, choices=FEEDBACK_TYPES)  # Flag type.

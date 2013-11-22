@@ -135,6 +135,14 @@ def flag(request, transaction, secret):
     except DeliveryAttempt.DoesNotExist:
         return HttpResponseNotFound(str(attempt))
 
+    try:
+        oldflag = attempt.feedback.get()
+        return render(request, 'contact/oldflagged.html', {
+            "oldflag": oldflag
+        })
+    except ReceiverFeedback.DoesNotExist:
+        pass  # This is expected.
+
     if request.method == 'POST':
         form = FlaggingForm(request.POST)
         if form.is_valid():
