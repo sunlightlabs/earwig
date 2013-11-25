@@ -16,3 +16,7 @@ class InvalidContactType(ContactError):
 
 class InvalidContactValue(ContactError):
     pass
+
+
+class Blacklisted(ContactError):
+    pass
