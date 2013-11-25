@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from contact.errors import InvalidContactType, InvalidContactValue
-from ..utils import template_to_string
+from ..utils import body_template_to_string, subject_template_to_string
 from .. import ContactPlugin
 from .models import TwilioStatus
 
@@ -36,11 +36,13 @@ class TwilioContact(ContactPlugin):
             sent=False
         )
 
-        body = template_to_string('default', 'sms', attempt)
+        body = body_template_to_string('default', 'sms', attempt)
+        subject = subject_template_to_string('default', 'sms', attempt)
 
         try:
             self.client.messages.create(to=cd.value,
                                         from_=from_number,
+                                        subject=subject,
                                         body=body)
             obj.sent = True
         except twilio.TwilioRestException as e:

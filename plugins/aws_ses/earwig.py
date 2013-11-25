@@ -2,9 +2,15 @@ import uuid
 
 import boto.ses
 
+<<<<<<< HEAD
 from ..utils import template_to_string
 from .models import SESDeliveryMeta
 from .. import EmailContactPlugin
+=======
+from ..utils import body_template_to_string, subject_template_to_string
+from .models import SESEmailStatus
+from .. import ContactPlugin
+>>>>>>> fd0edb7e78dddc1fe927534aa30d977618c59280
 
 
 class SESContact(EmailContactPlugin):
@@ -23,11 +29,8 @@ class SESContact(EmailContactPlugin):
         contact_detail = attempt.contact
         email_address = contact_detail.value
 
-        body_template = self.get_body_template(attempt)
-        subject_template = self.get_subject_template(attempt)
-
-        message = body_template.render(attempt=attempt, **extra_context or {})
-        subject = subject_template.render(attempt=attempt, **extra_context or {})
+        message = body_template_to_string('default', 'email', attempt)
+        subject = subject_template_to_string('default', 'email', attempt)
 
         conn = boto.ses.connect_to_region()
         resp = conn.send_email(

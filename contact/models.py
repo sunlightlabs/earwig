@@ -1,5 +1,31 @@
+import uuid
+import hashlib
+import datetime
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.conf import settings
+
+def _random_uuid():
+    return uuid.uuid4().get_hex()
+
+
+class Application(models.Model):
+    """ a service that makes use of the contact API """
+    name = models.CharField(max_length=200)
+    contact = models.EmailField()
+    key = models.CharField(max_length=32, default=_random_uuid)
+    template_set = models.CharField(max_length=100)
+    active = models.BooleanField(default=True)
+
+
+class Sender(models.Model):
+    """ a user that can send messages """
+    id = models.CharField(max_length=64, primary_key=True)
+    name = models.CharField(max_length=200)
+    email = models.EmailField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    email_expires_at = models.DateTimeField()
 
 
 CONTACT_TYPES = (
@@ -28,15 +54,6 @@ class ContactDetail(models.Model):
     value = models.CharField(max_length=100)
     note = models.CharField(max_length=100)
     blacklisted = models.BooleanField(default=False)
-
-
-class Sender(models.Model):
-    """ a user that can send messages """
-    id = models.CharField(max_length=36, primary_key=True)
-    name = models.CharField(max_length=200)
-    email = models.EmailField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    email_expires_at = models.DateTimeField()
 
 
 MESSAGE_TYPES = (
@@ -70,8 +87,10 @@ DELIVERY_STATUSES = (
 
 class Message(models.Model):
     """ a message to one or more people """
+    id = models.CharField(max_length=32, default=_random_uuid, primary_key=True)
     type = models.CharField(max_length=10, choices=MESSAGE_TYPES)
     sender = models.ForeignKey(Sender, related_name='messages')
+    application = models.ForeignKey(Application, related_name='messages')
     subject = models.CharField(max_length=100)
     message = models.TextField()
     recipients = models.ManyToManyField(Person, through='MessageRecipient')
@@ -91,3 +110,36 @@ class DeliveryAttempt(models.Model):
     status = models.CharField(max_length=10, choices=DELIVERY_STATUSES, default='scheduled')
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
+
+    def unsubscribe_token(self):
+        m = hashlib.md5()
+        m.update(str(self.id))
+        m.update(settings.SECRET_KEY)  # THIS IS CRITICAL TO GET RIGHT
+        return m.hexdigest()
+
+    def verify_token(self, token):
+        return token == self.unsubscribe_token()
+
+    @property
+    def unsubscribe_url(self):
+        return "%s%s" % (settings.EARWIG_PUBLIC_LINK_ROOT,
+                         reverse('flag', args=(
+                             str(self.id), str(self.unsubscribe_token()))))
+
+
+
+FEEDBACK_TYPES = (
+    ('offensive', 'Offensive'),
+    ('wrong-person', "Wrong person"),
+    ('contact-detail-blacklist', "Bad method"),
+    ('unsubscribe', 'Unsubscribe'),
+)
+
+
+class ReceiverFeedback(models.Model):
+    """ Marks feedback from a user """
+    attempt = models.ForeignKey(DeliveryAttempt, related_name='feedback',
+                                unique=True)
+    note = models.TextField()
+    date = models.DateTimeField()
+    feedback_type = models.CharField(max_length=64, choices=FEEDBACK_TYPES)  # Flag type.

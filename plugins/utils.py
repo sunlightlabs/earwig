@@ -2,11 +2,25 @@ from django.template.loader import get_template
 from django.template import Context
 
 
-def template_to_string(template_set, module, attempt):
+def body_template_to_string(template_set, module, attempt):
     """
     """
-    path = "plugins/{set}/{module}".format(
+    path = "plugins/{set}/{module}.body".format(
         set=template_set,
         module=module
     )
+    return _render_template_path(path, attempt)
+
+
+def subject_template_to_string(template_set, module, attempt):
+    """
+    """
+    path = "plugins/{set}/{module}.subject".format(
+        set=template_set,
+        module=module
+    )
+    return _render_template_path(path, attempt)
+
+
+def _render_template_path(path, attempt):
     return get_template(path).render(Context({"attempt": attempt}))

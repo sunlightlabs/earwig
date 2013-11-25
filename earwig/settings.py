@@ -1,6 +1,9 @@
 import os
 # Django settings for earwig project.
 
+
+EARWIG_PUBLIC_LINK_ROOT = "http://localhost:8000"  # XXX: Change this for prod.
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -162,6 +165,8 @@ CONTACT_PLUGIN_TWILIO = {
     "auth_token": "",
     "from_number": "",
 }
+
+EARWIG_SENDER_SALT = 'the-very-saltiest'
 
 try:
     from local_settings import *

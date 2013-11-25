@@ -26,10 +26,6 @@ class ContactPlugin(object):
         """ """
         raise NotImplementedError()
 
-    def cancel_message(self, attempt):
-        """ """
-        raise CantCancelMessage("Can't cancel the message")
-
 
 class EmailContactPlugin(ContactPlugin):
     '''

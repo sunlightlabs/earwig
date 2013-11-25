@@ -1,0 +1,23 @@
+{% extends "contact/base.html" %}
+
+{% block content %}
+<h1>Flag the communication you've received</h1>
+
+{% if valid_token %}
+We're really quite sorry about this, could you please let us know what
+in particular is the problem with the mail, so we can work to fix it?
+
+<form method="post" action="" >
+    <table>
+        {{form.as_table}}
+    </table>
+    {% csrf_token %}
+    <input type="submit" name="submit" value="submit" />
+</form>
+
+{% else %}
+Very sorry about that, it appears that the token that was passed to us
+was invalid. Something must have got mixed up. Please email us so we
+can properly fix this manually.
+{% endif %}
+{% endblock %}
