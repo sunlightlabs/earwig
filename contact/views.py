@@ -133,7 +133,7 @@ def flag(request, transaction, secret):
     try:
         attempt = DeliveryAttempt.objects.get(id=int(transaction))
     except DeliveryAttempt.DoesNotExist:
-        return HttpResponseNotFound(str(attempt))
+        return HttpResponseNotFound("Invalid transaction")
 
     try:
         oldflag = attempt.feedback.get()
