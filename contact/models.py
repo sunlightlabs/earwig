@@ -133,6 +133,7 @@ FEEDBACK_TYPES = (
     ('wrong-person', "Wrong person"),
     ('contact-detail-blacklist', "Bad method"),
     ('unsubscribe', 'Unsubscribe'),
+    ('vendor', 'Vendored Unsubscribe'),
 )
 
 
