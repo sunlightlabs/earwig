@@ -1,8 +1,9 @@
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from contact.models import Message  # etc.
 
-
+@csrf_exempt
 def handle_bounce(request):
     '''Body should be a json payload. See:
     http://developer.postmarkapp.com/developer-bounces.html#bounce-hooks
