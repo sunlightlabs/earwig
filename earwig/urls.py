@@ -6,6 +6,6 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
     url(r'^', include('contact.urls')),
-    url(r'^plugins/postmark/', include('plugins.postmark')),
-    url(r'^plugins/sendgrid/', include('plugins.sendgrid')),
+    #url(r'^plugins/postmark/', include('plugins.postmark.urls')),
+    #url(r'^plugins/sendgrid/', include('plugins.sendgrid.urls')),
 )
