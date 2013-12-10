@@ -21,6 +21,10 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
+    },
+    'test': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'earwig_test.db',
     }
 }
 
