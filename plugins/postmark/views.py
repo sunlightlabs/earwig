@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from contact.models import Message  # etc.
+from contact.models import Message, DeliveryAttempt, ReceiverFeedback
+
 
 @csrf_exempt
 def handle_bounce(request):
@@ -22,10 +25,18 @@ def handle_bounce(request):
       "Subject" : "Hello from our app!"
     }
     '''
+    meta = PostmarkDeliveryMeta.objects.get(message_id=data['MessageID'])
+    ReceiverFeedback.objects.create(
+      attempt=meta.attempt,
+      date=datetime.strptime(message['BouncedAt'], '%Y-%m-%d'),
+      note=payload,
+      feedback_type='unsubscribe')
     return HttpResponse()
 
 
+@csrf_exempt
 def handle_inbound(request):
     '''Body should be a json payload. See:
     http://developer.postmarkapp.com/developer-inbound-configure.html
     '''
+    return HttpResponse()

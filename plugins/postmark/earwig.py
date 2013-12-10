@@ -29,7 +29,7 @@ class PostmarkContact(ContactPlugin):
             )
         response = pystmark.send(message, api_key=settings.POSTMARK_API_KEY)
         message_id = response['MessageID']
-        PostmarkDeliveryMetad.create(attempt=attempt, message_id=message_id)
+        PostmarkDeliveryMeta.create(attempt=attempt, message_id=message_id)
 
     def check_message_status(self, attempt):
         obj = PostmarkDeliveryMetad.get(attempt=attempt)
