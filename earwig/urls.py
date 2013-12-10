@@ -1,11 +1,16 @@
+from django.conf import settings
+from django.contrib import admin
 from django.conf.urls import patterns, include, url
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+
+admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^', include('contact.urls')),
     url(r'^plugins/postmark/', include('plugins.postmark.urls')),
-    # url(r'^plugins/sendgrid/', include('plugins.sendgrid.urls')),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'^admin/', include(admin.site.urls)),
+    )
