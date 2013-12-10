@@ -3,3 +3,5 @@
 *earwig*egg*
 earwig.db
 local_settings.py
+earwig_test.db
+.python_history
