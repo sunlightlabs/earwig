@@ -35,7 +35,7 @@ def create_test_attempt():
                           name='Paul Tagliamonte', photo_url="")
     cd = ContactDetail.objects.create(person=pt, type='sms',
             value='', note='Twilio!', blacklisted=False)
-    send = Sender.objects.create(email_expires_at=dt.datetime.utcnow())
+    send = Sender.objects.create(email_expires_at=dt.datetime.now(pytz.timezone('US/Eastern')))
     message = Message(type='fnord', sender=send,
                       subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
