@@ -1,3 +1,14 @@
+import sys
+import os
+
+sys.path.insert(0, os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    '../mock_libs'))  # We're forcing this in before we import the
+# models, that way we don't actually use the system copy.
+
+import twilio
+import twilio.rest
+
 import unittest
 from django.test import TestCase
 import datetime as dt
@@ -38,7 +49,6 @@ class TwilioTests(TestCase):
     def setUp(self):
         self.plugin = TwilioContact()
 
-    @unittest.skip("can't test sanely")
     def test_duplicate(self):
         """ Ensure that we blow up with two identical inserts """
         attempt = create_test_attempt()
@@ -51,7 +61,6 @@ class TwilioTests(TestCase):
         except IntegrityError:
             pass
 
-    @unittest.skip("can't test sanely")
     def test_status(self):
         """ Ensure that we can properly fetch the status out of the DB """
         plugin = TwilioContact()
