@@ -14,6 +14,8 @@ from django.test import TestCase
 import datetime as dt
 import pytz
 
+from contact.errors import InvalidContactValue
+
 from contact.models import (
     Person,
     ContactDetail,
@@ -73,3 +75,12 @@ class TwilioTests(TestCase):
 
         assert id1 == id2, ("We got a different result from a check when"
                             " given a new plugin object. DB issue?")
+
+    def test_bad_number(self):
+        """ Ensure that we blow up with two identical inserts """
+        attempt = create_test_attempt()
+        attempt.contact.value = 'bad'
+        attempt.contact.save()
+
+        plugin = TwilioContact()
+        self.assertRaises(InvalidContactValue, plugin.send_message, attempt)
