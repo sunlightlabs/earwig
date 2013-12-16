@@ -22,9 +22,9 @@ DATABASES = {
         'HOST': '',
         'PORT': '',
     },
-    'test': {
+    'fixtures': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'earwig_test.db',
+        'NAME': 'earwig_fixtures.db',
     }
 }
 
