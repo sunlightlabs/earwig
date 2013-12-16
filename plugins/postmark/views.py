@@ -30,7 +30,7 @@ def handle_bounce(request):
     # See bounce types here:
     #   http://developer.postmarkapp.com/developer-bounces.html#bounce-hooks
     bounce_types = dict([
-        ('HardBounce', 'vendor-hard-bounce'),
+        ('HardBounce', None),
         ('Transient', None),
         ('Unsubscribe', 'vendor-unsubscribe'),
         ('Subscribe', None),
@@ -54,19 +54,29 @@ def handle_bounce(request):
 
     payload = request.read()
     data = json.loads(payload)
+    meta = PostmarkDeliveryMeta.objects.get(message_id=data['MessageID'])
+    attempt = meta.attempt
 
-    # First, determine the feeback type.
-    feedback_type = bounce_types.get(data['Type'])
-    if feedback_type is None:
+    # Certain bounce types indicate an invalid email address.
+    INVALID_EMAIL_TYPES = ('HardBounce', 'BadEmailAddress',)
+    if data['Type'] in INVALID_EMAIL_TYPES:
+        attempt = meta.attempt
+        attempt.status = 'invalid'
+        attempt.save()
+
+    # Others amount to receiver feedback.
+    elif bounce_types.get(data['Type']):
+        ReceiverFeedback.objects.create(
+          attempt=meta.attempt,
+          date=datetime.strptime(data['BouncedAt'], '%Y-%m-%d'),
+          note=payload,
+          feedback_type=bounce_types.get(data['Type']))
+
+    # There are a few obscure ones that can just raise an error.
+    else:
         msg = 'Weird postmark feedback type found: %r'
         raise ValueError(msg % data['Type'])
 
-    meta = PostmarkDeliveryMeta.objects.get(message_id=data['MessageID'])
-    ReceiverFeedback.objects.create(
-      attempt=meta.attempt,
-      date=datetime.strptime(data['BouncedAt'], '%Y-%m-%d'),
-      note=payload,
-      feedback_type=feedback_type)
     return HttpResponse()
 
 
