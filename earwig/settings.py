@@ -136,6 +136,7 @@ INSTALLED_APPS = (
     'contact',
     'plugins.fnord',
     'plugins.twilio',
+    'plugins.postmark',
 )
 
 # A sample logging configuration. The only tangible logging
