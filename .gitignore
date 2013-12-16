@@ -4,4 +4,5 @@
 earwig.db
 local_settings.py
 earwig_test.db
+earwig_fixtures.db
 .python_history
