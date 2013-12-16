@@ -7,120 +7,15 @@
         "template_set": "cow", 
         "contact": "example@example.com", 
         "name": "Testyapp", 
-        "key": "af0972c8c5864d479cb0cfc5733f807d"
+        "key": "3a8335c8cdc945758d621b4126fd119e"
     }
 },
 {
-    "pk": 2, 
-    "model": "contact.application", 
-    "fields": {
-        "active": true, 
-        "template_set": "cow", 
-        "contact": "example@example.com", 
-        "name": "Testyapp", 
-        "key": "1ba48d00596d471190b23a1d82ab6e05"
-    }
-},
-{
-    "pk": 3, 
-    "model": "contact.application", 
-    "fields": {
-        "active": true, 
-        "template_set": "cow", 
-        "contact": "example@example.com", 
-        "name": "Testyapp", 
-        "key": "2a07eb8d0e8b4ad69122fa418d1bf24d"
-    }
-},
-{
-    "pk": 4, 
-    "model": "contact.application", 
-    "fields": {
-        "active": true, 
-        "template_set": "cow", 
-        "contact": "example@example.com", 
-        "name": "Testyapp", 
-        "key": "56852be70bdb4ceea4cd1a52c5a23d15"
-    }
-},
-{
-    "pk": 5, 
-    "model": "contact.application", 
-    "fields": {
-        "active": true, 
-        "template_set": "cow", 
-        "contact": "example@example.com", 
-        "name": "Testyapp", 
-        "key": "136c3e20e2f44b1fb9c40aed0391b449"
-    }
-},
-{
-    "pk": 6, 
-    "model": "contact.application", 
-    "fields": {
-        "active": true, 
-        "template_set": "cow", 
-        "contact": "example@example.com", 
-        "name": "Testyapp", 
-        "key": "0405a52dec0141aba614ea40a9521e63"
-    }
-},
-{
-    "pk": "34c8f134-99bc-4668-963c-ff318356b108", 
+    "pk": "e28de131-f31f-43be-bdbb-f72b07e1721c", 
     "model": "contact.sender", 
     "fields": {
-        "created_at": "2013-12-10T22:21:28.571Z", 
-        "email_expires_at": "2023-07-11T21:21:28.570Z", 
-        "name": "Testy McZample", 
-        "email": null
-    }
-},
-{
-    "pk": "4de5637a-7434-4921-b36f-1dc8b5d9c9a0", 
-    "model": "contact.sender", 
-    "fields": {
-        "created_at": "2013-12-10T22:14:01.786Z", 
-        "email_expires_at": "2023-07-11T21:14:01.786Z", 
-        "name": "Testy McZample", 
-        "email": null
-    }
-},
-{
-    "pk": "578c94ec-b5be-4009-8090-2402e605c9ab", 
-    "model": "contact.sender", 
-    "fields": {
-        "created_at": "2013-12-10T22:07:55.501Z", 
-        "email_expires_at": "2023-07-11T21:07:55.500Z", 
-        "name": "Testy McZample", 
-        "email": null
-    }
-},
-{
-    "pk": "90ca922d-8faa-4633-a3e8-9f641af7d91b", 
-    "model": "contact.sender", 
-    "fields": {
-        "created_at": "2013-12-10T22:12:40.586Z", 
-        "email_expires_at": "2023-07-11T21:12:40.585Z", 
-        "name": "Testy McZample", 
-        "email": null
-    }
-},
-{
-    "pk": "cb2170b2-1c2d-467b-8647-ee80f61ce186", 
-    "model": "contact.sender", 
-    "fields": {
-        "created_at": "2013-12-10T22:20:57.987Z", 
-        "email_expires_at": "2023-07-11T21:20:57.986Z", 
-        "name": "Testy McZample", 
-        "email": null
-    }
-},
-{
-    "pk": "e8b16999-4369-4a03-ab35-c3f43e885146", 
-    "model": "contact.sender", 
-    "fields": {
-        "created_at": "2013-12-10T22:07:35.468Z", 
-        "email_expires_at": "2023-07-11T21:07:35.468Z", 
+        "created_at": "2013-12-11T22:02:17.722Z", 
+        "email_expires_at": "2023-07-12T21:02:17.722Z", 
         "name": "Testy McZample", 
         "email": null
     }
@@ -129,57 +24,7 @@
     "pk": 1, 
     "model": "contact.person", 
     "fields": {
-        "ocd_id": "test", 
-        "photo_url": "", 
-        "name": "Paul Tagliamonte", 
-        "title": "Mr."
-    }
-},
-{
-    "pk": 2, 
-    "model": "contact.person", 
-    "fields": {
-        "ocd_id": "test", 
-        "photo_url": "", 
-        "name": "Paul Tagliamonte", 
-        "title": "Mr."
-    }
-},
-{
-    "pk": 3, 
-    "model": "contact.person", 
-    "fields": {
-        "ocd_id": "test", 
-        "photo_url": "", 
-        "name": "Paul Tagliamonte", 
-        "title": "Mr."
-    }
-},
-{
-    "pk": 4, 
-    "model": "contact.person", 
-    "fields": {
-        "ocd_id": "test", 
-        "photo_url": "", 
-        "name": "Paul Tagliamonte", 
-        "title": "Mr."
-    }
-},
-{
-    "pk": 5, 
-    "model": "contact.person", 
-    "fields": {
-        "ocd_id": "test", 
-        "photo_url": "", 
-        "name": "Paul Tagliamonte", 
-        "title": "Mr."
-    }
-},
-{
-    "pk": 6, 
-    "model": "contact.person", 
-    "fields": {
-        "ocd_id": "test", 
+        "ocd_id": "fixtures", 
         "photo_url": "", 
         "name": "Paul Tagliamonte", 
         "title": "Mr."
@@ -197,123 +42,13 @@
     }
 },
 {
-    "pk": 2, 
-    "model": "contact.contactdetail", 
-    "fields": {
-        "note": "Twilio!", 
-        "person": 2, 
-        "type": "sms", 
-        "blacklisted": false, 
-        "value": ""
-    }
-},
-{
-    "pk": 3, 
-    "model": "contact.contactdetail", 
-    "fields": {
-        "note": "Twilio!", 
-        "person": 3, 
-        "type": "sms", 
-        "blacklisted": false, 
-        "value": ""
-    }
-},
-{
-    "pk": 4, 
-    "model": "contact.contactdetail", 
-    "fields": {
-        "note": "Twilio!", 
-        "person": 4, 
-        "type": "sms", 
-        "blacklisted": false, 
-        "value": ""
-    }
-},
-{
-    "pk": 5, 
-    "model": "contact.contactdetail", 
-    "fields": {
-        "note": "Twilio!", 
-        "person": 5, 
-        "type": "sms", 
-        "blacklisted": false, 
-        "value": ""
-    }
-},
-{
-    "pk": 6, 
-    "model": "contact.contactdetail", 
-    "fields": {
-        "note": "Twilio!", 
-        "person": 6, 
-        "type": "sms", 
-        "blacklisted": false, 
-        "value": ""
-    }
-},
-{
-    "pk": "27b3197686c6418ca95a000d348ab3a5", 
+    "pk": "c9739b84b9aa42ffbb1c3acc8ad78a61", 
     "model": "contact.message", 
     "fields": {
         "application": 1, 
         "message": "HELLO WORLD", 
         "type": "fnord", 
-        "sender": "e8b16999-4369-4a03-ab35-c3f43e885146", 
-        "subject": "Hello, World"
-    }
-},
-{
-    "pk": "539f61d31143422c8f23ecedefd69fa9", 
-    "model": "contact.message", 
-    "fields": {
-        "application": 3, 
-        "message": "HELLO WORLD", 
-        "type": "fnord", 
-        "sender": "90ca922d-8faa-4633-a3e8-9f641af7d91b", 
-        "subject": "Hello, World"
-    }
-},
-{
-    "pk": "56ccb2344bff42e7a0828fc89a0ca9eb", 
-    "model": "contact.message", 
-    "fields": {
-        "application": 5, 
-        "message": "HELLO WORLD", 
-        "type": "fnord", 
-        "sender": "cb2170b2-1c2d-467b-8647-ee80f61ce186", 
-        "subject": "Hello, World"
-    }
-},
-{
-    "pk": "9b359a670d074832aea623cbc99b266e", 
-    "model": "contact.message", 
-    "fields": {
-        "application": 4, 
-        "message": "HELLO WORLD", 
-        "type": "fnord", 
-        "sender": "4de5637a-7434-4921-b36f-1dc8b5d9c9a0", 
-        "subject": "Hello, World"
-    }
-},
-{
-    "pk": "c66a82c4498f4650b3f0200242a90f28", 
-    "model": "contact.message", 
-    "fields": {
-        "application": 6, 
-        "message": "HELLO WORLD", 
-        "type": "fnord", 
-        "sender": "34c8f134-99bc-4668-963c-ff318356b108", 
-        "subject": "Hello, World"
-    }
-},
-{
-    "pk": "d0be18f78803448c8315d1fda9ef1169", 
-    "model": "contact.message", 
-    "fields": {
-        "application": 2, 
-        "message": "HELLO WORLD", 
-        "type": "fnord", 
-        "sender": "578c94ec-b5be-4009-8090-2402e605c9ab", 
+        "sender": "e28de131-f31f-43be-bdbb-f72b07e1721c", 
         "subject": "Hello, World"
     }
 },
@@ -322,63 +57,8 @@
     "model": "contact.deliveryattempt", 
     "fields": {
         "status": "scheduled", 
-        "date": "2013-12-10T22:07:35.499Z", 
+        "date": "2013-12-11T22:02:17.739Z", 
         "contact": 1, 
-        "engine": "default", 
-        "messages": []
-    }
-},
-{
-    "pk": 2, 
-    "model": "contact.deliveryattempt", 
-    "fields": {
-        "status": "scheduled", 
-        "date": "2013-12-10T22:07:55.527Z", 
-        "contact": 2, 
-        "engine": "default", 
-        "messages": []
-    }
-},
-{
-    "pk": 3, 
-    "model": "contact.deliveryattempt", 
-    "fields": {
-        "status": "scheduled", 
-        "date": "2013-12-10T22:12:40.615Z", 
-        "contact": 3, 
-        "engine": "default", 
-        "messages": []
-    }
-},
-{
-    "pk": 4, 
-    "model": "contact.deliveryattempt", 
-    "fields": {
-        "status": "scheduled", 
-        "date": "2013-12-10T22:14:01.810Z", 
-        "contact": 4, 
-        "engine": "default", 
-        "messages": []
-    }
-},
-{
-    "pk": 5, 
-    "model": "contact.deliveryattempt", 
-    "fields": {
-        "status": "scheduled", 
-        "date": "2013-12-10T22:20:58.010Z", 
-        "contact": 5, 
-        "engine": "default", 
-        "messages": []
-    }
-},
-{
-    "pk": 6, 
-    "model": "contact.deliveryattempt", 
-    "fields": {
-        "status": "scheduled", 
-        "date": "2013-12-10T22:21:28.598Z", 
-        "contact": 6, 
         "engine": "default", 
         "messages": []
     }
