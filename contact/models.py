@@ -1,5 +1,6 @@
 import uuid
 import hashlib
+import StringIO
 import datetime
 from django.db import models
 from django.contrib.auth.models import User
@@ -46,6 +47,9 @@ class Person(models.Model):
     photo_url = models.URLField()
     # more needed here from upstream
 
+    def __unicode__(self):
+        return self.name
+
 
 class ContactDetail(models.Model):
     """ contact details for a Person, popolo-like """
@@ -54,6 +58,9 @@ class ContactDetail(models.Model):
     value = models.CharField(max_length=100)
     note = models.CharField(max_length=100)
     blacklisted = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.value
 
 
 MESSAGE_TYPES = (
@@ -95,12 +102,18 @@ class Message(models.Model):
     message = models.TextField()
     recipients = models.ManyToManyField(Person, through='MessageRecipient')
 
+    def __unicode__(self):
+        return 'from %s' % self.sender.name
+
 
 class MessageRecipient(models.Model):
     """ allows association of a status with a message & recipient """
     message = models.ForeignKey(Message)
     recipient = models.ForeignKey(Person, related_name='messages')
     status = models.CharField(max_length=10, choices=MESSAGE_STATUSES)
+
+    def __unicode__(self):
+        return self.recipients[0].name
 
 
 class DeliveryAttempt(models.Model):
@@ -110,6 +123,12 @@ class DeliveryAttempt(models.Model):
     status = models.CharField(max_length=10, choices=DELIVERY_STATUSES, default='scheduled')
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
+
+    def __unicode__(self):
+        buf = StringIO.StringIO()
+        buf.write('to %r ' % self.contact.person.name)
+        buf.write('on %s' % self.date.strftime('%Y-%m-%d'))
+        return buf.getvalue()
 
     def unsubscribe_token(self):
         m = hashlib.md5()
@@ -144,3 +163,6 @@ class ReceiverFeedback(models.Model):
     note = models.TextField()
     date = models.DateTimeField()
     feedback_type = models.CharField(max_length=64, choices=FEEDBACK_TYPES)  # Flag type.
+
+    def __unicode__(self):
+        return self.feedback_type
