@@ -152,7 +152,16 @@ FEEDBACK_TYPES = (
     ('wrong-person', "Wrong person"),
     ('contact-detail-blacklist', "Bad method"),
     ('unsubscribe', 'Unsubscribe'),
-    ('vendor', 'Vendored Unsubscribe'),
+
+    # Email/postmark types.
+    ('vendor-unsubscribe', 'Vendor - Unsubscribe'),
+    ('vendor-hard-bounce', 'Vendor - Hard bounce'),
+    ('verndor-bounce', 'Vendor - Soft bounce'),
+    ('verndor-autoresponder', 'Vendor - Autoresponder'),
+    ('verndor-bad-email-address', 'Vendor - Bad email address'),
+    ('verndor-spam-notification', 'Vendor - Spam Notification'),
+    ('verndor-spam-complaint', 'Vendor - Spam Complaint'),
+    ('verndor-blocked', 'Vendor - Blocked'),
 )
 
 
