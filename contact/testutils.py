@@ -26,30 +26,32 @@ def create_test_attempt():
 
         ./manage.py dumpdata contact --indent=4 > file.json
     '''
-    app = Application.objects.using('test').create(
+    app = Application.objects.using('fixtures').create(
         name="Testyapp", contact="example@example.com",
         template_set="cow")
 
-    person = Person.objects.using('test').create(
-        ocd_id='test', title='Mr.',
+    person = Person.objects.using('fixtures').create(
+        ocd_id='fixtures', title='Mr.',
         name='Paul Tagliamonte', photo_url="")
 
-    contact = ContactDetail.objects.using('test').create(
+    contact = ContactDetail.objects.using('fixtures').create(
         person=person, type='sms',
         value='', note='Twilio!', blacklisted=False)
 
-    sender = Sender.objects.using('test').create(
+    sender = Sender.objects.using('fixtures').create(
         name="Testy McZample", id=uuid.uuid4(),
         email_expires_at=dt.datetime.now() + dt.timedelta(weeks=500))
 
-    message = Message.objects.using('test').create(
+    message = Message.objects.using('fixtures').create(
         type='fnord', sender=sender, application=app,
         subject="Hello, World", message="HELLO WORLD")
 
-    attempt = DeliveryAttempt.objects.using('test').create(
+    attempt = DeliveryAttempt.objects.using('fixtures').create(
         contact=contact, status="scheduled",
         date=dt.datetime.now(pytz.timezone('US/Eastern')),
         engine="default")
+
+    attempt.messages.add(message)
 
     attempt.save()
     return attempt
