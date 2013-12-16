@@ -86,7 +86,9 @@ DELIVERY_STATUSES = (
 
 
 class ContactPlugin(models.Model):
-    path = models.CharField(max_length=32)
+    path = models.CharField(max_length=32)  # "plugins.twilio.earwig"
+    name = models.CharField(max_length=32)  # "twilio"
+    type = models.CharField(max_length=10, choices=MESSAGE_TYPES)
 
 
 class Message(models.Model):
