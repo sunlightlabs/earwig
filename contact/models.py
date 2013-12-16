@@ -85,6 +85,10 @@ DELIVERY_STATUSES = (
 )
 
 
+class ContactPlugin(models.Model):
+    path = models.CharField(max_length=32)
+
+
 class Message(models.Model):
     """ a message to one or more people """
     id = models.CharField(max_length=32, default=_random_uuid, primary_key=True)
@@ -110,6 +114,7 @@ class DeliveryAttempt(models.Model):
     status = models.CharField(max_length=10, choices=DELIVERY_STATUSES, default='scheduled')
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
+    plugin = models.ForeignKey(ContactPlugin, related_name='attempts')
 
     def unsubscribe_token(self):
         m = hashlib.md5()
