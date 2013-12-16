@@ -15,9 +15,9 @@ class Command(BaseCommand):
         ]
 
     def handle(self, output_filename, *args, **options):
-        management.call_command('syncdb', database='test', verbosity=1)
+        management.call_command('syncdb', database='fixtures', verbosity=1)
         for func in self.fixture_functions:
             func()
         with open(output_filename, 'w') as f:
             management.call_command(
-                'dumpdata', 'contact', indent=4, database='test', stdout=f)
+                'dumpdata', 'contact', indent=4, database='fixtures', stdout=f)
