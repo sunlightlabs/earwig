@@ -24,6 +24,7 @@ from contact.models import (
     Message,
     MessageRecipient,
     DeliveryAttempt,
+    ContactPlugin,
 )
 
 from .earwig import TwilioContact
@@ -32,28 +33,36 @@ from .models import TwilioStatus
 from django.db import IntegrityError
 
 
-def create_test_attempt():
-    pt = Person.objects.create(ocd_id='test', title='Mr.',
-                          name='Paul Tagliamonte', photo_url="")
-    cd = ContactDetail.objects.create(person=pt, type='sms',
-            value='good', note='Twilio!', blacklisted=False)
-    send = Sender.objects.create(email_expires_at=dt.datetime.now(pytz.timezone('US/Eastern')))
-    message = Message(type='fnord', sender=send,
-                      subject="Hello, World", message="HELLO WORLD")
-    attempt = DeliveryAttempt(contact=cd, status="scheduled",
-                              date=dt.datetime.now(pytz.timezone('US/Eastern')),
-                              engine="default")
-    attempt.save()
-    return attempt
-
 
 class TwilioTests(TestCase):
+
+    def create_test_attempt(self):
+        pt = Person.objects.create(ocd_id='test', title='Mr.',
+                              name='Paul Tagliamonte', photo_url="")
+        cd = ContactDetail.objects.create(person=pt, type='sms',
+                value='good', note='Twilio!', blacklisted=False)
+        send = Sender.objects.create(email_expires_at=dt.datetime.now(pytz.timezone('US/Eastern')))
+        message = Message(type='fnord', sender=send,
+                          subject="Hello, World", message="HELLO WORLD")
+        attempt = DeliveryAttempt(contact=cd, status="scheduled",
+                                  plugin=self.plugin_model,
+                                  date=dt.datetime.now(pytz.timezone('US/Eastern')),
+                                  engine="default")
+        attempt.save()
+        return attempt
+
+
     def setUp(self):
         self.plugin = TwilioContact()
+        self.plugin_model = ContactPlugin(path='plugins.twilio.earwig',
+                                          name='twilio',
+                                          type='sms')
+        self.plugin_model.save()
+
 
     def test_duplicate(self):
         """ Ensure that we blow up with two identical inserts """
-        attempt = create_test_attempt()
+        attempt = self.create_test_attempt()
         self.plugin.send_message(attempt)
 
         try:
@@ -66,7 +75,7 @@ class TwilioTests(TestCase):
     def test_status(self):
         """ Ensure that we can properly fetch the status out of the DB """
         plugin = TwilioContact()
-        attempt = create_test_attempt()
+        attempt = self.create_test_attempt()
         plugin.send_message(attempt)
         id1 = plugin.check_message_status(attempt)
 
@@ -78,7 +87,7 @@ class TwilioTests(TestCase):
 
     def test_bad_number(self):
         """ Ensure that we blow up with two identical inserts """
-        attempt = create_test_attempt()
+        attempt = self.create_test_attempt()
         attempt.contact.value = 'bad'
         attempt.contact.save()
 
