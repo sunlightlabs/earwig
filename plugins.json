@@ -1,0 +1,7 @@
+[
+    {
+        "path": "plugins.twilio.earwig",
+        "name": "twilio",
+        "type": "sms"
+    }
+]

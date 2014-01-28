@@ -11,10 +11,11 @@ from contact.models import (
     Sender,
     DeliveryAttempt,
     Message,
+    ContactPlugin,
 )
 
 
-def create_test_attempt(value, type_):
+def create_test_attempt(value, type_, plugin):
     pt = Person.objects.create(ocd_id='ocd-person/%s' % (uuid.uuid4()),
                                title='Mr(s).',
                                name='[INTERNAL] Manual Testing of plugins',
@@ -31,6 +32,7 @@ def create_test_attempt(value, type_):
 
     message = Message(type=type_, sender=send, subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
+                              plugin=plugin,
                               date=datetime.datetime.now(
                                   pytz.timezone('US/Eastern')),
                               engine="default")
@@ -44,6 +46,9 @@ class Command(BaseCommand):
 
     def handle(self, plugin_id, type_, value, *args, **options):
         module_name = "plugins.%s.earwig" % (plugin_id)
+
+        cplugin = ContactPlugin.objects.get(path=module_name)
+
         mod = importlib.import_module(module_name)
         name = "%sContact" % (plugin_id.title())
 
@@ -55,7 +60,7 @@ class Command(BaseCommand):
                 module_name
             ))
 
-        attempt = create_test_attempt(value, type_)
+        attempt = create_test_attempt(value, type_, cplugin)
         plugin = plugin()
         print "Sending:"
         print ""
