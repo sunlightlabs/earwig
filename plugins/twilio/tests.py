@@ -19,7 +19,6 @@ from contact.models import (
     Sender,
     DeliveryAttempt,
     Message,
-    ContactPlugin,
 )
 from .earwig import TwilioContact
 
@@ -34,7 +33,6 @@ class TwilioTests(TestCase):
         send = Sender.objects.create(email_expires_at=datetime.now(pytz.timezone('US/Eastern')))
         message = Message(type='fnord', sender=send, subject="Hello, World", message="HELLO WORLD")
         attempt = DeliveryAttempt(contact=cd, status="scheduled",
-                                  plugin=self.plugin_model,
                                   date=datetime.now(pytz.timezone('US/Eastern')),
                                   engine="default")
         attempt.save()
@@ -42,10 +40,6 @@ class TwilioTests(TestCase):
 
     def setUp(self):
         self.plugin = TwilioContact()
-        self.plugin_model = ContactPlugin(path='plugins.twilio.earwig',
-                                          name='twilio',
-                                          type='sms')
-        self.plugin_model.save()
 
     def test_duplicate(self):
         """ Ensure that we blow up with two identical inserts """

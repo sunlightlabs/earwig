@@ -1,33 +1,10 @@
 import uuid
 import hashlib
-import StringIO
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-
-def _random_uuid():
-    return uuid.uuid4().get_hex()
-
-
-class Application(models.Model):
-    """ a service that makes use of the contact API """
-    name = models.CharField(max_length=200)
-    contact = models.EmailField()
-    key = models.CharField(max_length=32, default=_random_uuid)
-    template_set = models.CharField(max_length=100)
-    active = models.BooleanField(default=True)
-
-
-class Sender(models.Model):
-    """ a user that can send messages """
-    id = models.CharField(max_length=64, primary_key=True)
-    name = models.CharField(max_length=200)
-    email = models.EmailField(null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    email_expires_at = models.DateTimeField()
-
-
+# each contact detail is of one of these types, and a plugin can handle a single type
 CONTACT_TYPES = (
     ('voice', 'Voice Phone'),
     ('sms', 'SMS'),
@@ -37,31 +14,7 @@ CONTACT_TYPES = (
     ('twitter', 'Twitter'),
 )
 
-
-class Person(models.Model):
-    """ a person that can be contacted """
-    ocd_id = models.CharField(max_length=100)
-    title = models.CharField(max_length=100)
-    name = models.CharField(max_length=100)
-    photo_url = models.URLField()
-    # more needed here from upstream
-
-    def __unicode__(self):
-        return self.name
-
-
-class ContactDetail(models.Model):
-    """ contact details for a Person, popolo-like """
-    person = models.ForeignKey(Person, related_name='contacts')
-    type = models.CharField(max_length=10, choices=CONTACT_TYPES)
-    value = models.CharField(max_length=100)
-    note = models.CharField(max_length=100)
-    blacklisted = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        return self.value
-
-
+# 
 MESSAGE_TYPES = (
     ('public', 'Public'),
     ('private', 'Private'),
@@ -91,10 +44,52 @@ DELIVERY_STATUSES = (
 )
 
 
-class ContactPlugin(models.Model):
-    path = models.CharField(max_length=32)  # "plugins.twilio.earwig"
-    name = models.CharField(max_length=32)  # "twilio"
-    type = models.CharField(max_length=10, choices=CONTACT_TYPES)  # sms
+
+def _random_uuid():
+    return uuid.uuid4().get_hex()
+
+
+class Application(models.Model):
+    """ a service that makes use of the contact API """
+    name = models.CharField(max_length=200)
+    contact = models.EmailField()
+    key = models.CharField(max_length=32, default=_random_uuid)
+    template_set = models.CharField(max_length=100)
+    active = models.BooleanField(default=True)
+
+
+class Sender(models.Model):
+    """ a user that can send messages """
+    id = models.CharField(max_length=64, primary_key=True)
+    name = models.CharField(max_length=200)
+    email = models.EmailField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    email_expires_at = models.DateTimeField()
+
+
+
+class Person(models.Model):
+    """ a person that can be contacted """
+    ocd_id = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    photo_url = models.URLField()
+    # more needed here from upstream
+
+    def __unicode__(self):
+        return self.name
+
+
+class ContactDetail(models.Model):
+    """ contact details for a Person, popolo-like """
+    person = models.ForeignKey(Person, related_name='contacts')
+    type = models.CharField(max_length=10, choices=CONTACT_TYPES)
+    value = models.CharField(max_length=100)
+    note = models.CharField(max_length=100)
+    blacklisted = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.value
 
 
 class Message(models.Model):
@@ -128,13 +123,10 @@ class DeliveryAttempt(models.Model):
     status = models.CharField(max_length=10, choices=DELIVERY_STATUSES, default='scheduled')
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
-    plugin = models.ForeignKey(ContactPlugin, related_name='attempts')
+    plugin = models.CharField(max_length=20)
 
     def __unicode__(self):
-        buf = StringIO.StringIO()
-        buf.write('to %r ' % self.contact.person.name)
-        buf.write('on %s' % self.date.strftime('%Y-%m-%d'))
-        return buf.getvalue()
+        return 'to {0} on {1}'.format(self.contact.person.name, self.date.strftime('%Y-%m-%d'))
 
     def unsubscribe_token(self):
         m = hashlib.md5()
@@ -148,8 +140,8 @@ class DeliveryAttempt(models.Model):
     @property
     def unsubscribe_url(self):
         return "%s%s" % (settings.EARWIG_PUBLIC_LINK_ROOT,
-                         reverse('flag', args=(
-                             str(self.id), str(self.unsubscribe_token()))))
+                         reverse('flag', args=(str(self.id), str(self.unsubscribe_token())))
+                        )
 
 
 FEEDBACK_TYPES = (
@@ -172,11 +164,10 @@ FEEDBACK_TYPES = (
 
 class ReceiverFeedback(models.Model):
     """ Marks feedback from a user """
-    attempt = models.ForeignKey(DeliveryAttempt, related_name='feedback',
-                                unique=True)
+    attempt = models.OneToOneField(DeliveryAttempt, related_name='feedback')
     note = models.TextField()
     date = models.DateTimeField()
-    feedback_type = models.CharField(max_length=64, choices=FEEDBACK_TYPES)  # Flag type.
+    feedback_type = models.CharField(max_length=64, choices=FEEDBACK_TYPES)
 
     def __unicode__(self):
         return self.feedback_type
