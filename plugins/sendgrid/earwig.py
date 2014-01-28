@@ -1,4 +1,5 @@
-'''Sendgrid handles incoming email and unsubscribe/bounce
+'''
+ Sendgrid handles incoming email and unsubscribe/bounce
  with webhooks. You set up a endpoints and they post data to them.
  http://sendgrid.com/docs/API_Reference/Webhooks/index.html
 '''
@@ -23,15 +24,11 @@ class SendgridContact(ContactPlugin):
         message = body_template.render(attempt=attempt, **extra_context or {})
         subject = subject_template.render(attempt=attempt, **extra_context or {})
 
-        api = sendgrid.Sendgrid(
-            settings.SENDGRID_USERNAME,
-            settings.SENDGRID_PASSWORD,
-            secure=True)
+        api = sendgrid.Sendgrid(settings.SENDGRID_USERNAME,
+                                settings.SENDGRID_PASSWORD,
+                                secure=True)
 
-        message = sendgrid.Message(
-            self.get_sender(attempt),
-            subject,
-            message)
+        message = sendgrid.Message(self.get_sender(attempt), subject, message)
         message.add_tp(recipient_email_address)
 
         response = api.web.send(message)

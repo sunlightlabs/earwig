@@ -9,27 +9,21 @@ from contact.models import (
     Sender,
     DeliveryAttempt,
     Message,
-    MessageRecipient,
-    DeliveryAttempt,
 )
 
 from .earwig import FnordContact
-from .models import FnordStatus
 
 from django.db import IntegrityError
 
 
 def create_test_attempt():
-    pt = Person.objects.create(ocd_id='test', title='Mr.',
-                          name='Paul Tagliamonte', photo_url="")
-    cd = ContactDetail.objects.create(person=pt, type='fnord',
-            value='@fnord', note='Fnord!', blacklisted=False)
+    pt = Person.objects.create(ocd_id='test', title='Mr.', name='Paul Tagliamonte', photo_url="")
+    cd = ContactDetail.objects.create(person=pt, type='fnord', value='@fnord', note='Fnord!',
+                                      blacklisted=False)
     send = Sender.objects.create(email_expires_at=dt.datetime(2020, 1, 1, tzinfo=utc))
-    message = Message(type='fnord', sender=send,
-                      subject="Hello, World", message="HELLO WORLD")
+    message = Message(type='fnord', sender=send, subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
-                              date=dt.datetime.now(pytz.timezone('US/Eastern')),
-                              engine="default")
+                              date=dt.datetime.now(pytz.timezone('US/Eastern')), engine="default")
     attempt.save()
     return attempt
 

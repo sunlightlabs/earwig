@@ -25,14 +25,13 @@ class PostmarkContact(ContactPlugin):
             sender=self.get_sender(attempt),
             to=recipient_email_address,
             subject=subject,
-            text=message
-            )
+            text=message)
         response = pystmark.send(message, api_key=settings.POSTMARK_API_KEY)
         message_id = response['MessageID']
         PostmarkDeliveryMeta.create(attempt=attempt, message_id=message_id)
 
     def check_message_status(self, attempt):
-        obj = PostmarkDeliveryMetad.get(attempt=attempt)
+        obj = PostmarkDeliveryMeta.get(attempt=attempt)
         response = pystmark.get_bounces(settings.POSTMARK_API_KEY)
         for bounce in response.json()['Bounces']:
             if bounce['MessageID'] == obj.message_id:

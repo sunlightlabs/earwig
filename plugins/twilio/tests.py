@@ -1,56 +1,44 @@
 import sys
 import os
 
-sys.path.insert(0, os.path.join(
-    os.path.abspath(os.path.dirname(__file__)),
-    '../mock_libs'))  # We're forcing this in before we import the
+# We're forcing this in before we import the
 # models, that way we don't actually use the system copy.
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../mock_libs'))
 
+from datetime import datetime
+from django.test import TestCase
+from django.db import IntegrityError
+import pytz
 import twilio
 import twilio.rest
 
-import unittest
-from django.test import TestCase
-import datetime as dt
-import pytz
-
 from contact.errors import InvalidContactValue
-
 from contact.models import (
     Person,
     ContactDetail,
     Sender,
     DeliveryAttempt,
     Message,
-    MessageRecipient,
-    DeliveryAttempt,
     ContactPlugin,
 )
-
 from .earwig import TwilioContact
-from .models import TwilioStatus
-
-from django.db import IntegrityError
-
 
 
 class TwilioTests(TestCase):
 
     def create_test_attempt(self):
-        pt = Person.objects.create(ocd_id='test', title='Mr.',
-                              name='Paul Tagliamonte', photo_url="")
-        cd = ContactDetail.objects.create(person=pt, type='sms',
-                value='good', note='Twilio!', blacklisted=False)
-        send = Sender.objects.create(email_expires_at=dt.datetime.now(pytz.timezone('US/Eastern')))
-        message = Message(type='fnord', sender=send,
-                          subject="Hello, World", message="HELLO WORLD")
+        pt = Person.objects.create(ocd_id='test', title='Mr.', name='Paul Tagliamonte',
+                                   photo_url="")
+        cd = ContactDetail.objects.create(person=pt, type='sms', value='good', note='Twilio!',
+                                          blacklisted=False)
+        send = Sender.objects.create(email_expires_at=datetime.now(pytz.timezone('US/Eastern')))
+        message = Message(type='fnord', sender=send, subject="Hello, World", message="HELLO WORLD")
         attempt = DeliveryAttempt(contact=cd, status="scheduled",
                                   plugin=self.plugin_model,
-                                  date=dt.datetime.now(pytz.timezone('US/Eastern')),
+                                  date=datetime.now(pytz.timezone('US/Eastern')),
                                   engine="default")
         attempt.save()
         return attempt
-
 
     def setUp(self):
         self.plugin = TwilioContact()
@@ -58,7 +46,6 @@ class TwilioTests(TestCase):
                                           name='twilio',
                                           type='sms')
         self.plugin_model.save()
-
 
     def test_duplicate(self):
         """ Ensure that we blow up with two identical inserts """

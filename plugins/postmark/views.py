@@ -4,7 +4,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from contact.models import Message, DeliveryAttempt, ReceiverFeedback
+from contact.models import ReceiverFeedback
 from plugins.postmark.models import PostmarkDeliveryMeta
 
 
@@ -50,7 +50,7 @@ def handle_bounce(request):
         ('Blocked', 'vendor-blocked'),
         ('SMTPApiError ', None),
         ('InboundError ', None),
-        ])
+    ])
 
     payload = request.read()
     data = json.loads(payload)
@@ -66,11 +66,10 @@ def handle_bounce(request):
 
     # Others amount to receiver feedback.
     elif bounce_types.get(data['Type']):
-        ReceiverFeedback.objects.create(
-          attempt=meta.attempt,
-          date=datetime.strptime(data['BouncedAt'], '%Y-%m-%d'),
-          note=payload,
-          feedback_type=bounce_types.get(data['Type']))
+        ReceiverFeedback.objects.create(attempt=meta.attempt,
+                                        date=datetime.strptime(data['BouncedAt'], '%Y-%m-%d'),
+                                        note=payload,
+                                        feedback_type=bounce_types.get(data['Type']))
 
     # There are a few obscure ones that can just raise an error.
     else:

@@ -24,7 +24,7 @@ class TwilioContact(ContactPlugin):
         # OK. let's ensure this is something we can handle.
 
         cd = attempt.contact
-        if cd.type not in ['sms',]:
+        if cd.type != 'sms':
             raise InvalidContactType("Contact Detail type is not `sms`")
 
         from_number = self.settings['from_number']
