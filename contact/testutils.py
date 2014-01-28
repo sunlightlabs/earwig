@@ -1,20 +1,11 @@
 import pytz
-import unittest
 import uuid
 import datetime as dt
-
-from django.test import TestCase
-from django.db import IntegrityError
-from django.core import serializers
-
-
 from contact.models import (
     Person,
     ContactDetail,
     Sender,
-    DeliveryAttempt,
     Message,
-    MessageRecipient,
     DeliveryAttempt,
     Application,
 )

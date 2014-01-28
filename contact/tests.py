@@ -32,20 +32,20 @@ class TestCreateSender(TestCase):
         """ ensure that the sender updates if a field changes """
         # post the initial sender
         c = Client()
-        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
+        c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
         assert Sender.objects.get().name == 'Test'
         assert Sender.objects.count() == 1
 
         # post the update
-        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Updated', 'ttl': 7})
+        c.post('/sender/', {'email': 'test@example.com', 'name': 'Updated', 'ttl': 7})
         assert Sender.objects.get().name == 'Updated'
         assert Sender.objects.count() == 1
 
     def test_updated_ttl(self):
         """ ensure that ttl gets extended if longer """
         c = Client()
-        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
-        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 70})
+        c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
+        c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 70})
         # new expiry time should be at least 69 days in the future
         assert (Sender.objects.get().email_expires_at -
                 datetime.datetime.utcnow().replace(tzinfo=utc) >
@@ -54,8 +54,8 @@ class TestCreateSender(TestCase):
     def test_non_updated_ttl(self):
         """ ensure that ttl doesn't get shortened """
         c = Client()
-        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
-        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 1})
+        c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
+        c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 1})
         # new expiry time should be at least 6 days in the future
         assert (Sender.objects.get().email_expires_at -
                 datetime.datetime.utcnow().replace(tzinfo=utc) >
@@ -64,10 +64,10 @@ class TestCreateSender(TestCase):
     def test_revived_sender(self):
         """ ensure that an expired sender can be revived with an email and good ttl """
         c = Client()
-        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
+        c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
         Sender.objects.update(email_expires_at=datetime.datetime.utcnow().replace(tzinfo=utc),
                               email=None)
-        resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
+        c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
         assert Sender.objects.count() == 1
         assert Sender.objects.get().email == 'test@example.com'
         # new expiry time should be at least 6 days in the future

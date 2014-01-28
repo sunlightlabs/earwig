@@ -1,4 +1,3 @@
-from plugins import ContactPlugin
 from django.core.management.base import BaseCommand, CommandError
 
 import importlib
@@ -12,8 +11,6 @@ from contact.models import (
     Sender,
     DeliveryAttempt,
     Message,
-    MessageRecipient,
-    DeliveryAttempt,
 )
 
 
@@ -23,9 +20,8 @@ def create_test_attempt(value, type_):
                                name='[INTERNAL] Manual Testing of plugins',
                                photo_url="")
 
-    cd = ContactDetail.objects.create(person=pt, type=type_,
-            value=value, note='Manual test', blacklisted=False)
-
+    cd = ContactDetail.objects.create(person=pt, type=type_, value=value, note='Manual test',
+                                      blacklisted=False)
 
     send = Sender.objects.create(
         id=uuid.uuid4(),
@@ -33,11 +29,7 @@ def create_test_attempt(value, type_):
         email_expires_at=datetime.datetime.now(pytz.timezone('US/Eastern')),
     )
 
-    message = Message(type=type_,
-                      sender=send,
-                      subject="Hello, World",
-                      message="HELLO WORLD")
-
+    message = Message(type=type_, sender=send, subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
                               date=datetime.datetime.now(
                                   pytz.timezone('US/Eastern')),

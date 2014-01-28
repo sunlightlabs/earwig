@@ -1,7 +1,6 @@
 from django.views.decorators.http import require_GET, require_POST
 from django.http import (HttpResponseBadRequest, HttpResponse,
                          HttpResponseNotFound)
-from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render
 from django.utils.timezone import utc
 from django.conf import settings
@@ -16,7 +15,6 @@ import hashlib
 import datetime
 
 
-
 def _msg_to_json(msg):
     data = {'type': msg.type, 'sender': msg.sender_id, 'subject': msg.subject,
             'message': msg.message, 'recipients': []}
@@ -25,11 +23,13 @@ def _msg_to_json(msg):
 
     return json.dumps(data)
 
+
 def _sender_to_json(sender):
     data = {'id': sender.id, 'name': sender.name, 'email': sender.email,
             'created_at': sender.created_at.isoformat(),
             'email_expires_at': sender.email_expires_at.isoformat()}
     return json.dumps(data)
+
 
 def _get_or_create_sender(email, name, ttl):
     uid = hashlib.sha256(email + settings.EARWIG_SENDER_SALT).hexdigest()

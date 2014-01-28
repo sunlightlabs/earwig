@@ -2,6 +2,7 @@ from twilio import TwilioRestException
 
 
 class FakeRestEndpoint(object):
+
     def create(self, *args, **kwargs):
         if 'to' not in kwargs:
             raise TypeError("Need a to number")
@@ -17,5 +18,6 @@ class FakeRestEndpoint(object):
 
 class TwilioRestClient(object):
     messages = FakeRestEndpoint()
+
     def __init__(self, *args, **kwargs):
         pass

@@ -1,6 +1,5 @@
-import sys
 from django.core import management
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from contact.testutils import create_test_attempt
 
@@ -10,9 +9,7 @@ class Command(BaseCommand):
     '''
     args = '<output_filename>'
 
-    fixture_functions = [
-        create_test_attempt,
-        ]
+    fixture_functions = [create_test_attempt]
 
     def handle(self, output_filename, *args, **options):
         management.call_command('syncdb', database='fixtures', verbosity=1)

@@ -1,11 +1,10 @@
 import uuid
 import hashlib
 import StringIO
-import datetime
 from django.db import models
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
+
 
 def _random_uuid():
     return uuid.uuid4().get_hex()
@@ -153,7 +152,6 @@ class DeliveryAttempt(models.Model):
                              str(self.id), str(self.unsubscribe_token()))))
 
 
-
 FEEDBACK_TYPES = (
     ('offensive', 'Offensive'),
     ('wrong-person', "Wrong person"),
@@ -163,12 +161,12 @@ FEEDBACK_TYPES = (
     # Email/postmark types.
     ('vendor-unsubscribe', 'Vendor - Unsubscribe'),
     ('vendor-hard-bounce', 'Vendor - Hard bounce'),
-    ('verndor-bounce', 'Vendor - Soft bounce'),
-    ('verndor-autoresponder', 'Vendor - Autoresponder'),
-    ('verndor-bad-email-address', 'Vendor - Bad email address'),
-    ('verndor-spam-notification', 'Vendor - Spam Notification'),
-    ('verndor-spam-complaint', 'Vendor - Spam Complaint'),
-    ('verndor-blocked', 'Vendor - Blocked'),
+    ('vendor-bounce', 'Vendor - Soft bounce'),
+    ('vendor-autoresponder', 'Vendor - Autoresponder'),
+    ('vendor-bad-email-address', 'Vendor - Bad email address'),
+    ('vendor-spam-notification', 'Vendor - Spam Notification'),
+    ('vendor-spam-complaint', 'Vendor - Spam Complaint'),
+    ('vendor-blocked', 'Vendor - Blocked'),
 )
 
 
