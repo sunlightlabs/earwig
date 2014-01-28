@@ -14,7 +14,6 @@ CONTACT_TYPES = (
     ('twitter', 'Twitter'),
 )
 
-# 
 MESSAGE_TYPES = (
     ('public', 'Public'),
     ('private', 'Private'),
@@ -44,7 +43,6 @@ DELIVERY_STATUSES = (
 )
 
 
-
 def _random_uuid():
     return uuid.uuid4().get_hex()
 
@@ -65,7 +63,6 @@ class Sender(models.Model):
     email = models.EmailField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     email_expires_at = models.DateTimeField()
-
 
 
 class Person(models.Model):

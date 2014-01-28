@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from contact.errors import InvalidContactType, InvalidContactValue
+from contact.errors import InvalidContactValue
 from ..utils import body_template_to_string, subject_template_to_string
 from .. import ContactPlugin
 from .models import TwilioStatus
@@ -24,8 +24,6 @@ class TwilioContact(ContactPlugin):
         # OK. let's ensure this is something we can handle.
 
         cd = attempt.contact
-        if cd.type != 'sms':
-            raise InvalidContactType("Contact Detail type is not `sms`")
 
         from_number = self.settings['from_number']
 

@@ -1,4 +1,4 @@
-from contact.errors import CantCancelMessage, Blacklisted, InvalidContactType
+from contact.errors import Blacklisted, InvalidContactType
 
 
 class ContactPlugin(object):
@@ -16,7 +16,7 @@ class ContactPlugin(object):
         # Verify the correct contact detail type has been passed.
         if contact_detail.type != self.medium:
             msg = "'%s' only supports messages of type %r"
-            raise InvalidContactType(msg % (self.__class__, self.medium))
+            raise ValueError(msg % (self.__class__, self.medium))
 
     def send_message(self, attempt):
         """ """
