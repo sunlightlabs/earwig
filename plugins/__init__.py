@@ -1,4 +1,4 @@
-from contact.errors import Blacklisted, InvalidContactType
+from contact.errors import Blacklisted
 
 
 class ContactPlugin(object):
