@@ -31,7 +31,6 @@ def create_test_attempt(value, type_):
 
     message = Message(type=type_, sender=send, subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
-                              plugin=plugin,
                               date=datetime.datetime.now(
                                   pytz.timezone('US/Eastern')),
                               engine="default")
