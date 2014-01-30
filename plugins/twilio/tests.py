@@ -88,3 +88,10 @@ class TwilioTests(TestCase):
 
         plugin = TwilioContact()
         self.assertRaises(InvalidContactValue, plugin.send_message, attempt)
+
+    def test_message(self):
+        plugin = TwilioContact()
+        attempt = self.create_test_attempt()
+        debug_info = plugin.send_message(attempt, debug=True)
+        assert debug_info['subject'] == ''
+        assert debug_info['body'] == 'green blue red blue red green green\n'
