@@ -45,7 +45,6 @@ class TwilioContact(ContactPlugin):
                                         body=body)
             obj.sent = True
         except twilio.TwilioRestException as e:
-            print(e)
             raise InvalidContactValue("Contact detail value seems wrong")
 
         obj.save()

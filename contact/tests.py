@@ -2,9 +2,11 @@ import json
 import datetime
 from django.test import TestCase, Client
 from django.utils.timezone import utc
-from .models import Person, Sender, Message, MessageRecipient, Application
+from .models import (Person, Sender, Message, MessageRecipient, Application, ContactDetail,
+                     DeliveryAttempt)
 from .views import _msg_to_json
 
+A_TIME = datetime.datetime(2014, 1, 1, tzinfo=utc)
 EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
 ISOFORMAT = '%Y-%m-%dT%H:%M:%S.%f+00:00'
 
@@ -245,3 +247,72 @@ class TestGetMessage(TestCase):
         c = Client()
         resp = c.get('/message/11112222333344445555666677778888/')
         assert resp.status_code == 404
+
+
+class TestFlag(TestCase):
+
+    def setUp(self):
+        person = Person.objects.create(ocd_id='ocd-person/1', title='President',
+                                       name='Gerald Fnord')
+        contact = ContactDetail.objects.create(person=person, type='voice', value='202-555-5555')
+        sender = Sender.objects.create(id='1'*64, email_expires_at=EXPIRY)
+        application = Application.objects.create(name='test', contact='test@example.com',
+                                                 template_set='default', active=True)
+        msg = Message.objects.create(type='private', sender=sender, subject='subject',
+                                     message='hello everyone', application=application)
+        recipient = MessageRecipient.objects.create(message=msg, recipient=person,
+                                                    status='pending')
+        self.attempt = DeliveryAttempt.objects.create(contact=contact,
+                                                      date=A_TIME,
+                                                      engine='engine',
+                                                      plugin='plugin',
+                                                      template='')
+
+    def test_normal_get(self):
+        """ test that flag page works """
+        c = Client()
+        resp = c.get('/flag/{0}/{1}/'.format(self.attempt.id, self.attempt.unsubscribe_token()))
+        assert resp.status_code == 200
+        assert resp.templates[0].name == 'contact/flag.html'
+        assert resp.context['attempt'] == self.attempt
+        # TODO: assert that this list is sane
+        #assert resp.context['form'].fields['feedback_type'].choices
+
+    def test_invalid_attempt(self):
+        """ test bad URL params """
+        c = Client()
+        resp = c.get('/flag/{0}/{1}/'.format(99, self.attempt.unsubscribe_token()))
+        assert resp.status_code == 400
+        assert resp.templates[0].name == 'contact/flag-error.html'
+        assert 'no such attempt' in resp.content
+
+        resp = c.get('/flag/{0}/{1}/'.format(self.attempt.id, 'a'*32))
+        assert resp.status_code == 400
+        assert resp.templates[0].name == 'contact/flag-error.html'
+        assert 'invalid secret' in resp.content
+
+    def test_already_flagged(self):
+        """ test that we check for already flagged items """
+        self.attempt.set_feedback('offensive', 'this is abuse')
+        c = Client()
+        resp = c.get('/flag/{0}/{1}/'.format(self.attempt.id, self.attempt.unsubscribe_token()))
+        assert resp.status_code == 400
+        assert resp.templates[0].name == 'contact/flag-error.html'
+        assert 'already flagged' in resp.content
+
+        resp = c.post('/flag/{0}/{1}/'.format(self.attempt.id, self.attempt.unsubscribe_token()))
+        assert resp.status_code == 400
+        assert resp.templates[0].name == 'contact/flag-error.html'
+        assert 'already flagged' in resp.content
+
+    def test_post(self):
+        """ test that POST works to set a flag """
+        c = Client()
+        resp = c.post('/flag/{0}/{1}/'.format(self.attempt.id, self.attempt.unsubscribe_token()),
+                      {'feedback_type': 'offensive', 'note': 'this is abuse'})
+        assert resp.status_code == 200
+        assert resp.templates[0].name == 'contact/flagged.html'
+        attempt = DeliveryAttempt.objects.get()
+        assert attempt.feedback_type == 'offensive'
+        assert attempt.feedback_note == 'this is abuse'
+        assert attempt.feedback_date.year == datetime.date.today().year

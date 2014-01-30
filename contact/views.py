@@ -152,18 +152,16 @@ def flag(request, transaction, secret):
         attempt = DeliveryAttempt.objects.get(id=int(transaction))
         if not attempt.verify_token(secret):
             invalid_reason = 'invalid secret'
+
+        # if there is already feedback on this attempt, that's an error too
+        if attempt.feedback_type:
+            invalid_reason = 'already flagged'
     except DeliveryAttempt.DoesNotExist:
         invalid_reason = 'no such attempt'
 
-    # if there is already feedback on this attempt, that's an error too
-    if attempt.feedback_type:
-        invalid_reason = 'already flagged'
-
     # bail if there was an invalid reason
     if invalid_reason:
-        return render(request, 'contact/flag-error.html', {'attempt': attempt,
-                                                           'reason': invalid_reason},
-                      status=400)
+        return render(request, 'contact/flag-error.html', {'reason': invalid_reason}, status=400)
 
     # at this point we know we have a valid attempt & secret
     if request.method == 'POST':
@@ -181,5 +179,4 @@ def flag(request, transaction, secret):
     return render(request, 'contact/flag.html', {
         'form': form,
         'attempt': attempt,
-        'token': secret,
     })
