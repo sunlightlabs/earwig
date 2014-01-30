@@ -7,3 +7,4 @@ earwig_fixtures.db
 .python_history
 .tox
 earwig/settings/local.py
+fnord-*.txt
