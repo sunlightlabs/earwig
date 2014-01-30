@@ -255,13 +255,6 @@ class TestFlag(TestCase):
         person = Person.objects.create(ocd_id='ocd-person/1', title='President',
                                        name='Gerald Fnord')
         contact = ContactDetail.objects.create(person=person, type='voice', value='202-555-5555')
-        sender = Sender.objects.create(id='1'*64, email_expires_at=EXPIRY)
-        application = Application.objects.create(name='test', contact='test@example.com',
-                                                 template_set='default', active=True)
-        msg = Message.objects.create(type='private', sender=sender, subject='subject',
-                                     message='hello everyone', application=application)
-        recipient = MessageRecipient.objects.create(message=msg, recipient=person,
-                                                    status='pending')
         self.attempt = DeliveryAttempt.objects.create(contact=contact,
                                                       date=A_TIME,
                                                       engine='engine',
