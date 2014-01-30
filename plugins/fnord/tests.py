@@ -12,6 +12,8 @@ from contact.models import (
 )
 
 from .earwig import FnordContact
+from django.conf import settings
+import os
 
 from django.db import IntegrityError
 
@@ -23,6 +25,7 @@ def create_test_attempt():
     send = Sender.objects.create(email_expires_at=dt.datetime(2020, 1, 1, tzinfo=utc))
     message = Message(type='fnord', sender=send, subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
+                              template='fnord-testing-deterministic-name',
                               date=dt.datetime.now(pytz.timezone('US/Eastern')), engine="default")
     attempt.save()
     return attempt
@@ -32,13 +35,26 @@ class FnordTests(TestCase):
     def setUp(self):
         self.plugin = FnordContact()
 
+        # beyond this, we also need to mangle the path pretty bad.
+        # so that we have our test templates set and nothing else. We'll
+        # fix this after for the other tests.
+        self._templates = settings.TEMPLATE_DIRS
+        settings.TEMPLATE_DIRS = (
+            os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         '..', 'test_templates')),
+        )
+
+    def tearDown(self):
+        settings.TEMPLATE_DIRS = self._templates
+
+
     def test_duplicate(self):
         """ Ensure that we blow up with two identical inserts """
         attempt = create_test_attempt()
-        self.plugin.send_message(attempt)
+        self.plugin.send_message(attempt, debug=True)
 
         try:
-            self.plugin.send_message(attempt)
+            self.plugin.send_message(attempt, debug=True)
             assert True is False, ("We didn't get an IntegrityError out of "
                                    "send_message")
         except IntegrityError:
@@ -48,7 +64,7 @@ class FnordTests(TestCase):
         """ Ensure that we can properly fetch the status out of the DB """
         plugin = FnordContact()
         attempt = create_test_attempt()
-        plugin.send_message(attempt)
+        plugin.send_message(attempt, debug=True)
         id1 = plugin.check_message_status(attempt)
 
         plugin = FnordContact()
@@ -56,3 +72,10 @@ class FnordTests(TestCase):
 
         assert id1 == id2, ("We got a different result from a check when"
                             " given a new plugin object. DB issue?")
+
+    def test_message(self):
+        plugin = FnordContact()
+        attempt = create_test_attempt()
+        debug_info = plugin.send_message(attempt, debug=True)
+        assert debug_info['subject'] == ''
+        assert debug_info['body'] == 'green blue red blue red green green\n'
