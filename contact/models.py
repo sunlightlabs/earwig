@@ -1,7 +1,9 @@
 import uuid
 import hashlib
+import datetime
 from django.db import models
 from django.core.urlresolvers import reverse
+from django.utils.timezone import utc
 from django.conf import settings
 
 # each contact detail is of one of these types, and a plugin can handle a single type
@@ -155,6 +157,12 @@ class DeliveryAttempt(models.Model):
 
     def verify_token(self, token):
         return token == self.unsubscribe_token()
+
+    def set_feedback(self, type_, note):
+        self.feedback_type = type_
+        self.feedback_note = note
+        self.feedback_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+        self.save()
 
     @property
     def unsubscribe_url(self):

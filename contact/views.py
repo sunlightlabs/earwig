@@ -169,10 +169,7 @@ def flag(request, transaction, secret):
     if request.method == 'POST':
         form = FlaggingForm(request.POST)
         if form.is_valid():
-            attempt.feedback_type = form.cleaned_data['feedback_type']
-            attempt.feedback_note = form.cleaned_data['note']
-            attempt.feedback_date = datetime.datetime.utcnow().replace(tzinfo=utc)
-            attempt.save()
+            attempt.set_feedback(form.cleaned_data['feedback_type'], form.cleaned_data['note'])
 
             return render(request, 'contact/flagged.html', {
                 'form': form,
