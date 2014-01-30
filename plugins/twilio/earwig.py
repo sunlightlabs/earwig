@@ -21,7 +21,7 @@ class TwilioContact(ContactPlugin):
             self.settings['auth_token'],
         )
 
-    def send_message(self, attempt):
+    def send_message(self, attempt, debug=True):
         # OK. let's ensure this is something we can handle.
 
         cd = attempt.contact
@@ -49,6 +49,13 @@ class TwilioContact(ContactPlugin):
             raise InvalidContactValue("Contact detail value seems wrong")
 
         obj.save()
+
+        if debug:
+            return {
+                "body": body,
+                "subject": subject,
+                "obj": obj,
+            }
 
     def check_message_status(self, attempt):
         obj = TwilioStatus.objects.get(attempt=attempt)
