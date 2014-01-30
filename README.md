@@ -1,9 +1,7 @@
 earwig
 ======
-A unified contact engine powered by Open Civic Data
 
-Project Definition
-------------------
+A unified contact engine.
 
 Goals:
 
@@ -55,15 +53,18 @@ Open Questions
 
 API
 ---
-POST /sender/
-    Get or create a sender object.  Useful for pre-authorization/looking up an existant key.
-    params: email, name, ttl
+**POST /sender/**
 
-POST /message/
-    Create a message to be delivered by the earwig.
-    params: type, subject, message, sender (key or JSON payload), app_key
-    return: message body
+Get or create a sender object.  Useful for pre-authorization/looking up an existant key.
+params: email, name, ttl
 
-GET /message/<message_id>/
-    get message body
-    return: message body
+**POST /message/**
+
+Create a message to be delivered by the earwig.
+params: type, subject, message, sender (key or JSON payload), app_key
+return: message body
+
+**GET /message/<message_id>/**
+
+get message body
+return: message body
