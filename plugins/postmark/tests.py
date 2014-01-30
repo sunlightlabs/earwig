@@ -77,4 +77,4 @@ class BounceFeedbackTest(TestCase):
         feedback = attempt.feedback.get()
 
         # Make sure the hard bounce was recorded as vendor-hard-bounce.
-        self.assertEqual(feedback.feedback_type, 'vendor-blocked')
+        self.assertEqual(feedback.feedback_type, 'contact-detail-blacklist')

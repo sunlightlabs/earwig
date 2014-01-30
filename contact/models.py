@@ -50,16 +50,6 @@ FEEDBACK_TYPES = (
     ('wrong-person', "Wrong person"),
     ('contact-detail-blacklist', "Bad method"),
     ('unsubscribe', 'Unsubscribe'),
-
-    # Email/postmark types.
-    ('vendor-unsubscribe', 'Vendor - Unsubscribe'),
-    ('vendor-hard-bounce', 'Vendor - Hard bounce'),
-    ('vendor-bounce', 'Vendor - Soft bounce'),
-    ('vendor-autoresponder', 'Vendor - Autoresponder'),
-    ('vendor-bad-email-address', 'Vendor - Bad email address'),
-    ('vendor-spam-notification', 'Vendor - Spam Notification'),
-    ('vendor-spam-complaint', 'Vendor - Spam Complaint'),
-    ('vendor-blocked', 'Vendor - Blocked'),
 )
 
 
