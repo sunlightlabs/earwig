@@ -1,3 +1,4 @@
+from __future__ import print_function
 from django.conf import settings
 
 from contact.errors import InvalidContactValue
@@ -44,7 +45,7 @@ class TwilioContact(ContactPlugin):
                                         body=body)
             obj.sent = True
         except twilio.TwilioRestException as e:
-            print e
+            print(e)
             raise InvalidContactValue("Contact detail value seems wrong")
 
         obj.save()

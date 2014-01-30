@@ -1,10 +1,11 @@
-from django.core.management.base import BaseCommand, CommandError
+from __future__ import print_function
+
 
 import importlib
 import datetime
 import uuid
 import pytz
-
+from django.core.management.base import BaseCommand, CommandError
 from contact.models import (
     Person,
     ContactDetail,
@@ -58,14 +59,14 @@ class Command(BaseCommand):
 
         attempt = create_test_attempt(value, type_)
         plugin = plugin()
-        print "Sending:"
-        print ""
-        print plugin.send_message(attempt)
-        print ""
-        print ""
-        print "Status:"
-        print ""
-        print plugin.check_message_status(attempt)
-        print ""
+        print("Sending:")
+        print("")
+        print(plugin.send_message(attempt))
+        print("")
+        print("")
+        print("Status:")
+        print("")
+        print(plugin.check_message_status(attempt))
+        print("")
 
         #attempt.delete()

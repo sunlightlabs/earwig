@@ -44,7 +44,7 @@ DELIVERY_STATUSES = (
 
 
 def _random_uuid():
-    return uuid.uuid4().get_hex()
+    return uuid.uuid4().hex
 
 
 class Application(models.Model):
