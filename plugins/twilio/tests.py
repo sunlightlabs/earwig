@@ -49,7 +49,7 @@ class TwilioTests(TestCase):
         self._templates = settings.TEMPLATE_DIRS
         settings.TEMPLATE_DIRS = (
             os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                         'test_templates')),
+                                         '..', 'test_templates')),
         )
 
     def tearDown(self):
