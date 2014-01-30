@@ -42,6 +42,24 @@ DELIVERY_STATUSES = (
     ('success', 'This delivery attempt was successful.'),
 )
 
+FEEDBACK_TYPES = (
+    ('', 'None'),
+    ('offensive', 'Offensive'),
+    ('wrong-person', "Wrong person"),
+    ('contact-detail-blacklist', "Bad method"),
+    ('unsubscribe', 'Unsubscribe'),
+
+    # Email/postmark types.
+    ('vendor-unsubscribe', 'Vendor - Unsubscribe'),
+    ('vendor-hard-bounce', 'Vendor - Hard bounce'),
+    ('vendor-bounce', 'Vendor - Soft bounce'),
+    ('vendor-autoresponder', 'Vendor - Autoresponder'),
+    ('vendor-bad-email-address', 'Vendor - Bad email address'),
+    ('vendor-spam-notification', 'Vendor - Spam Notification'),
+    ('vendor-spam-complaint', 'Vendor - Spam Complaint'),
+    ('vendor-blocked', 'Vendor - Blocked'),
+)
+
 
 def _random_uuid():
     return uuid.uuid4().hex
@@ -121,6 +139,9 @@ class DeliveryAttempt(models.Model):
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
     plugin = models.CharField(max_length=20)
+    feedback_type = models.CharField(max_length=50, choices=FEEDBACK_TYPES, default='')
+    feedback_note = models.TextField()
+    feedback_date = models.DateTimeField(null=True)
 
     def __unicode__(self):
         return 'to {0} on {1}'.format(self.contact.person.name, self.date.strftime('%Y-%m-%d'))
@@ -139,32 +160,3 @@ class DeliveryAttempt(models.Model):
         return "%s%s" % (settings.EARWIG_PUBLIC_LINK_ROOT,
                          reverse('flag', args=(str(self.id), str(self.unsubscribe_token())))
                         )
-
-
-FEEDBACK_TYPES = (
-    ('offensive', 'Offensive'),
-    ('wrong-person', "Wrong person"),
-    ('contact-detail-blacklist', "Bad method"),
-    ('unsubscribe', 'Unsubscribe'),
-
-    # Email/postmark types.
-    ('vendor-unsubscribe', 'Vendor - Unsubscribe'),
-    ('vendor-hard-bounce', 'Vendor - Hard bounce'),
-    ('vendor-bounce', 'Vendor - Soft bounce'),
-    ('vendor-autoresponder', 'Vendor - Autoresponder'),
-    ('vendor-bad-email-address', 'Vendor - Bad email address'),
-    ('vendor-spam-notification', 'Vendor - Spam Notification'),
-    ('vendor-spam-complaint', 'Vendor - Spam Complaint'),
-    ('vendor-blocked', 'Vendor - Blocked'),
-)
-
-
-class ReceiverFeedback(models.Model):
-    """ Marks feedback from a user """
-    attempt = models.OneToOneField(DeliveryAttempt, related_name='feedback')
-    note = models.TextField()
-    date = models.DateTimeField()
-    feedback_type = models.CharField(max_length=64, choices=FEEDBACK_TYPES)
-
-    def __unicode__(self):
-        return self.feedback_type

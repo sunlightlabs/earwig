@@ -6,8 +6,7 @@ from django.utils.timezone import utc
 from django.conf import settings
 
 from .forms import FlaggingForm
-from .models import (Application, Sender, Person, Message, MessageRecipient,
-                     DeliveryAttempt, ReceiverFeedback)
+from .models import Application, Sender, Person, Message, MessageRecipient, DeliveryAttempt
 
 import re
 import json
@@ -16,6 +15,7 @@ import datetime
 
 
 def _msg_to_json(msg):
+    """ util function for returning an entire message as JSON """
     data = {'type': msg.type, 'sender': msg.sender_id, 'subject': msg.subject,
             'message': msg.message, 'recipients': []}
     for recip in MessageRecipient.objects.filter(message=msg):
@@ -25,6 +25,7 @@ def _msg_to_json(msg):
 
 
 def _sender_to_json(sender):
+    """ util function for returning sender as JSON """
     data = {'id': sender.id, 'name': sender.name, 'email': sender.email,
             'created_at': sender.created_at.isoformat(),
             'email_expires_at': sender.email_expires_at.isoformat()}
@@ -32,6 +33,7 @@ def _sender_to_json(sender):
 
 
 def _get_or_create_sender(email, name, ttl):
+    """ either lookup or create a sender, optionally updating it """
     uid = hashlib.sha256(email + settings.EARWIG_SENDER_SALT).hexdigest()
     # ttl has to be at least one day
     ttl = max(1, ttl)
@@ -59,6 +61,7 @@ def _get_or_create_sender(email, name, ttl):
 
 @require_POST
 def create_sender(request):
+    """ create a new sender (can also be done from within create_message call) """
     try:
         email = request.POST['email']
         name = request.POST['name']
@@ -71,6 +74,8 @@ def create_sender(request):
 
 @require_POST
 def create_message(request):
+    """ create a new message """
+    # validate parameters
     try:
         msg_type = request.POST['type']
         subject = request.POST['subject']
@@ -85,6 +90,7 @@ def create_message(request):
     except Application.DoesNotExist:
         return HttpResponseBadRequest('invalid application key')
 
+    # either get sender from database or construct one from a sender payload
     if re.match('[0-9a-f]{64}', sender_payload):
         # look up sender if it is a sha256
         try:
@@ -117,11 +123,13 @@ def create_message(request):
     for recip in recipients:
         MessageRecipient.objects.create(message=msg, recipient=recip, status='pending')
 
+    # return the complete message object
     return HttpResponse(_msg_to_json(msg))
 
 
 @require_GET
 def get_message(request, message_id):
+    """ simply get a message if it exists """
     try:
         msg = Message.objects.get(pk=message_id)
         return HttpResponse(_msg_to_json(msg))
@@ -130,52 +138,51 @@ def get_message(request, message_id):
 
 
 def flag(request, transaction, secret):
+    """
+    Create feedback on a DeliveryAttempt
+
+    Templates:
+        contact/flag-error.html
+        contact/flag.html
+        contact/flagged.html
+    """
+    # ensure we're dealing with a valid transaction
+    invalid_reason = None
     try:
         attempt = DeliveryAttempt.objects.get(id=int(transaction))
+        if not attempt.verify_token(secret):
+            invalid_reason = 'invalid secret'
     except DeliveryAttempt.DoesNotExist:
-        return HttpResponseNotFound("Invalid transaction")
+        invalid_reason = 'no such attempt'
 
-    try:
-        oldflag = attempt.feedback.get()
-        return render(request, 'contact/oldflagged.html', {
-            "oldflag": oldflag
-        })
-    except ReceiverFeedback.DoesNotExist:
-        pass  # This is expected.
+    # if there is already feedback on this attempt, that's an error too
+    if attempt.feedback_type:
+        invalid_reason = 'already flagged'
 
+    # bail if there was an invalid reason
+    if invalid_reason:
+        return render(request, 'contact/flag-error.html', {'attempt': attempt,
+                                                           'reason': invalid_reason},
+                      status=400)
+
+    # at this point we know we have a valid attempt & secret
     if request.method == 'POST':
         form = FlaggingForm(request.POST)
         if form.is_valid():
-            feedback = ReceiverFeedback(
-                attempt=attempt,
-                note=form.cleaned_data['note'],
-                date=datetime.datetime.utcnow(),
-                feedback_type=form.cleaned_data['feedback_type'],
-            )
-            feedback.save()
+            attempt.feedback_type = form.cleaned_data['feedback_type']
+            attempt.feedback_note = form.cleaned_data['note']
+            attempt.feedback_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+            attempt.save()
 
             return render(request, 'contact/flagged.html', {
-                "feedback": feedback,
                 'form': form,
                 "attempt": attempt,
             })
-
-        if attempt.verify_token(secret):
-            return render(request, 'contact/flag.html', {
-                'form': form,
-                "attempt": attempt,
-                "token": secret,
-                "valid_token": True,
-            })
-        #else:
-        #    No need to handle it, we'll re-check down below with a new form.
 
     form = FlaggingForm()
-    valid_token = attempt.verify_token(secret)
 
     return render(request, 'contact/flag.html', {
         'form': form,
-        "attempt": attempt,
-        "token": secret,
-        "valid_token": valid_token,
+        'attempt': attempt,
+        'token': secret,
     })

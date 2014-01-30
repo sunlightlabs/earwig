@@ -4,7 +4,6 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from contact.models import ReceiverFeedback
 from plugins.postmark.models import PostmarkDeliveryMeta
 
 
