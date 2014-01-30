@@ -7,3 +7,4 @@ earwig_test.db
 earwig_fixtures.db
 .python_history
 .tox
+fnord-*.txt
