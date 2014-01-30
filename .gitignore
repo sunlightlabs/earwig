@@ -4,6 +4,7 @@
 earwig.db
 earwig_test.db
 earwig_fixtures.db
+earwig/earwig.sqlite3
 .python_history
 .tox
 earwig/settings/local.py
