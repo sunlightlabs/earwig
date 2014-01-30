@@ -139,6 +139,7 @@ class DeliveryAttempt(models.Model):
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
     plugin = models.CharField(max_length=20)
+    template = models.CharField(max_length=100)
     feedback_type = models.CharField(max_length=50, choices=FEEDBACK_TYPES, default='')
     feedback_note = models.TextField()
     feedback_date = models.DateTimeField(null=True)

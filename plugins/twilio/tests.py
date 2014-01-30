@@ -21,6 +21,7 @@ from contact.models import (
     Message,
 )
 from .earwig import TwilioContact
+from django.conf import settings
 
 
 class TwilioTests(TestCase):
@@ -34,12 +35,25 @@ class TwilioTests(TestCase):
         message = Message(type='fnord', sender=send, subject="Hello, World", message="HELLO WORLD")
         attempt = DeliveryAttempt(contact=cd, status="scheduled",
                                   date=datetime.now(pytz.timezone('US/Eastern')),
+                                  template='twilio-testing-deterministic-name',
                                   engine="default")
         attempt.save()
         return attempt
 
     def setUp(self):
         self.plugin = TwilioContact()
+
+        # beyond this, we also need to mangle the path pretty bad.
+        # so that we have our test templates set and nothing else. We'll
+        # fix this after for the other tests.
+        self._templates = settings.TEMPLATE_DIRS
+        settings.TEMPLATE_DIRS = (
+            os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         'test_templates')),
+        )
+
+    def tearDown(self):
+        settings.TEMPLATE_DIRS = self._templates
 
     def test_duplicate(self):
         """ Ensure that we blow up with two identical inserts """

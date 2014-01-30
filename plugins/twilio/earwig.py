@@ -35,8 +35,8 @@ class TwilioContact(ContactPlugin):
             sent=False
         )
 
-        body = body_template_to_string('default', 'sms', attempt)
-        subject = subject_template_to_string('default', 'sms', attempt)
+        body = body_template_to_string(attempt.template, 'sms', attempt)
+        subject = subject_template_to_string(attempt.template, 'sms', attempt)
 
         try:
             self.client.messages.create(to=cd.value,
