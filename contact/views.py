@@ -171,26 +171,11 @@ def flag(request, transaction, secret):
         #    No need to handle it, we'll re-check down below with a new form.
 
     form = FlaggingForm()
-
-    if attempt.verify_token(secret):
-        return render(request, 'contact/flag.html', {
-            'form': form,
-            "attempt": attempt,
-            "token": secret,
-            "valid_token": True,
-        })
+    valid_token = attempt.verify_token(secret)
 
     return render(request, 'contact/flag.html', {
         'form': form,
         "attempt": attempt,
         "token": secret,
-        "valid_token": False,
+        "valid_token": valid_token,
     })
-
-
-#    return render(request, 'contact/flag.html', {
-#        "attempt": attempt,
-#        "token": secret,
-#        "valid_token": False,
-#        "blacklisted": False,
-#    })
