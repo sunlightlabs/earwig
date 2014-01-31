@@ -31,7 +31,7 @@ def handle_bounce(request):
     bounce_types = dict([
         ('HardBounce', None),
         ('Transient', None),
-        ('Unsubscribe', 'unsubscribe'),
+        ('Unsubscribe', 'blocked'),
         ('Subscribe', None),
         ('AutoResponder', None),
         ('AddressChange', None),
@@ -42,11 +42,11 @@ def handle_bounce(request):
         ('SoftBounce ', None),
         ('VirusNotification', None),
         ('ChallengeVerification', None),
-        ('BadEmailAddress', 'wrong-person'),
-        ('SpamComplaint', 'unsubscribe'),
+        ('BadEmailAddress', 'bad-data'),
+        ('SpamComplaint', 'blocked'),
         ('ManuallyDeactivated', None),
         ('Unconfirmed', None),
-        ('Blocked', 'contact-detail-blacklist'),
+        ('Blocked', 'blocked'),
         ('SMTPApiError ', None),
         ('InboundError ', None),
     ])
@@ -59,16 +59,13 @@ def handle_bounce(request):
     # Certain bounce types indicate an invalid email address.
     INVALID_EMAIL_TYPES = ('HardBounce', 'BadEmailAddress',)
     if data['Type'] in INVALID_EMAIL_TYPES:
-        attempt = meta.attempt
         attempt.status = 'invalid'
         attempt.save()
 
     # Others amount to receiver feedback.
     elif bounce_types.get(data['Type']):
-        ReceiverFeedback.objects.create(attempt=meta.attempt,
-                                        date=datetime.strptime(data['BouncedAt'], '%Y-%m-%d'),
-                                        note=payload,
-                                        feedback_type=bounce_types.get(data['Type']))
+        attempt.status = bounce_types.get(data['Type'])
+        attempt.save()
 
     # There are a few obscure ones that can just raise an error.
     else:
