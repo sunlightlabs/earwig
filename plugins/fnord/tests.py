@@ -35,6 +35,7 @@ def create_test_attempt():
                                                               tzinfo=utc))
     message = Message(type='fnord', sender=send, subject="Hello, World",
                       message="HELLO WORLD", application=app)
+    message.save()
 
     mr = MessageRecipient(message=message,
                           recipient=pt,
@@ -98,4 +99,9 @@ class FnordTests(TestCase):
         attempt = create_test_attempt()
         debug_info = plugin.send_message(attempt, debug=True)
         assert debug_info['subject'] == ''
-        assert debug_info['body'] == 'green blue red blue red green green\n\n    HELLO WORLD\n'
+        assert debug_info['body'] == """green blue red blue red green green
+
+
+    HELLO WORLD
+
+"""
