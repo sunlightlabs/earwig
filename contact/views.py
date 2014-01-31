@@ -1,6 +1,5 @@
 from django.views.decorators.http import require_GET, require_POST
-from django.http import (HttpResponseBadRequest, HttpResponse,
-                         HttpResponseNotFound)
+from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.utils.timezone import utc
 from django.conf import settings

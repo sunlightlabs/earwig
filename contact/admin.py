@@ -1,6 +1,5 @@
 from django.contrib import admin
-from contact.models import (Person, ContactDetail, Sender, DeliveryAttempt, Message,
-                            MessageRecipient)
+from .models import Person, ContactDetail, Sender, DeliveryAttempt, Message, MessageRecipient
 
 
 admin.site.register(Person)

@@ -120,7 +120,7 @@ class MessageRecipient(models.Model):
     status = models.CharField(max_length=10, choices=MESSAGE_STATUSES)
 
     def __unicode__(self):
-        return self.recipients[0].name
+        return self.recipient.name
 
 
 class DeliveryAttempt(models.Model):
@@ -156,6 +156,6 @@ class DeliveryAttempt(models.Model):
 
     @property
     def unsubscribe_url(self):
-        return "%s%s" % (settings.EARWIG_PUBLIC_LINK_ROOT,
-                         reverse('flag', args=(str(self.id), str(self.unsubscribe_token())))
-                        )
+        return ''.join([settings.EARWIG_PUBLIC_LINK_ROOT,
+                       reverse('flag', args=(str(self.id),
+                                             str(self.unsubscribe_token())))])
