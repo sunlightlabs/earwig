@@ -116,4 +116,5 @@ class TwilioTests(TestCase):
         attempt = self.create_test_attempt()
         debug_info = plugin.send_message(attempt, debug=True)
         assert debug_info['subject'] == ''
-        assert debug_info['body'] == 'green blue red blue red green green\n'
+        assert debug_info['body'] == ("green blue red blue red green green. "
+                                      "You've got 1 message(s).\n")
