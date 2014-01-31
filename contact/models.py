@@ -130,7 +130,7 @@ class MessageRecipient(models.Model):
     status = models.CharField(max_length=10, choices=MESSAGE_STATUSES)
 
     def __unicode__(self):
-        return self.recipients[0].name
+        return self.recipient.name
 
 
 class DeliveryAttempt(models.Model):

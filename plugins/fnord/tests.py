@@ -9,6 +9,8 @@ from contact.models import (
     Sender,
     DeliveryAttempt,
     Message,
+    MessageRecipient,
+    Application,
 )
 
 from .earwig import FnordContact
@@ -19,15 +21,33 @@ from django.db import IntegrityError
 
 
 def create_test_attempt():
+    app = Application.objects.create(
+        name="test",
+        contact="fnord@fnord.fnord",
+        template_set="None",
+        active=True)
+
     pt = Person.objects.create(ocd_id='test', title='Mr.', name='Paul Tagliamonte', photo_url="")
     cd = ContactDetail.objects.create(person=pt, type='fnord', value='@fnord', note='Fnord!',
                                       blacklisted=False)
-    send = Sender.objects.create(email_expires_at=dt.datetime(2020, 1, 1, tzinfo=utc))
-    message = Message(type='fnord', sender=send, subject="Hello, World", message="HELLO WORLD")
+    send = Sender.objects.create(id='randomstring',
+                                 email_expires_at=dt.datetime(2020, 1, 1,
+                                                              tzinfo=utc))
+    message = Message(type='fnord', sender=send, subject="Hello, World",
+                      message="HELLO WORLD", application=app)
+
+    mr = MessageRecipient(message=message,
+                          recipient=pt,
+                          status='pending')
+    mr.save()
+
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
                               template='fnord-testing-deterministic-name',
-                              date=dt.datetime.now(pytz.timezone('US/Eastern')), engine="default")
+                              date=dt.datetime.now(pytz.timezone('US/Eastern')),
+                              engine="default")
+
     attempt.save()
+    attempt.messages.add(mr)
     return attempt
 
 
@@ -78,4 +98,4 @@ class FnordTests(TestCase):
         attempt = create_test_attempt()
         debug_info = plugin.send_message(attempt, debug=True)
         assert debug_info['subject'] == ''
-        assert debug_info['body'] == 'green blue red blue red green green\n'
+        assert debug_info['body'] == 'green blue red blue red green green\n\n    HELLO WORLD\n'

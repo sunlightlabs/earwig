@@ -1,1 +1,5 @@
 green blue red blue red green green
+
+{% for message in attempt.messages.all %}
+    {{message.message.message}}
+{% endfor %}
