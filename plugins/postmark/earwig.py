@@ -4,31 +4,42 @@ http://developer.postmarkapp.com/developer-inbound-configure.html
 '''
 import pystmark
 
-from ..plugins import ContactPlugin, EmailDeliveryStatus
+from django.conf import settings
+
+from .. import ContactPlugin, EmailDeliveryStatus
+from ..utils import body_template_to_string, subject_template_to_string
 from .models import PostmarkDeliveryMeta
 
 
 class PostmarkContact(ContactPlugin):
     '''Send an email from through the postmark API.
     '''
-    def send_message(self, attempt, extra_context=None):
+    def send_message(self, attempt, debug=False):
         contact_detail = attempt.contact
         recipient_email_address = contact_detail.value
 
-        body_template = self.get_body_template(attempt)
-        subject_template = self.get_subject_template(attempt)
+        body = body_template_to_string(attempt.template, 'email', attempt)
+        subject = subject_template_to_string(attempt.template, 'email', attempt)
 
-        message = body_template.render(attempt=attempt, **extra_context or {})
-        subject = subject_template.render(attempt=attempt, **extra_context or {})
 
         message = pystmark.Message(
-            sender=self.get_sender(attempt),
+            sender='tneale@sunlightfoundation.com',
             to=recipient_email_address,
             subject=subject,
-            text=message)
-        response = pystmark.send(message, api_key=settings.POSTMARK_API_KEY)
-        message_id = response['MessageID']
-        PostmarkDeliveryMeta.create(attempt=attempt, message_id=message_id)
+            text=body)
+
+        api_key = getattr(settings, 'POSTMARK_API_KEY', None)
+        response = pystmark.send(message, api_key)
+        resp_json = response.json()
+        message_id = resp_json['MessageID']
+        meta = PostmarkDeliveryMeta.objects.create(
+            attempt=attempt, message_id=message_id)
+
+        if debug:
+            return {
+                "body": body,
+                "subject": subject,
+                "obj": meta }
 
     def check_message_status(self, attempt):
         obj = PostmarkDeliveryMeta.get(attempt=attempt)
