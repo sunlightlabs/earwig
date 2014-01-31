@@ -12,7 +12,6 @@ from twilio.rest import TwilioRestClient
 
 class TwilioContact(ContactPlugin):
     def __init__(self):
-        # XXX: How do we get these?
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings
 
