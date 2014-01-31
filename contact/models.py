@@ -166,5 +166,6 @@ class DeliveryAttempt(models.Model):
 
     @property
     def unsubscribe_url(self):
-        return ''.join(settings.EARWIG_PUBLIC_LINK_ROOT,
-                       reverse('flag', args=(str(self.id), str(self.unsubscribe_token()))))
+        return ''.join([settings.EARWIG_PUBLIC_LINK_ROOT,
+                       reverse('flag', args=(str(self.id),
+                                             str(self.unsubscribe_token())))])
