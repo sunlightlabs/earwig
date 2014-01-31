@@ -23,6 +23,7 @@ MESSAGE_TYPES = (
 )
 
 MESSAGE_STATUSES = (
+    ('unscheduled', 'Unscheduled'), # not yet attempted
     ('pending', 'Pending'),         # not yet attempted
     ('attempted', 'Attempted'),     # attempts made, we'll keep trying
     ('expired', 'Expired'),         # we've tried, and failed
@@ -117,7 +118,7 @@ class MessageRecipient(models.Model):
     """ allows association of a status with a message & recipient """
     message = models.ForeignKey(Message)
     recipient = models.ForeignKey(Person, related_name='messages')
-    status = models.CharField(max_length=10, choices=MESSAGE_STATUSES)
+    status = models.CharField(max_length=10, choices=MESSAGE_STATUSES, default='unscheduled')
 
     def __unicode__(self):
         return self.recipient.name
