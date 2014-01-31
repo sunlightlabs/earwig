@@ -1,18 +1,120 @@
+import os
+import sys
+from os.path import abspath, dirname, join
+
+# We're forcing this in before we import the
+# models, that way we don't actually use the system copy.
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../mock_libs'))
+
 import json
+import pytz
+import uuid
+import datetime as dt
 
 from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from contact.models import DeliveryAttempt
 from plugins.postmark.models import PostmarkDeliveryMeta
+from ..utils import body_template_to_string, subject_template_to_string
+from .earwig import PostmarkContact
+
+from contact.models import (
+    Person,
+    ContactDetail,
+    Sender,
+    Message,
+    MessageRecipient,
+    DeliveryAttempt,
+    Application)
 
 
-class BounceFeedbackTest(TestCase):
+class EmailTestCase(TestCase):
+    '''Base test case that switches the TEMPLATE_DIRS settings and
+    adds test objects to the database.
+    '''
+    def setUp(self):
+        self.create_attempt()
+        self.switch_templatedirs()
+
+    def switch_templatedirs(self):
+        '''Swtich TEMPLATE_DIRS to point at test templates.
+        '''
+        self._templates = settings.TEMPLATE_DIRS
+        dirs = [abspath(join(dirname(__file__), '..', 'test_templates'))]
+        settings.TEMPLATE_DIRS = dirs
+
+    def create_attempt(self):
+        '''Create a test attempt to use in the tests.
+        '''
+        app = Application.objects.create(
+            name="Testyapp", contact="example@example.com",
+            template_set="cow")
+
+        person = Person.objects.create(
+            ocd_id='test', title='Mr.',
+            name='Paul Tagliamonte', photo_url="")
+
+        contact = ContactDetail.objects.create(
+            person=person, type='email',
+            value='paultag@sunlightfoundation.com', note='Holla at me', blacklisted=False)
+
+        sender = Sender.objects.create(
+            name="Testy McZample", id=uuid.uuid4(),
+            email_expires_at=dt.datetime.now() + dt.timedelta(weeks=500))
+
+        message = Message.objects.create(
+            type='fnord', sender=sender, application=app,
+            subject="Hello, World", message="HELLO WORLD")
+
+        message_recipient = MessageRecipient(
+            message=message,
+            recipient=person,
+            status='pending')
+        message_recipient.save()
+
+        attempt = DeliveryAttempt.objects.create(
+            contact=contact, status="scheduled",
+            date=dt.datetime.now(pytz.timezone('US/Eastern')),
+            engine="default",
+            template='postmark-testing-deterministic-name')
+
+        attempt.messages.add(message_recipient)
+
+        attempt.save()
+        return attempt
+
+    def tearDown(self):
+        '''Restore the template dirs and delete the test objects.
+        '''
+        settings.TEMPLATE_DIRS = self._templates
+        Application.objects.all().delete()
+        Person.objects.all().delete()
+        ContactDetail.objects.all().delete()
+        Sender.objects.all().delete()
+        Message.objects.all().delete()
+        MessageRecipient.objects.all().delete()
+        DeliveryAttempt.objects.all().delete()
+
+
+class PostmarkMessageText(EmailTestCase):
+    '''Tests sending a message using a mock pystmark library. Assumes the
+    library does what it's supposed to and the message is successfully sent.
+    '''
+    def test_message(self):
+        plugin = PostmarkContact()
+        attempt = DeliveryAttempt.objects.get(pk=1)
+        debug_info = plugin.send_message(attempt, debug=True)
+        self.assertEquals(debug_info['subject'], 'Test subject')
+        self.assertEquals(debug_info['body'], 'Test body\n')
+
+
+class BounceHandlingTest(EmailTestCase):
     '''Verify that a hypothetical bounce notifaction from postmark results
     in an accurate RecieverFeedback record.
     '''
-    fixtures = ['contact_attempt.json']
 
     def test_hard_bounce(self):
         '''Verify that hard bounces result in DeliveryAttempt.status
@@ -73,8 +175,8 @@ class BounceFeedbackTest(TestCase):
             "Subject": "Hello from our app!"
         }
         client.post(reverse('handle_bounce'), json.dumps(payload), content_type='application/json')
-
-        feedback = attempt.feedback.get()
+        attempt = DeliveryAttempt.objects.all()[0]
 
         # Make sure the hard bounce was recorded as vendor-hard-bounce.
-        self.assertEqual(feedback.feedback_type, 'contact-detail-blacklist')
+        self.assertEqual(attempt.status, 'blocked')
+
