@@ -14,6 +14,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'kombu.transport.django',
     'contact',
     'plugins.fnord',
     'plugins.twilio',
@@ -31,6 +32,8 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'earwig.urls'
 WSGI_APPLICATION = 'earwig.wsgi.application'
+
+BROKER_URL = 'django://'
 
 TEMPLATE_DIRS = (
     os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'templates')),
