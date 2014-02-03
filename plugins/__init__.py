@@ -23,19 +23,3 @@ class ContactPlugin(object):
     def check_message_status(self, attempt):
         """ """
         raise NotImplementedError()
-
-
-class EmailContactPlugin(ContactPlugin):
-    '''
-    '''
-    def get_body_template(self, attempt):
-        raise NotImplementedError()
-
-    def get_subject_template(self, attempt):
-        raise NotImplementedError()
-
-    def get_sender_address(self, attempt):
-        raise NotImplementedError()
-
-    def get_reply_addreses(self, attempt):
-        raise NotImplementedError()
