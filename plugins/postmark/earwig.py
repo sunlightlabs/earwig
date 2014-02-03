@@ -21,7 +21,6 @@ class PostmarkContact(ContactPlugin):
         body = body_template_to_string(attempt.template, 'email', attempt)
         subject = subject_template_to_string(attempt.template, 'email', attempt)
 
-
         message = pystmark.Message(
             sender='tneale@sunlightfoundation.com',
             to=recipient_email_address,
