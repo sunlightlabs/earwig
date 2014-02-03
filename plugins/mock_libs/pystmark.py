@@ -33,3 +33,29 @@ class Response(object):
 
 def send(message, *args):
     return Response(message)
+
+
+BOUNCED_EMAIL_ID = 'BOUNCED_EMAIL'
+
+def get_bounces(api_key):
+    class Response(object):
+        '''I feel so unclean.'''
+        def json(self):
+            return {
+                'TotalCount': 1,
+                'Bounces': [{
+                    "ID": 'cow',
+                    "Type": "HardBounce",
+                    "MessageID" : BOUNCED_EMAIL_ID,
+                    "TypeCode" : 1,
+                    "Details": "test bounce",
+                    "Email": "jim@test.com",
+                    "BouncedAt": "[YESTERDAY]",
+                    "DumpAvailable": True,
+                    "Inactive": True,
+                    "CanActivate": True,
+                    "Content" : "Return-Path:....",
+                    "Subject" : "Hello from our app!"
+                    }]
+                }
+    return Response()
