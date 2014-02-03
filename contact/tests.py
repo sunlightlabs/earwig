@@ -3,12 +3,25 @@ import datetime
 from django.test import TestCase, Client
 from django.utils.timezone import utc
 from .models import (Person, Sender, Message, MessageRecipient, Application, ContactDetail,
-                     DeliveryAttempt)
+                     DeliveryAttempt, ContactType, MessageType, FeedbackType, ChoiceEnum)
 from .views import _msg_to_json
 
 A_TIME = datetime.datetime(2014, 1, 1, tzinfo=utc)
 EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
 ISOFORMAT = '%Y-%m-%dT%H:%M:%S.%f+00:00'
+
+
+class TestChoiceEnum(TestCase):
+
+    def test_declarative_form(self):
+        class Numbers(ChoiceEnum):
+            one = 'Uno'
+            two = 'Dos'
+        assert Numbers.one == 'one'
+        assert Numbers.two == 'two'
+        assert len(Numbers.choices) == 2
+        assert ('one', 'Uno') in Numbers.choices
+        assert ('two', 'Dos') in Numbers.choices
 
 
 class TestCreateSender(TestCase):
@@ -89,21 +102,23 @@ class TestCreateMessage(TestCase):
                                             email_expires_at=EXPIRY)
         self.application = Application.objects.create(name='test', contact='test@example.com',
                                                       template_set='default', active=True)
-        self.GOOD_MESSAGE = {'type': 'public', 'subject': 'hi', 'message': 'this is a message',
+        self.GOOD_MESSAGE = {'type': MessageType.public, 'subject': 'hi',
+                             'message': 'this is a message',
                              'sender': '1'*64, 'recipients': ['ocd-person/1'],
                              'key': self.application.key}
 
     def test_msg_to_json(self):
         """ test that msg to json works """
-        msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
-                                     message='hello everyone', application=self.application)
+        msg = Message.objects.create(type=MessageType.private, sender=self.sender,
+                                     subject='subject', message='hello everyone',
+                                     application=self.application)
         MessageRecipient.objects.create(message=msg, recipient=self.person1, status='pending')
         MessageRecipient.objects.create(message=msg, recipient=self.person2, status='expired')
 
         data = json.loads(_msg_to_json(msg))
 
         assert data['message'] == 'hello everyone'
-        assert data['type'] == 'private'
+        assert data['type'] == MessageType.private
         assert data['sender'] == self.sender.id
         assert data['subject'] == 'subject'
         assert len(data['recipients']) == 2
@@ -221,8 +236,9 @@ class TestGetMessage(TestCase):
         self.sender = Sender.objects.create(id='1'*64, email_expires_at=EXPIRY)
         self.application = Application.objects.create(name='test', contact='test@example.com',
                                                       template_set='default', active=True)
-        self.msg = Message.objects.create(type='private', sender=self.sender, subject='subject',
-                                          message='hello everyone', application=self.application)
+        self.msg = Message.objects.create(type=MessageType.private, sender=self.sender,
+                                          subject='subject', message='hello everyone',
+                                          application=self.application)
         MessageRecipient.objects.create(message=self.msg, recipient=self.person1, status='pending')
         MessageRecipient.objects.create(message=self.msg, recipient=self.person2, status='expired')
 
@@ -233,7 +249,7 @@ class TestGetMessage(TestCase):
         data = json.loads(resp.content)
 
         assert data['message'] == 'hello everyone'
-        assert data['type'] == 'private'
+        assert data['type'] == MessageType.private
         assert data['sender'] == self.sender.id
         assert data['subject'] == 'subject'
         assert len(data['recipients']) == 2
@@ -254,7 +270,8 @@ class TestFlag(TestCase):
     def setUp(self):
         person = Person.objects.create(ocd_id='ocd-person/1', title='President',
                                        name='Gerald Fnord')
-        contact = ContactDetail.objects.create(person=person, type='voice', value='202-555-5555')
+        contact = ContactDetail.objects.create(person=person, type=ContactType.voice,
+                                               value='202-555-5555')
         self.attempt = DeliveryAttempt.objects.create(contact=contact,
                                                       date=A_TIME,
                                                       engine='engine',
@@ -302,10 +319,10 @@ class TestFlag(TestCase):
         """ test that POST works to set a flag """
         c = Client()
         resp = c.post('/flag/{0}/{1}/'.format(self.attempt.id, self.attempt.unsubscribe_token()),
-                      {'feedback_type': 'offensive', 'note': 'this is abuse'})
+                      {'feedback_type': FeedbackType.offensive, 'note': 'this is abuse'})
         assert resp.status_code == 200
         assert resp.templates[0].name == 'contact/flagged.html'
         attempt = DeliveryAttempt.objects.get()
-        assert attempt.feedback_type == 'offensive'
+        assert attempt.feedback_type == FeedbackType.offensive
         assert attempt.feedback_note == 'this is abuse'
         assert attempt.feedback_date.year == datetime.date.today().year

@@ -5,7 +5,8 @@ from django.utils.timezone import utc
 from django.conf import settings
 
 from .forms import FlaggingForm
-from .models import Application, Sender, Person, Message, MessageRecipient, DeliveryAttempt
+from .models import (Application, Sender, Person, Message, MessageRecipient, DeliveryAttempt,
+                     FeedbackType)
 
 import re
 import json
@@ -153,7 +154,7 @@ def flag(request, transaction, secret):
             invalid_reason = 'invalid secret'
 
         # if there is already feedback on this attempt, that's an error too
-        if attempt.feedback_type:
+        if attempt.feedback_type != FeedbackType.none:
             invalid_reason = 'already flagged'
     except DeliveryAttempt.DoesNotExist:
         invalid_reason = 'no such attempt'

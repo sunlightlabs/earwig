@@ -6,51 +6,71 @@ from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 from django.conf import settings
 
-# each contact detail is of one of these types, and a plugin can handle a single type
-CONTACT_TYPES = (
-    ('voice', 'Voice Phone'),
-    ('sms', 'SMS'),
-    ('fax', 'Fax'),
-    ('email', 'Email'),
-    ('mail', 'Postal Address'),
-    ('twitter', 'Twitter'),
-)
 
-MESSAGE_TYPES = (
-    ('public', 'Public'),
-    ('private', 'Private'),
-    ('removed', 'Removed by Moderator'),
-)
+class ChoiceEnumBase(type):
+    # allow declarative assignment but attribute access
 
-MESSAGE_STATUSES = (
-    ('pending', 'Pending'),         # not yet attempted
-    ('attempted', 'Attempted'),     # attempts made, we'll keep trying
-    ('expired', 'Expired'),         # we've tried, and failed
-    ('received', 'Received'),       # we've tried, and there was success
-)
+    def __new__(cls, name, bases, attrs):
+        # django choices
+        cls.choices = []
+        # set of choices for quick validation
+        cls.valid_choices = set()
 
-DELIVERY_STATUSES = (
-    # initial status
-    ('scheduled', 'This is a scheduled delivery attempt.'),
+        for key, attr in attrs.items():
+            if not key.startswith('__'):
+                cls.choices.append((key, attr))
+                attrs[key] = key
 
-    # possible statuses after attempt
-    ('sent', 'Sent successfully, pending further action.'),
-    ('invalid', 'The contact information in question was invalid.'),
-    ('retry', 'The contact attempt can be safely retried without modification.'),
+        return type.__new__(cls,  name, bases, attrs)
+
+
+class ChoiceEnum(object):
+    __metaclass__ = ChoiceEnumBase
+
+
+class ContactType(ChoiceEnum):
+    """ each contact detail is of one of these types, and a plugin can handle a single type """
+    voice = 'Voice Phone'
+    sms = 'SMS'
+    fax = 'Fax'
+    email = 'Email'
+    mail = 'Postal Address'
+    twitter = 'Twitter'
+
+
+class MessageType(ChoiceEnum):
+    public = 'Public'
+    private = 'Private'
+    removed = 'Removed by Moderator'
+
+
+class MessageStatus(ChoiceEnum):
+    unscheduled = 'Unscheduled'
+    pending = 'Pending'
+    attempted = 'Attempted'         # attempt made, keep trying
+    expired = 'Expired'             # we've tried and failed
+    sent = 'Sent'                   # tried and succeeded
+
+
+class DeliveryStatus(ChoiceEnum):
+    scheduled = 'This is a scheduled delivery attempt.'
+
+    sent = 'Sent successfully, pending further action'
+    invalid = 'The contact information in question was invalid.'
+    retry = 'The contact attempt can be safely retried without modification.'
 
     # statuses that can be set via a response
-    ('bad-data', 'The contact information in question was for someone else.'),
-    ('blocked', 'Recipient requested no further contact.'),
-    ('success', 'This delivery attempt was successful.'),
-)
+    bad_data = 'The contact information in question was for someone else.'
+    blocked = 'Recipient requested no further contact.'
+    success = 'This delivery attempt was successful.'
 
-FEEDBACK_TYPES = (
-    ('', 'None'),
-    ('offensive', 'Offensive'),
-    ('wrong-person', "Wrong person"),
-    ('contact-detail-blacklist', "Bad method"),
-    ('unsubscribe', 'Unsubscribe'),
-)
+
+class FeedbackType(ChoiceEnum):
+    none = 'None'
+    offensive = 'Offensive'
+    wrong_person = 'Wrong person'
+    contact_detail_blacklist = 'Bad method'
+    unsubscribe = 'Unsubscribe'
 
 
 def _random_uuid():
@@ -90,7 +110,7 @@ class Person(models.Model):
 class ContactDetail(models.Model):
     """ contact details for a Person, popolo-like """
     person = models.ForeignKey(Person, related_name='contacts')
-    type = models.CharField(max_length=10, choices=CONTACT_TYPES)
+    type = models.CharField(max_length=10, choices=ContactType.choices)
     value = models.CharField(max_length=100)
     note = models.CharField(max_length=100)
     blacklisted = models.BooleanField(default=False)
@@ -102,7 +122,7 @@ class ContactDetail(models.Model):
 class Message(models.Model):
     """ a message to one or more people """
     id = models.CharField(max_length=32, default=_random_uuid, primary_key=True)
-    type = models.CharField(max_length=10, choices=MESSAGE_TYPES)
+    type = models.CharField(max_length=10, choices=MessageType.choices)
     sender = models.ForeignKey(Sender, related_name='messages')
     application = models.ForeignKey(Application, related_name='messages')
     subject = models.CharField(max_length=100)
@@ -117,7 +137,8 @@ class MessageRecipient(models.Model):
     """ allows association of a status with a message & recipient """
     message = models.ForeignKey(Message)
     recipient = models.ForeignKey(Person, related_name='messages')
-    status = models.CharField(max_length=10, choices=MESSAGE_STATUSES)
+    status = models.CharField(max_length=10, choices=MessageStatus.choices,
+                              default=MessageStatus.unscheduled)
 
     def __unicode__(self):
         return self.recipient.name
@@ -127,12 +148,14 @@ class DeliveryAttempt(models.Model):
     """ marks an attempted delivery of one or more messages """
     contact = models.ForeignKey(ContactDetail, related_name='attempts')
     messages = models.ManyToManyField(MessageRecipient, related_name='attempts')
-    status = models.CharField(max_length=10, choices=DELIVERY_STATUSES, default='scheduled')
+    status = models.CharField(max_length=10, choices=DeliveryStatus.choices,
+                              default=DeliveryStatus.scheduled)
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
     plugin = models.CharField(max_length=20)
     template = models.CharField(max_length=100)
-    feedback_type = models.CharField(max_length=50, choices=FEEDBACK_TYPES, default='')
+    feedback_type = models.CharField(max_length=50, choices=FeedbackType.choices,
+                                     default=FeedbackType.none)
     feedback_note = models.TextField()
     feedback_date = models.DateTimeField(null=True)
 

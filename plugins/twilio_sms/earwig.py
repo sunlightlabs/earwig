@@ -4,15 +4,14 @@ from django.conf import settings
 from contact.errors import InvalidContactValue
 from ..utils import body_template_to_string, subject_template_to_string
 from .. import ContactPlugin
-from .models import TwilioStatus
+from .models import TwilioSMSStatus
 
 import twilio
 from twilio.rest import TwilioRestClient
 
 
-class TwilioContact(ContactPlugin):
+class TwilioSMSContact(ContactPlugin):
     def __init__(self):
-        # XXX: How do we get these?
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings
 
@@ -28,7 +27,7 @@ class TwilioContact(ContactPlugin):
 
         from_number = self.settings['from_number']
 
-        obj = TwilioStatus.objects.create(
+        obj = TwilioSMSStatus.objects.create(
             attempt=attempt,
             sent_to=cd.value,
             sent_from=from_number,
@@ -57,5 +56,5 @@ class TwilioContact(ContactPlugin):
             }
 
     def check_message_status(self, attempt):
-        obj = TwilioStatus.objects.get(attempt=attempt)
+        obj = TwilioSMSStatus.objects.get(attempt=attempt)
         return "sent" if obj.sent else "failed"

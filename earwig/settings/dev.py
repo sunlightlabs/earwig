@@ -11,8 +11,22 @@ DATABASES = {
 }
 
 CONTACT_PLUGIN_TWILIO = {
+    # To get the following:
+    #
+    # Create a new account and log in.
+    #
+    # On the homepage (https://www.twilio.com/user/account), there are two
+    # bits of text 'twixt the top menu / upgrade hero and the 'API Explorer'
+    # and 'App Monitor' that says 'ACCOUNT SID' and 'AUTH TOKEN'. You have to
+    # click the lock icon to show the 'AUTH TOKEN'.
+    #
+    # Fill that out below.
     "account_sid": "",
     "auth_token": "",
+    # To get your number click 'NUMBERS' on the top nav bar. There'll be
+    # a listing of numbers. Pick whichever one makes sense and paste it below.
+    # The format doesn't seem to matter all that much, just copy-paste it from
+    # whatever view you want.
     "from_number": "",
 }
 
