@@ -22,7 +22,7 @@ class PostmarkContact(ContactPlugin):
         subject = subject_template_to_string(attempt.template, 'email', attempt)
 
         message = pystmark.Message(
-            sender='tneale@sunlightfoundation.com',
+            sender=settings.EARWIG_EMAIL_SENDER,
             to=recipient_email_address,
             subject=subject,
             text=body)
