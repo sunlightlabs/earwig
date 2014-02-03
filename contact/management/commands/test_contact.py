@@ -48,7 +48,7 @@ class Command(BaseCommand):
         module_name = "plugins.%s.earwig" % (plugin_id)
 
         mod = importlib.import_module(module_name)
-        name = "%sContact" % (plugin_id.title())
+        name = "%sContact" % (plugin_id.title().replace("_", ""))
 
         try:
             plugin = getattr(mod, name)
