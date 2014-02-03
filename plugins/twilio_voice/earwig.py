@@ -25,9 +25,22 @@ class TwilioVoiceContact(ContactPlugin):
         from_number = self.settings['from_number']
         callback_url = "http://public.pault.ag/stuff/hello.xml"
 
-        call = self.client.calls.create(to=cd.value,
-                                        from_=from_number,
-                                        url=callback_url)
+        try:
+            call = self.client.calls.create(to=cd.value,
+                                            from_=from_number,
+                                            url=callback_url)
+        except twilio.TwilioRestException as e:
+            raise InvalidContactValue("Contact detail value seems wrong")
+
+        obj = TwilioVoiceStatus.objects.create(
+            attempt=attempt,
+            sent_to=cd.value,
+            sent_from=from_number,
+            sent=False
+        )
+        # We're going to save this record and only actually issue the sent
+        # when we get the callback from the Twilio service.
+        obj.save()
 
     def check_message_status(self, attempt):
         obj = TwilioVoiceStatus.objects.get(attempt=attempt)
