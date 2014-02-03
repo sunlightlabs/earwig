@@ -3,11 +3,9 @@ from contact.errors import Blacklisted
 
 class ContactPlugin(object):
     """ """
-    def check_contact_detail(self, attempt):
+    def check_contact_detail(self, contact_detail):
         '''Code might send messages by calling this method.
         '''
-        contact_detail = attempt.contact
-
         # Verify the contact detail is not blacklisted.
         if contact_detail.blacklisted:
             msg = '%s is blacklisted.'
