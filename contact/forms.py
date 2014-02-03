@@ -2,7 +2,7 @@ from django import forms
 from .models import FeedbackType
 
 
-choices = FeedbackType.choices()
+choices = FeedbackType.choices
 
 
 class FlaggingForm(forms.Form):

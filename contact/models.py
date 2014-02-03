@@ -7,11 +7,25 @@ from django.utils.timezone import utc
 from django.conf import settings
 
 
+class ChoiceEnumBase(type):
+    # allow declarative assignment but attribute access
+
+    def __new__(cls, name, bases, attrs):
+        # django choices
+        cls.choices = []
+        # set of choices for quick validation
+        cls.valid_choices = set()
+
+        for key, attr in attrs.items():
+            if not key.startswith('__'):
+                cls.choices.append((key, name))
+                attrs[key] = key
+
+        return type.__new__(cls,  name, bases, attrs)
+
+
 class ChoiceEnum(object):
-    @classmethod
-    def choices(cls):
-        return [(k, v) for k, v in cls.__dict__.iteritems()
-                if not k.startswith('__') and k != 'choices']
+    __metaclass__ = ChoiceEnumBase
 
 
 class ContactType(ChoiceEnum):
@@ -96,7 +110,7 @@ class Person(models.Model):
 class ContactDetail(models.Model):
     """ contact details for a Person, popolo-like """
     person = models.ForeignKey(Person, related_name='contacts')
-    type = models.CharField(max_length=10, choices=ContactType.choices())
+    type = models.CharField(max_length=10, choices=ContactType.choices)
     value = models.CharField(max_length=100)
     note = models.CharField(max_length=100)
     blacklisted = models.BooleanField(default=False)
@@ -108,7 +122,7 @@ class ContactDetail(models.Model):
 class Message(models.Model):
     """ a message to one or more people """
     id = models.CharField(max_length=32, default=_random_uuid, primary_key=True)
-    type = models.CharField(max_length=10, choices=MessageType.choices())
+    type = models.CharField(max_length=10, choices=MessageType.choices)
     sender = models.ForeignKey(Sender, related_name='messages')
     application = models.ForeignKey(Application, related_name='messages')
     subject = models.CharField(max_length=100)
@@ -123,7 +137,7 @@ class MessageRecipient(models.Model):
     """ allows association of a status with a message & recipient """
     message = models.ForeignKey(Message)
     recipient = models.ForeignKey(Person, related_name='messages')
-    status = models.CharField(max_length=10, choices=MessageStatus.choices(),
+    status = models.CharField(max_length=10, choices=MessageStatus.choices,
                               default=MessageStatus.unscheduled)
 
     def __unicode__(self):
@@ -134,13 +148,13 @@ class DeliveryAttempt(models.Model):
     """ marks an attempted delivery of one or more messages """
     contact = models.ForeignKey(ContactDetail, related_name='attempts')
     messages = models.ManyToManyField(MessageRecipient, related_name='attempts')
-    status = models.CharField(max_length=10, choices=DeliveryStatus.choices(),
+    status = models.CharField(max_length=10, choices=DeliveryStatus.choices,
                               default=DeliveryStatus.scheduled)
     date = models.DateTimeField()
     engine = models.CharField(max_length=20)
     plugin = models.CharField(max_length=20)
     template = models.CharField(max_length=100)
-    feedback_type = models.CharField(max_length=50, choices=FeedbackType.choices(),
+    feedback_type = models.CharField(max_length=50, choices=FeedbackType.choices,
                                      default=FeedbackType.none)
     feedback_note = models.TextField()
     feedback_date = models.DateTimeField(null=True)
