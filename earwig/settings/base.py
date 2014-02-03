@@ -17,7 +17,8 @@ INSTALLED_APPS = (
     'kombu.transport.django',
     'contact',
     'plugins.fnord',
-    'plugins.twilio',
+    'plugins.twilio_sms',
+    'plugins.twilio_voice',
     'plugins.postmark',
 )
 
