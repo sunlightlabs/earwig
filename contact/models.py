@@ -18,7 +18,7 @@ class ChoiceEnumBase(type):
 
         for key, attr in attrs.items():
             if not key.startswith('__'):
-                cls.choices.append((key, name))
+                cls.choices.append((key, attr))
                 attrs[key] = key
 
         return type.__new__(cls,  name, bases, attrs)

@@ -3,12 +3,25 @@ import datetime
 from django.test import TestCase, Client
 from django.utils.timezone import utc
 from .models import (Person, Sender, Message, MessageRecipient, Application, ContactDetail,
-                     DeliveryAttempt, ContactType, MessageType, FeedbackType)
+                     DeliveryAttempt, ContactType, MessageType, FeedbackType, ChoiceEnum)
 from .views import _msg_to_json
 
 A_TIME = datetime.datetime(2014, 1, 1, tzinfo=utc)
 EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
 ISOFORMAT = '%Y-%m-%dT%H:%M:%S.%f+00:00'
+
+
+class TestChoiceEnum(TestCase):
+
+    def test_declarative_form(self):
+        class Numbers(ChoiceEnum):
+            one = 'Uno'
+            two = 'Dos'
+        assert Numbers.one == 'one'
+        assert Numbers.two == 'two'
+        assert len(Numbers.choices) == 2
+        assert ('one', 'Uno') in Numbers.choices
+        assert ('two', 'Dos') in Numbers.choices
 
 
 class TestCreateSender(TestCase):
