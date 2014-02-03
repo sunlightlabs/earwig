@@ -1,10 +1,10 @@
 from django import forms
-from .models import FEEDBACK_TYPES
+from .models import FeedbackType
 
 
-FEEDBACK_TYPES = filter(lambda x: x[0] != 'vendor', FEEDBACK_TYPES)
+choices = FeedbackType.choices()
 
 
 class FlaggingForm(forms.Form):
-    feedback_type = forms.ChoiceField(choices=FEEDBACK_TYPES)
+    feedback_type = forms.ChoiceField(choices=choices)
     note = forms.CharField(widget=forms.Textarea, required=False)
