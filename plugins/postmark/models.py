@@ -16,7 +16,7 @@ def convert_bounce_to_delivery_status(bounce_type):
     # See bounce types here:
     #   http://developer.postmarkapp.com/developer-bounces.html#bounce-hooks
     BOUNCE_TYPES = dict([
-        ('HardBounce', None),
+        ('HardBounce', 'bad-data'),
         ('Transient', None),
         ('Unsubscribe', 'blocked'),
         ('Subscribe', None),
@@ -38,14 +38,9 @@ def convert_bounce_to_delivery_status(bounce_type):
         ('InboundError ', None),
     ])
 
-    # Certain bounce types indicate an invalid email address.
-    INVALID_EMAIL_BOUNCE_TYPES = ('HardBounce', 'BadEmailAddress',)
-    if bounce_type in INVALID_EMAIL_BOUNCE_TYPES:
-        return 'invalid'
-
-    # Others amount to receiver feedback.
-    elif BOUNCE_TYPES.get(bounce_type):
-        return BOUNCE_TYPES.get(bounce_type)
+    status = BOUNCE_TYPES.get(bounce_type)
+    if status is not None:
+        return status
 
     # There are a few obscure ones that can just raise an error.
     else:

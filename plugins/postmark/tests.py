@@ -16,11 +16,14 @@ from django.test import Client
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from contact.models import DeliveryAttempt
+import pystmark
+
 from plugins.postmark.models import PostmarkDeliveryMeta
 from ..utils import body_template_to_string, subject_template_to_string
 from .earwig import PostmarkContact
 
+from contact.models import DeliveryAttempt
+from contact.errors import Blacklisted
 from contact.models import (
     Person,
     ContactDetail,
@@ -99,7 +102,7 @@ class EmailTestCase(TestCase):
         DeliveryAttempt.objects.all().delete()
 
 
-class PostmarkMessageText(EmailTestCase):
+class PostmarkMessageTest(EmailTestCase):
     '''Tests sending a message using a mock pystmark library. Assumes the
     library does what it's supposed to and the message is successfully sent.
     '''
@@ -111,6 +114,34 @@ class PostmarkMessageText(EmailTestCase):
         self.assertEquals(debug_info['body'], 'Test body\n')
 
 
+class ContactDetailTest(EmailTestCase):
+
+    def test_blacklist(self):
+        '''Verify the plugin raises an error if it the contact
+        detail is blacklisted.
+        '''
+        email = "paultag@sunlightfoundation.com"
+        paul = ContactDetail.objects.get(value=email)
+        paul.blacklisted = True
+        paul.save()
+        plugin = PostmarkContact()
+        attempt = DeliveryAttempt.objects.get(pk=1)
+        with self.assertRaises(Blacklisted):
+            plugin.send_message(attempt, debug=True)
+
+    def test_wrong_medium(self):
+        '''Verify that the email plugin balks if told to send an sms.
+        '''
+        email = "paultag@sunlightfoundation.com"
+        paul = ContactDetail.objects.get(value=email)
+        paul.type = 'sms'
+        paul.save()
+        plugin = PostmarkContact()
+        attempt = DeliveryAttempt.objects.get(pk=1)
+        with self.assertRaises(ValueError):
+            plugin.send_message(attempt, debug=True)
+
+
 class BounceHandlingTest(EmailTestCase):
     '''Verify that a hypothetical bounce notifaction from postmark results
     in an accurate RecieverFeedback record.
@@ -118,7 +149,7 @@ class BounceHandlingTest(EmailTestCase):
 
     def test_hard_bounce(self):
         '''Verify that hard bounces result in DeliveryAttempt.status
-        being toggled to 'invalid'.
+        being toggled to 'bad-data'.
         '''
         attempt = DeliveryAttempt.objects.get(pk=1)
 
@@ -147,7 +178,7 @@ class BounceHandlingTest(EmailTestCase):
         attempt = DeliveryAttempt.objects.get(pk=1)
 
         # Make sure the hard bounce was recorded as vendor-hard-bounce.
-        self.assertEqual(attempt.status, 'invalid')
+        self.assertEqual(attempt.status, 'bad-data')
 
     def test_blocked(self):
         '''Verify that "blocked" notifcations from postmark result in
@@ -180,3 +211,13 @@ class BounceHandlingTest(EmailTestCase):
         # Make sure the hard bounce was recorded as vendor-hard-bounce.
         self.assertEqual(attempt.status, 'blocked')
 
+    def test_bounce_status(self):
+        plugin = PostmarkContact()
+        attempt = DeliveryAttempt.objects.get(pk=1)
+        debug_info = plugin.send_message(attempt, debug=True)
+        meta = debug_info['obj']
+
+        # Make this id point at the bounced email.
+        pystmark.BOUNCED_EMAIL_ID = unicode(meta.message_id)
+        status = plugin.check_message_status(attempt)
+        self.assertEqual(status, 'bad-data')

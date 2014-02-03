@@ -6,16 +6,19 @@ import pystmark
 
 from django.conf import settings
 
-from .. import ContactPlugin, EmailDeliveryStatus
+from .. import ContactPlugin
 from ..utils import body_template_to_string, subject_template_to_string
-from .models import PostmarkDeliveryMeta
+from .models import PostmarkDeliveryMeta, convert_bounce_to_delivery_status
 
 
 class PostmarkContact(ContactPlugin):
     '''Send an email from through the postmark API.
     '''
+    medium = 'email'
+
     def send_message(self, attempt, debug=False):
         contact_detail = attempt.contact
+        self.check_contact_detail(contact_detail)
         recipient_email_address = contact_detail.value
 
         body = body_template_to_string(attempt.template, 'email', attempt)
@@ -41,7 +44,7 @@ class PostmarkContact(ContactPlugin):
                 "obj": meta }
 
     def check_message_status(self, attempt):
-        obj = PostmarkDeliveryMeta.get(attempt=attempt)
+        obj = PostmarkDeliveryMeta.objects.get(attempt=attempt)
         response = pystmark.get_bounces(settings.POSTMARK_API_KEY)
         for bounce in response.json()['Bounces']:
             if bounce['MessageID'] == obj.message_id:
