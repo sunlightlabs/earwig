@@ -4,7 +4,9 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from plugins.postmark.models import PostmarkDeliveryMeta
+from plugins.postmark.models import (
+    PostmarkDeliveryMeta,
+    convert_bounce_to_delivery_status)
 
 
 @csrf_exempt
@@ -26,52 +28,11 @@ def handle_bounce(request):
       "Subject" : "Hello from our app!"
     }
     '''
-    # See bounce types here:
-    #   http://developer.postmarkapp.com/developer-bounces.html#bounce-hooks
-    bounce_types = dict([
-        ('HardBounce', None),
-        ('Transient', None),
-        ('Unsubscribe', 'blocked'),
-        ('Subscribe', None),
-        ('AutoResponder', None),
-        ('AddressChange', None),
-        ('DnsError ', None),
-        ('SpamNotification ', None),
-        ('OpenRelayTest', None),
-        ('Unknown', None),
-        ('SoftBounce ', None),
-        ('VirusNotification', None),
-        ('ChallengeVerification', None),
-        ('BadEmailAddress', 'bad-data'),
-        ('SpamComplaint', 'blocked'),
-        ('ManuallyDeactivated', None),
-        ('Unconfirmed', None),
-        ('Blocked', 'blocked'),
-        ('SMTPApiError ', None),
-        ('InboundError ', None),
-    ])
-
-    payload = request.read()
-    data = json.loads(payload)
+    data = json.load(request)
     meta = PostmarkDeliveryMeta.objects.get(message_id=data['MessageID'])
-    attempt = meta.attempt
-
-    # Certain bounce types indicate an invalid email address.
-    INVALID_EMAIL_TYPES = ('HardBounce', 'BadEmailAddress',)
-    if data['Type'] in INVALID_EMAIL_TYPES:
-        attempt.status = 'invalid'
-        attempt.save()
-
-    # Others amount to receiver feedback.
-    elif bounce_types.get(data['Type']):
-        attempt.status = bounce_types.get(data['Type'])
-        attempt.save()
-
-    # There are a few obscure ones that can just raise an error.
-    else:
-        msg = 'Weird postmark feedback type found: %r'
-        raise ValueError(msg % data['Type'])
-
+    status = convert_bounce_to_delivery_status(data['Type'])
+    meta.attempt.status = status
+    meta.attempt.save()
     return HttpResponse()
 
 

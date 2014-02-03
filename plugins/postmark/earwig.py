@@ -45,4 +45,4 @@ class PostmarkContact(ContactPlugin):
         response = pystmark.get_bounces(settings.POSTMARK_API_KEY)
         for bounce in response.json()['Bounces']:
             if bounce['MessageID'] == obj.message_id:
-                return EmailDeliveryStatus(bounce['Type'], bounce)
+                return convert_bounce_to_delivery_status(bounce['Type'])
