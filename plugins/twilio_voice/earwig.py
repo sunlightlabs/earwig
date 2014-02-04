@@ -6,7 +6,7 @@ from contact.errors import InvalidContactValue
 from ..utils import body_template_to_string, subject_template_to_string
 from .. import ContactPlugin
 from .models import TwilioVoiceStatus
-from .views import make_call
+from .views import call
 
 import twilio
 from twilio.rest import TwilioRestClient
@@ -36,12 +36,13 @@ class TwilioVoiceContact(ContactPlugin):
         # when we get the callback from the Twilio service.
         obj.save()
 
-        callback_url = reverse(make_call, args=[obj.id])
+        callback_url = reverse(call, args=[obj.id])
+        print(callback_url)
 
         try:
-            call = self.client.calls.create(to=cd.value,
-                                            from_=from_number,
-                                            url=callback_url)
+            twilio_call = self.client.calls.create(to=cd.value,
+                                                   from_=from_number,
+                                                   url=callback_url)
         except twilio.TwilioRestException as e:
             raise InvalidContactValue("Contact detail value seems wrong")
 
