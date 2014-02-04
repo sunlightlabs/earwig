@@ -7,6 +7,7 @@ from django.conf import settings
 from .forms import FlaggingForm
 from .models import (Application, Sender, Person, Message, MessageRecipient, DeliveryAttempt,
                      FeedbackType)
+from .utils import utcnow
 
 import re
 import json
@@ -37,7 +38,7 @@ def _get_or_create_sender(email, name, ttl):
     uid = hashlib.sha256(email + settings.EARWIG_SENDER_SALT).hexdigest()
     # ttl has to be at least one day
     ttl = max(1, ttl)
-    expiry = datetime.datetime.utcnow().replace(tzinfo=utc) + datetime.timedelta(days=ttl)
+    expiry = utcnow() + datetime.timedelta(days=ttl)
     try:
         # look up sender and possibly update
         sender = Sender.objects.get(pk=uid)

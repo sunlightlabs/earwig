@@ -63,8 +63,7 @@ class TestCreateSender(TestCase):
         c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
         c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 70})
         # new expiry time should be at least 69 days in the future
-        assert (Sender.objects.get().email_expires_at -
-                datetime.datetime.utcnow().replace(tzinfo=utc) >
+        assert (Sender.objects.get().email_expires_at - utcnow() >
                 datetime.timedelta(days=69, hours=23))
 
     def test_non_updated_ttl(self):
@@ -73,22 +72,19 @@ class TestCreateSender(TestCase):
         c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
         c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 1})
         # new expiry time should be at least 6 days in the future
-        assert (Sender.objects.get().email_expires_at -
-                datetime.datetime.utcnow().replace(tzinfo=utc) >
+        assert (Sender.objects.get().email_expires_at - utcnow() >
                 datetime.timedelta(days=6, hours=23))
 
     def test_revived_sender(self):
         """ ensure that an expired sender can be revived with an email and good ttl """
         c = Client()
         c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
-        Sender.objects.update(email_expires_at=datetime.datetime.utcnow().replace(tzinfo=utc),
-                              email=None)
+        Sender.objects.update(email_expires_at=utcnow(), email=None)
         c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
         assert Sender.objects.count() == 1
         assert Sender.objects.get().email == 'test@example.com'
         # new expiry time should be at least 6 days in the future
-        assert (Sender.objects.get().email_expires_at -
-                datetime.datetime.utcnow().replace(tzinfo=utc) >
+        assert (Sender.objects.get().email_expires_at - utcnow() >
                 datetime.timedelta(days=6, hours=23))
 
 
