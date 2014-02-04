@@ -36,7 +36,7 @@ class TwilioVoiceContact(BasePlugin):
         # when we get the callback from the Twilio service.
         obj.save()
 
-        callback_url = "{0}/{1}".format(
+        callback_url = "{0}{1}".format(
             settings.EARWIG_PUBLIC_LINK_ROOT,
             reverse(call, args=[obj.id]),
         )
