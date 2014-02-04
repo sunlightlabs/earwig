@@ -1,7 +1,6 @@
+from .models import TwilioVoiceStatus
 
 
-
-def make_call(request):
-    pass
-
-
+def call(request, contact_id):
+    da = TwilioVoiceStatus.objects.get(id=contact_id)
+    print(da)
