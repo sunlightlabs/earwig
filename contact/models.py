@@ -1,5 +1,6 @@
 import uuid
 import hashlib
+import six
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -23,8 +24,9 @@ class ChoiceEnumBase(type):
         return type.__new__(cls,  name, bases, attrs)
 
 
+@six.add_metaclass(ChoiceEnumBase)
 class ChoiceEnum(object):
-    __metaclass__ = ChoiceEnumBase
+    pass
 
 
 class ContactType(ChoiceEnum):
@@ -169,8 +171,8 @@ class DeliveryAttempt(models.Model):
 
     def unsubscribe_token(self):
         m = hashlib.md5()
-        m.update(str(self.id))
-        m.update(settings.SECRET_KEY)  # THIS IS CRITICAL TO GET RIGHT
+        m.update(str(self.id).encode('ascii'))
+        m.update(str(settings.SECRET_KEY).encode('ascii'))  # THIS IS CRITICAL TO GET RIGHT
         return m.hexdigest()
 
     def verify_token(self, token):

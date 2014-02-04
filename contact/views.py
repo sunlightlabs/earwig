@@ -1,12 +1,12 @@
 from django.views.decorators.http import require_GET, require_POST
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import render
-from django.utils.timezone import utc
 from django.conf import settings
 
 from .forms import FlaggingForm
 from .models import (Application, Sender, Person, Message, MessageRecipient, DeliveryAttempt,
                      FeedbackType)
+from .utils import utcnow
 
 import re
 import json
@@ -34,10 +34,10 @@ def _sender_to_json(sender):
 
 def _get_or_create_sender(email, name, ttl):
     """ either lookup or create a sender, optionally updating it """
-    uid = hashlib.sha256(email + settings.EARWIG_SENDER_SALT).hexdigest()
+    uid = hashlib.sha256(str(email + settings.EARWIG_SENDER_SALT).encode('ascii')).hexdigest()
     # ttl has to be at least one day
     ttl = max(1, ttl)
-    expiry = datetime.datetime.utcnow().replace(tzinfo=utc) + datetime.timedelta(days=ttl)
+    expiry = utcnow() + datetime.timedelta(days=ttl)
     try:
         # look up sender and possibly update
         sender = Sender.objects.get(pk=uid)
