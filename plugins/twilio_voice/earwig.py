@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 
 from contact.errors import InvalidContactValue
 from ..utils import body_template_to_string, subject_template_to_string
-from .. import ContactPlugin
+from ..base.plugin import BasePlugin
 from .models import TwilioVoiceStatus
 from .views import call
 
@@ -12,7 +12,7 @@ import twilio
 from twilio.rest import TwilioRestClient
 
 
-class TwilioVoiceContact(ContactPlugin):
+class TwilioVoiceContact(BasePlugin):
     def __init__(self):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings

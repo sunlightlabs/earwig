@@ -2,15 +2,15 @@ from __future__ import print_function
 from django.conf import settings
 
 from contact.errors import InvalidContactValue
-from ..utils import body_template_to_string, subject_template_to_string
-from .. import ContactPlugin
 from .models import TwilioSMSStatus
+from ..utils import body_template_to_string, subject_template_to_string
+from ..base.plugin import BasePlugin
 
 import twilio
 from twilio.rest import TwilioRestClient
 
 
-class TwilioSMSContact(ContactPlugin):
+class TwilioSMSContact(BasePlugin):
     def __init__(self):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings

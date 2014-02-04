@@ -1,10 +1,10 @@
 import boto.ses
 from ..utils import body_template_to_string, subject_template_to_string
 from .models import SESDeliveryMeta
-from .. import ContactPlugin
+from ..base.plugin import BasePlugin
 
 
-class SESContact(ContactPlugin):
+class SESContact(BasePlugin):
     '''Amazon SES contact plugin.
 
     Bounce requests would be configured with SNS:

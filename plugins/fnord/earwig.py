@@ -1,10 +1,10 @@
 from ..utils import body_template_to_string, subject_template_to_string
-from plugins import ContactPlugin
+from ..base.plugin import BasePlugin
 from .models import FnordStatus
 import uuid
 
 
-class FnordContact(ContactPlugin):
+class FnordContact(BasePlugin):
     def send_message(self, attempt, debug=False):
         receipt = uuid.uuid1()
         obj = FnordStatus.objects.create(attempt=attempt, remote_id=receipt)

@@ -6,12 +6,12 @@ import pystmark
 
 from django.conf import settings
 
-from .. import ContactPlugin
+from ..base.plugin import BasePlugin
 from ..utils import body_template_to_string, subject_template_to_string
 from .models import PostmarkDeliveryMeta, convert_bounce_to_delivery_status
 
 
-class PostmarkContact(ContactPlugin):
+class PostmarkContact(BasePlugin):
     '''Send an email from through the postmark API.
     '''
     medium = 'email'
