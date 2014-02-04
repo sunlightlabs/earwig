@@ -34,6 +34,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'earwig.urls'
 WSGI_APPLICATION = 'earwig.wsgi.application'
 
+STATIC_URL = "/static/"
+
 BROKER_URL = 'django://'
 
 TEMPLATE_DIRS = (

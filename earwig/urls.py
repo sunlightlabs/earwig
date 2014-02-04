@@ -9,6 +9,7 @@ urlpatterns = patterns(
     '',
     url(r'^', include('contact.urls')),
     url(r'^plugins/postmark/', include('plugins.postmark.urls')),
+    url(r'^plugins/twilio_voice/', include('plugins.twilio_voice.urls')),
 )
 
 if settings.DEBUG:
