@@ -281,8 +281,6 @@ class TestFlag(TestCase):
         assert resp.status_code == 200
         assert resp.templates[0].name == 'contact/flag.html'
         assert resp.context['attempt'] == self.attempt
-        # TODO: assert that this list is sane
-        #assert resp.context['form'].fields['feedback_type'].choices
 
     def test_invalid_attempt(self):
         """ test bad URL params """

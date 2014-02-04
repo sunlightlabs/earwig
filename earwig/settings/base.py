@@ -36,8 +36,6 @@ WSGI_APPLICATION = 'earwig.wsgi.application'
 
 STATIC_URL = "/static/"
 
-BROKER_URL = 'django://'
-
 TEMPLATE_DIRS = (
     os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'templates')),
 )

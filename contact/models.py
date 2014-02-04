@@ -181,7 +181,6 @@ class DeliveryAttempt(models.Model):
     def set_feedback(self, type_, note):
         self.feedback_type = type_
         self.feedback_note = note
-        self.feedback_date = utcnow()
         self.save()
 
     @property
