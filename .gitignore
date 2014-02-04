@@ -9,3 +9,4 @@ earwig/earwig.sqlite3
 .tox
 earwig/settings/local.py
 fnord-*.txt
+celerybeat-schedule

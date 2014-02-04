@@ -1,19 +1,25 @@
-from celery import Celery
-from datetime import timedelta
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'earwig.settings.dev')
 
-app = Celery('earwig', broker='django://', backend='django://', include=['engine.tasks'])
+from datetime import timedelta
+from celery import Celery
+from contact.models import ContactType
+from plugins.postmark.earwig import PostmarkContact
+from engine.engines import DumbEngine
+
+app = Celery('earwig', include=['engine.tasks'])
 app.conf.CELERY_ENABLE_UTC = True
 app.conf.CELERYBEAT_SCHEDULE = {
     'create-delivery-attempts': {
-        'task': 'tasks.create_delivery_attempts',
-        'schedule': timedelta(minutes=5),
+        'task': 'engine.tasks.create_delivery_attempts',
+        'schedule': timedelta(seconds=5),
     }
 }
 
 app.conf.EARWIG_PLUGINS = {
-    #ContactType.voice: 
-    ContactType.email: PostmarkContact,
+    ContactType.email: PostmarkContact(),
 }
+app.conf.ENGINE = DumbEngine()
 
 if __name__ == '__main__':
     app.start()

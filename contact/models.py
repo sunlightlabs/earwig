@@ -4,7 +4,6 @@ import six
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from .utils import utcnow
 
 
 class ChoiceEnumBase(type):
