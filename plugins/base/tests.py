@@ -1,10 +1,8 @@
 import os
 import datetime
-from django.test import TestCase
 from django.utils.timezone import utc
 from django.conf import settings
 from django.db import IntegrityError
-
 from contact.models import (Person, ContactDetail, Sender, DeliveryAttempt, Message,
                             MessageRecipient, Application)
 
@@ -13,31 +11,22 @@ def create_test_attempt():
     app = Application.objects.create(name="test", contact="fnord@fnord.fnord",
                                      template_set="None", active=True)
 
-    pt = Person.objects.create(
-        ocd_id='test', title='Mr.', name='Paul Tagliamonte', photo_url="")
+    pt = Person.objects.create(ocd_id='test', title='Mr.', name='Paul Tagliamonte', photo_url="")
 
-    cd = ContactDetail.objects.create(
-        person=pt, type='fnord', value='@fnord',
-        note='fnord!', blacklisted=False)
+    cd = ContactDetail.objects.create(person=pt, type='fnord', value='@fnord',
+                                      note='fnord!', blacklisted=False)
 
-    send = Sender.objects.create(
-        id='randomstring', email_expires_at=datetime.datetime(2020, 1, 1, tzinfo=utc))
+    send = Sender.objects.create(id='randomstring',
+                                 email_expires_at=datetime.datetime(2020, 1, 1, tzinfo=utc))
 
-    message = Message(
-        type='fnord', sender=send, subject="Hello, World",
-        message="HELLO WORLD", application=app)
+    message = Message.objects.create(type='fnord', sender=send, subject="Hello, World",
+                                     message="HELLO WORLD", application=app)
 
-    message.save()
+    mr = MessageRecipient.objects.create(message=message, recipient=pt, status='pending')
 
-    mr = MessageRecipient(message=message, recipient=pt, status='pending')
-    mr.save()
-
-    attempt = DeliveryAttempt(
-        contact=cd, status="scheduled",
-        template='fnord-testing-deterministic-name',
-        engine="default")
-
-    attempt.save()
+    attempt = DeliveryAttempt.objects.create(contact=cd, status="scheduled",
+                                             template='fnord-testing-deterministic-name',
+                                             engine="default")
     attempt.messages.add(mr)
     return attempt
 

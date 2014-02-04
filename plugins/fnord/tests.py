@@ -1,9 +1,4 @@
-import os
-import datetime
 from django.test import TestCase
-from django.utils.timezone import utc
-from django.conf import settings
-
 from ..base.tests import BaseTests
 from .earwig import FnordContact
 
