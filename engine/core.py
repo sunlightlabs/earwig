@@ -10,5 +10,10 @@ app.conf.CELERYBEAT_SCHEDULE = {
     }
 }
 
+app.conf.EARWIG_PLUGINS = {
+    #ContactType.voice: 
+    ContactType.email: PostmarkContact,
+}
+
 if __name__ == '__main__':
     app.start()

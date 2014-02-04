@@ -7,6 +7,3 @@ class ContactError(Exception):
 class InvalidContactValue(ContactError):
     pass
 
-
-class Blacklisted(ContactError):
-    pass

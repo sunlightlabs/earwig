@@ -22,7 +22,6 @@ from ..utils import body_template_to_string, subject_template_to_string
 from .earwig import PostmarkContact
 
 from contact.models import DeliveryAttempt
-from contact.errors import Blacklisted
 from contact.models import (
     Person,
     ContactDetail,
@@ -125,7 +124,7 @@ class ContactDetailTest(EmailTestCase):
         paul.save()
         plugin = PostmarkContact()
         attempt = DeliveryAttempt.objects.get(pk=1)
-        with self.assertRaises(Blacklisted):
+        with self.assertRaises(ValueError):
             plugin.send_message(attempt, debug=True)
 
     def test_wrong_medium(self):

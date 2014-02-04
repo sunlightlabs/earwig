@@ -10,7 +10,7 @@ class Engine(object):
 
     def create_attempt(self, contact, message, plugin, template):
         attempt = DeliveryAttempt.objects.create(contact=contact, engine=self.name, plugin=plugin,
-                                                 template=template, updated_at=utcnow())
+                                                 template=template)
         if isinstance(message, MessageRecipient):
             attempt.messages.add(message)
         elif isinstance(message, list):

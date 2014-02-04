@@ -6,9 +6,6 @@ from .core import app
 logger = get_task_logger(__name__)
 
 
-engine = Engine()
-
-
 @app.task(ignore_result=True)
 def create_delivery_attempts():
     """
@@ -22,7 +19,9 @@ def create_delivery_attempts():
 
 
 @app.task(ignore_result=True)
-def process_delivery_attempts():
+def process_delivery_attempt(attempt):
     """
-    Looks through scheduled delivery attempts and dispatches them to the active plugin.
+    Send a delivery attempt using the active plugin.
     """
+    plugin = app.conf.EARWIG_PLUGINS[attempt.type]
+    plugin.send_message(attempt)

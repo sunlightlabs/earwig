@@ -1,5 +1,3 @@
-from contact.errors import Blacklisted
-
 
 class ContactPlugin(object):
     """ """
@@ -9,7 +7,7 @@ class ContactPlugin(object):
         # Verify the contact detail is not blacklisted.
         if contact_detail.blacklisted:
             msg = '%s is blacklisted.'
-            raise Blacklisted(msg % contact_detail.value)
+            raise ValueError(msg % contact_detail.value)
 
         # Verify the correct contact detail type has been passed.
         if contact_detail.type != self.medium:

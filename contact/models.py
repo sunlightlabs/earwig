@@ -183,6 +183,12 @@ class DeliveryAttempt(models.Model):
         self.feedback_note = note
         self.save()
 
+    def mark_attempted(self, status, plugin, template):
+        self.status = status
+        self.plugin = plugin
+        self.template = template
+        self.save()
+
     @property
     def unsubscribe_url(self):
         return ''.join([settings.EARWIG_PUBLIC_LINK_ROOT,
