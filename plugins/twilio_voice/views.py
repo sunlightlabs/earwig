@@ -1,6 +1,8 @@
-from .models import TwilioVoiceStatus
+from django.contrib.sites.models import get_current_site
 from django.shortcuts import render
+
 from ..utils import body_template_to_string
+from .models import TwilioVoiceStatus
 
 
 def call(request, contact_id):
