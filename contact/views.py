@@ -34,7 +34,7 @@ def _sender_to_json(sender):
 
 def _get_or_create_sender(email, name, ttl):
     """ either lookup or create a sender, optionally updating it """
-    uid = hashlib.sha256(email + settings.EARWIG_SENDER_SALT).hexdigest()
+    uid = hashlib.sha256(str(email + settings.EARWIG_SENDER_SALT).encode('ascii')).hexdigest()
     # ttl has to be at least one day
     ttl = max(1, ttl)
     expiry = utcnow() + datetime.timedelta(days=ttl)

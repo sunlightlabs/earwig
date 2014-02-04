@@ -31,7 +31,7 @@ class TestCreateSender(TestCase):
         """ ensure that the sender is created """
         c = Client()
         resp = c.post('/sender/', {'email': 'test@example.com', 'name': 'Test', 'ttl': 7})
-        data = json.loads(resp.content)
+        data = json.loads(resp.content.decode('utf8'))
         assert data['email'] == 'test@example.com'
         assert data['name'] == 'Test'
         # ensure it was created in the last minute
@@ -138,7 +138,7 @@ class TestCreateMessage(TestCase):
             # assert failure
             assert response.status_code == 400
             # ensure fieldname is mentioned in response
-            assert field in response.content
+            assert field in str(response.content)
 
     def test_sender_payload_good(self):
         """ ensure that a sender payload is created and used properly """
@@ -163,13 +163,13 @@ class TestCreateMessage(TestCase):
         msg['sender'] = '{"junk": "stuff"}'
         resp = c.post('/message/', msg)
         assert resp.status_code == 400
-        assert 'missing field' in resp.content
+        assert 'missing field' in str(resp.content)
 
         # non-JSON
         msg['sender'] = '~not even json~'
         resp = c.post('/message/', msg)
         assert resp.status_code == 400
-        assert 'invalid JSON' in resp.content
+        assert 'invalid JSON' in str(resp.content)
 
     def test_bad_key(self):
         """ ensure that bad API keys are flagged """
@@ -178,7 +178,7 @@ class TestCreateMessage(TestCase):
         msg['key'] = 'nonsense'
         response = c.post('/message/', msg)
         assert response.status_code == 400
-        assert 'key' in response.content
+        assert 'key' in str(response.content)
 
     def test_bad_sender(self):
         """ ensure that bad senders are flagged """
@@ -187,7 +187,7 @@ class TestCreateMessage(TestCase):
         msg['sender'] = '9'*64      # bad id
         response = c.post('/message/', msg)
         assert response.status_code == 400
-        assert 'sender' in response.content
+        assert 'sender' in str(response.content)
 
     def test_bad_recipient(self):
         """ invalid recipients should raise an error """
@@ -196,7 +196,7 @@ class TestCreateMessage(TestCase):
         msg['recipients'] = ['ocd-person/NaN']
         response = c.post('/message/', msg)
         assert response.status_code == 400
-        assert 'recipient' in response.content
+        assert 'recipient' in str(response.content)
 
     def test_ok_message(self):
         """ ensure that good messages return OK & create a Message object """
@@ -207,7 +207,7 @@ class TestCreateMessage(TestCase):
         assert MessageRecipient.objects.count() == 1
 
         # reconstitute message out of response
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode('utf8'))
         assert data['type'] == self.GOOD_MESSAGE['type']
         assert data['subject'] == self.GOOD_MESSAGE['subject']
         assert data['message'] == self.GOOD_MESSAGE['message']
@@ -243,7 +243,7 @@ class TestGetMessage(TestCase):
         """ basic get message """
         c = Client()
         resp = c.get('/message/{0}/'.format(self.msg.id))
-        data = json.loads(resp.content)
+        data = json.loads(resp.content.decode('utf8'))
 
         assert data['message'] == 'hello everyone'
         assert data['type'] == MessageType.private
@@ -290,12 +290,12 @@ class TestFlag(TestCase):
         resp = c.get('/flag/{0}/{1}/'.format(99, self.attempt.unsubscribe_token()))
         assert resp.status_code == 400
         assert resp.templates[0].name == 'contact/flag-error.html'
-        assert 'no such attempt' in resp.content
+        assert 'no such attempt' in str(resp.content)
 
         resp = c.get('/flag/{0}/{1}/'.format(self.attempt.id, 'a'*32))
         assert resp.status_code == 400
         assert resp.templates[0].name == 'contact/flag-error.html'
-        assert 'invalid secret' in resp.content
+        assert 'invalid secret' in str(resp.content)
 
     def test_already_flagged(self):
         """ test that we check for already flagged items """
@@ -304,12 +304,12 @@ class TestFlag(TestCase):
         resp = c.get('/flag/{0}/{1}/'.format(self.attempt.id, self.attempt.unsubscribe_token()))
         assert resp.status_code == 400
         assert resp.templates[0].name == 'contact/flag-error.html'
-        assert 'already flagged' in resp.content
+        assert 'already flagged' in str(resp.content)
 
         resp = c.post('/flag/{0}/{1}/'.format(self.attempt.id, self.attempt.unsubscribe_token()))
         assert resp.status_code == 400
         assert resp.templates[0].name == 'contact/flag-error.html'
-        assert 'already flagged' in resp.content
+        assert 'already flagged' in str(resp.content)
 
     def test_post(self):
         """ test that POST works to set a flag """
