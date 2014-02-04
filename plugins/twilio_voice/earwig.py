@@ -36,8 +36,10 @@ class TwilioVoiceContact(ContactPlugin):
         # when we get the callback from the Twilio service.
         obj.save()
 
-        callback_url = reverse(call, args=[obj.id])
-        print(callback_url)
+        callback_url = "{0}/{1}".format(
+            settings.EARWIG_PUBLIC_LINK_ROOT,
+            reverse(call, args=[obj.id]),
+        )
 
         try:
             twilio_call = self.client.calls.create(to=cd.value,
