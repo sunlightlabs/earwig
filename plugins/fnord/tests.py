@@ -1,7 +1,9 @@
+import os
+import datetime
 from django.test import TestCase
 from django.utils.timezone import utc
-import datetime as dt
-import pytz
+from django.conf import settings
+from django.db import IntegrityError
 
 from contact.models import (
     Person,
@@ -14,15 +16,11 @@ from contact.models import (
 )
 
 from .earwig import FnordContact
-from django.conf import settings
-import os
-
-from django.db import IntegrityError
 
 
 def create_test_attempt():
     app = Application.objects.create(name="test", contact="fnord@fnord.fnord",
-        template_set="None", active=True)
+                                     template_set="None", active=True)
 
     pt = Person.objects.create(
         ocd_id='test', title='Mr.', name='Paul Tagliamonte', photo_url="")
@@ -32,7 +30,7 @@ def create_test_attempt():
         note='Fnord!', blacklisted=False)
 
     send = Sender.objects.create(
-        id='randomstring', email_expires_at=dt.datetime(2020, 1, 1, tzinfo=utc))
+        id='randomstring', email_expires_at=datetime.datetime(2020, 1, 1, tzinfo=utc))
 
     message = Message(
         type='fnord', sender=send, subject="Hello, World",
@@ -68,7 +66,6 @@ class FnordTests(TestCase):
 
     def tearDown(self):
         settings.TEMPLATE_DIRS = self._templates
-
 
     def test_duplicate(self):
         """ Ensure that we blow up with two identical inserts """

@@ -7,7 +7,6 @@ from os.path import abspath, dirname, join
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../mock_libs'))
 
 import json
-import pytz
 import uuid
 import datetime as dt
 
