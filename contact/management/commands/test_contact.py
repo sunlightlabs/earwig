@@ -33,8 +33,8 @@ def create_test_attempt(value, type_):
     message = Message(type=type_, sender=send, subject="Hello, World", message="HELLO WORLD")
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
                               template='default',
-                              date=datetime.datetime.now(
-                                  pytz.timezone('US/Eastern')),
+                              created_at=datetime.datetime.now(pytz.timezone('US/Eastern')),
+                              updated_at=datetime.datetime.now(pytz.timezone('US/Eastern')),
                               engine="default")
     attempt.save()
     return attempt
