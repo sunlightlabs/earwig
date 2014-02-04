@@ -6,17 +6,18 @@ logger = get_task_logger(__name__)
 
 
 class Engine(object):
-    name = None
+    """
+        Base class for Engines to inherit from, provides self.create_attempt
+    """
 
     def create_attempts(self, unscheduled_mrs):
         """ should be implemented by actual engines, create attempts for each MessageRecipient """
         raise NotImplementedError('create_attempts needs to be implemented')
 
-    def create_attempt(self, contact, message, plugin, template):
+    def create_attempt(self, contact, message):
         """ called by child classes, shouldn't be overridden without being extremely careful """
         # create a basic attempt
-        attempt = DeliveryAttempt.objects.create(contact=contact, engine=self.name, plugin=plugin,
-                                                 template=template)
+        attempt = DeliveryAttempt.objects.create(contact=contact, engine=self.__class__.__name__)
         # attach messages to it
         if isinstance(message, MessageRecipient):
             attempt.messages.add(message)
@@ -38,9 +39,7 @@ class DumbEngine(Engine):
         contact
     """
 
-    name = 'dumb'
-
     def create_attempts(self, unscheduled_mrs):
         for mr in unscheduled_mrs:
             first_contact = mr.contacts.all()[0]
-            self.create_attempt(first_contact, mr, '?', '?')
+            self.create_attempt(first_contact, mr)

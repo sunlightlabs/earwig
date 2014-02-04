@@ -13,9 +13,13 @@ def create_delivery_attempts():
     unscheduled = list(MessageRecipient.objects.filter(
         status=MessageStatus.unscheduled).order_by('recipient'))
 
-    logger.info('sending {0} unscheduled MRs to {1}'.format(len(unscheduled),
-                                                            app.conf.ENGINE.__class__.__name__))
-    app.conf.ENGINE.create_attempts(unscheduled)
+    n = len(unscheduled)
+    if n:
+        logger.info('sending {0} unscheduled MRs to {1}'.format(
+            n, app.conf.ENGINE.__class__.__name__))
+        app.conf.ENGINE.create_attempts(unscheduled)
+    else:
+        logger.debug('no unscheduled MRs to dispatch')
 
 
 @app.task(ignore_result=True)
