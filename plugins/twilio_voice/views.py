@@ -1,5 +1,6 @@
 from .models import TwilioVoiceStatus
 from django.shortcuts import render
+from ..utils import body_template_to_string,
 
 
 def call(request, contact_id):
@@ -9,6 +10,9 @@ def call(request, contact_id):
     return render(
         request,
         'plugins/{template}/voice.xml'.format(template=template),
-        {"attempt": da},
+        {
+            "attempt": da,
+            "body": body_template_to_string(attempt.template, 'voice', da)
+        },
         content_type="application/xhtml+xml"
     )
