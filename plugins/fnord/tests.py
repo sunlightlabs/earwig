@@ -46,7 +46,6 @@ def create_test_attempt():
     attempt = DeliveryAttempt(
         contact=cd, status="scheduled",
         template='fnord-testing-deterministic-name',
-        date=dt.datetime.now(pytz.timezone('US/Eastern')),
         engine="default")
 
     attempt.save()

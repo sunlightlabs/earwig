@@ -32,6 +32,7 @@ from contact.models import (
     MessageRecipient,
     DeliveryAttempt,
     Application)
+from contact.utils import utcnow
 
 
 class EmailTestCase(TestCase):
@@ -66,7 +67,7 @@ class EmailTestCase(TestCase):
 
         sender = Sender.objects.create(
             name="Testy McZample", id=uuid.uuid4(),
-            email_expires_at=dt.datetime.now() + dt.timedelta(weeks=500))
+            email_expires_at=utcnow() + dt.timedelta(weeks=500))
 
         message = Message.objects.create(
             type='fnord', sender=sender, application=app,
@@ -80,7 +81,6 @@ class EmailTestCase(TestCase):
 
         attempt = DeliveryAttempt.objects.create(
             contact=contact, status="scheduled",
-            date=dt.datetime.now(pytz.timezone('US/Eastern')),
             engine="default",
             template='postmark-testing-deterministic-name')
 

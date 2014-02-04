@@ -55,7 +55,6 @@ class TwilioSMSTests(TestCase):
         attempt = DeliveryAttempt(
             contact=cd, status="scheduled",
             template='twilio-testing-deterministic-name',
-            date=datetime.now(pytz.timezone('US/Eastern')),
             engine="default")
 
         attempt.save()

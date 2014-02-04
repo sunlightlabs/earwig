@@ -5,6 +5,7 @@ from django.utils.timezone import utc
 from .models import (Person, Sender, Message, MessageRecipient, Application, ContactDetail,
                      DeliveryAttempt, ContactType, MessageType, FeedbackType, ChoiceEnum)
 from .views import _msg_to_json
+from .utils import utcnow
 
 A_TIME = datetime.datetime(2014, 1, 1, tzinfo=utc)
 EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
@@ -273,7 +274,6 @@ class TestFlag(TestCase):
         contact = ContactDetail.objects.create(person=person, type=ContactType.voice,
                                                value='202-555-5555')
         self.attempt = DeliveryAttempt.objects.create(contact=contact,
-                                                      date=A_TIME,
                                                       engine='engine',
                                                       plugin='plugin',
                                                       template='')
@@ -317,6 +317,7 @@ class TestFlag(TestCase):
 
     def test_post(self):
         """ test that POST works to set a flag """
+        orig_attempt = DeliveryAttempt.objects.get()
         c = Client()
         resp = c.post('/flag/{0}/{1}/'.format(self.attempt.id, self.attempt.unsubscribe_token()),
                       {'feedback_type': FeedbackType.offensive, 'note': 'this is abuse'})
@@ -325,4 +326,4 @@ class TestFlag(TestCase):
         attempt = DeliveryAttempt.objects.get()
         assert attempt.feedback_type == FeedbackType.offensive
         assert attempt.feedback_note == 'this is abuse'
-        assert attempt.feedback_date.year == datetime.date.today().year
+        assert orig_attempt.updated_at < attempt.updated_at

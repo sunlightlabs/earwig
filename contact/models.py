@@ -1,10 +1,9 @@
 import uuid
 import hashlib
-import datetime
 from django.db import models
 from django.core.urlresolvers import reverse
-from django.utils.timezone import utc
 from django.conf import settings
+from .utils import utcnow
 
 
 class ChoiceEnumBase(type):
@@ -148,16 +147,22 @@ class DeliveryAttempt(models.Model):
     """ marks an attempted delivery of one or more messages """
     contact = models.ForeignKey(ContactDetail, related_name='attempts')
     messages = models.ManyToManyField(MessageRecipient, related_name='attempts')
+    engine = models.CharField(max_length=20)
     status = models.CharField(max_length=10, choices=DeliveryStatus.choices,
                               default=DeliveryStatus.scheduled)
-    date = models.DateTimeField()
-    engine = models.CharField(max_length=20)
+
+    # plugin-set fields
     plugin = models.CharField(max_length=20)
     template = models.CharField(max_length=100)
+
+    # feedback fields
     feedback_type = models.CharField(max_length=50, choices=FeedbackType.choices,
                                      default=FeedbackType.none)
     feedback_note = models.TextField()
-    feedback_date = models.DateTimeField(null=True)
+
+    # timestamp fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return 'to {0} on {1}'.format(self.contact.person.name, self.date.strftime('%Y-%m-%d'))
@@ -174,7 +179,7 @@ class DeliveryAttempt(models.Model):
     def set_feedback(self, type_, note):
         self.feedback_type = type_
         self.feedback_note = note
-        self.feedback_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+        self.feedback_date = utcnow()
         self.save()
 
     @property
