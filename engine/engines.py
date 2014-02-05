@@ -14,25 +14,24 @@ class Engine(object):
         """ should be implemented by actual engines, create attempts for each MessageRecipient """
         raise NotImplementedError('create_attempts needs to be implemented')
 
-    def create_attempt(self, contact, message):
+    def create_attempt(self, contact, messages):
         """ called by child classes, shouldn't be overridden without being extremely careful """
         # create a basic attempt
         attempt = DeliveryAttempt.objects.create(contact=contact, engine=self.__class__.__name__)
         # attach messages to it
-        if isinstance(message, MessageRecipient):
-            message.status = MessageStatus.pending
-            message.save()
-            attempt.messages.add(message)
+        if isinstance(messages, MessageRecipient):
+            messages = [messages]
             n = 1
-        elif isinstance(message, list):
-            n = len(list)
-            for msg in message:
-                msg.status = MessageStatus.pending
-                msg.save()
-                attempt.messages.add(message)
+        else:
+            n = len(messages)
 
-        # throw this into the queue
-        send_task('engine.tasks.process_delivery_attempt', args=(attempt,))
+        for msg in messages:
+            attempt.messages.add(msg)
+            # update status
+            msg.status = MessageStatus.pending
+            msg.save()
+            # throw this into the queue
+            send_task('engine.tasks.process_delivery_attempt', args=(attempt,))
 
         logger.info('created DeliveryAttempt to {0} with {1} messages'.format(contact, n))
 

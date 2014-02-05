@@ -166,7 +166,8 @@ class DeliveryAttempt(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return 'to {0} on {1}'.format(self.contact.person.name, self.date.strftime('%Y-%m-%d'))
+        return 'to {0} on {1}'.format(self.contact.person.name,
+                                      self.created_at.strftime('%Y-%m-%d'))
 
     def unsubscribe_token(self):
         m = hashlib.md5()

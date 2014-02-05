@@ -1,4 +1,6 @@
 import datetime
+import mock
+import celery
 from django.test import TestCase
 from django.utils.timezone import utc
 from contact.models import (Application, Sender, Person, ContactDetail, MessageRecipient,
@@ -28,7 +30,8 @@ class TestCreateDeliveryAttempts(TestCase):
         app.conf.CELERY_ALWAYS_EAGER = True
         app.conf.BROKER_BACKEND = 'memory'
 
-    def test_basics(self):
+    @mock.patch('engine.engines.send_task')
+    def test_single_attempt(self, send_task):
         assert DeliveryAttempt.objects.count() == 0
         res = create_delivery_attempts.delay()
         assert res.successful()
@@ -36,8 +39,16 @@ class TestCreateDeliveryAttempts(TestCase):
         attempt = DeliveryAttempt.objects.get()
         assert attempt.contact == self.contact
         assert attempt.messages.get().message == self.msg
+        # assert_called_once_with fails for some unknown reason
+        assert send_task.call_count == 1
+        assert send_task.call_args == (('engine.tasks.process_delivery_attempt',), {'args': (attempt,)})
 
-        # go again, should remain at 1
+    @mock.patch('engine.engines.send_task')
+    def test_only_one_attempt(self, send_task):
+        # nothing should change
+        res = create_delivery_attempts.delay()
+        assert res.successful()
+        assert DeliveryAttempt.objects.count() == 1
         res = create_delivery_attempts.delay()
         assert res.successful()
         assert DeliveryAttempt.objects.count() == 1
