@@ -9,7 +9,7 @@ import twilio
 from twilio.rest import TwilioRestClient
 
 
-class TwilioSMSContact(BasePlugin):
+class TwilioSmsContact(BasePlugin):
     def __init__(self):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings
