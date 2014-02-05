@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 
 from ..utils import body_template_to_string
-from ..models import DeliveryStatus
+from contact.models import DeliveryStatus
 from .models import TwilioVoiceStatus
 
 

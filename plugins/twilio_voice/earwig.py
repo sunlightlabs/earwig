@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from ..utils import body_template_to_string, subject_template_to_string
 from ..base.plugin import BasePlugin
 from .models import TwilioVoiceStatus
-from ..models import DeliveryStatus
+from contact.models import DeliveryStatus
 from .views import call
 
 import twilio
