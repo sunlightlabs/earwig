@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 
 from ..utils import body_template_to_string
+from ..models import DeliveryStatus
 from .models import TwilioVoiceStatus
 
 
@@ -12,6 +13,12 @@ def call(request, contact_id):
     status = TwilioVoiceStatus.objects.get(id=contact_id)
     attempt = status.attempt
     template = attempt.template
+
+    attempt.mark_attempted(
+        DeliveryStatus.sent,
+        'twilio_voice',
+        attempt.template
+    )
 
     return render(
         request,
