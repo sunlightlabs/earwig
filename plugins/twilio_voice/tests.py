@@ -18,17 +18,26 @@ from contact.models import (
 )
 from .earwig import TwilioVoiceContact
 from django.conf import settings
+from datetime import datetime
+from django.utils.timezone import utc
 
 
 class TestTwilioVoice(TestCase):
 
     def test_voice_sending(self):
         c = Client()
-        #resp = c.post('/sender/', {
-        #    'email': 'test@example.com',
-        #    'name': 'Test',
-        #    'ttl': 7
-        #})
+        attempt = self.create_test_attempt()
+        self.plugin.send_message(attempt)
+        # Right, great.
+        assert attempt.status == 'scheduled'
+
+        resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
+            # XXX: Mock twilio responses here.
+        })
+
+        dba = DeliveryAttempt.objects.get(id=attempt.id)
+        assert dba.status == 'sent'
+
 
     def create_test_attempt(self):
         app = Application.objects.create(name="test", contact="fnord@fnord.fnord",

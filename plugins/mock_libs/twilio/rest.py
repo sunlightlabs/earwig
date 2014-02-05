@@ -18,6 +18,7 @@ class FakeRestEndpoint(object):
 
 class TwilioRestClient(object):
     messages = FakeRestEndpoint()
+    calls = FakeRestEndpoint()
 
     def __init__(self, *args, **kwargs):
         pass
