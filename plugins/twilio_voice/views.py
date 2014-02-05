@@ -19,14 +19,13 @@ def call(request, contact_id):
         'twilio_voice',
         attempt.template
     )
+    attempt.save()
 
     return render(
         request,
         'plugins/{template}/voice.xml'.format(template=template),
-        {
-            "attempt": attempt,
-            "status": status,
-            "body": body_template_to_string(attempt.template, 'voice', attempt)
-        },
+        {"attempt": attempt,
+         "status": status,
+         "body": body_template_to_string(attempt.template, 'voice', attempt)},
         content_type="application/xml"
     )

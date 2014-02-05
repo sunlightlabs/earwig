@@ -44,7 +44,14 @@ class TwilioSMSContact(BasePlugin):
                                         body=body)
             obj.sent = True
         except twilio.TwilioRestException as e:
-            raise InvalidContactValue("Contact detail value seems wrong")
+            attempt.mark_attempted(
+                DeliveryStatus.bad_data,
+                'twilio_voice',
+                attempt.template
+            )
+            attempt.save()
+            obj.save()
+            return
 
         obj.save()
 

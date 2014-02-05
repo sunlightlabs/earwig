@@ -54,7 +54,9 @@ class TwilioVoiceContact(BasePlugin):
                 'twilio_voice',
                 attempt.template
             )
+            attempt.save()
             return
+
 
     def check_message_status(self, attempt):
         obj = TwilioVoiceStatus.objects.get(attempt=attempt)
