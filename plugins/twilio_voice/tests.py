@@ -38,6 +38,15 @@ class TestTwilioVoice(TestCase):
         dba = DeliveryAttempt.objects.get(id=attempt.id)
         assert dba.status == 'sent'
 
+    def test_voice_response(self):
+        c = Client()
+        attempt = self.create_test_attempt()
+        self.plugin.send_message(attempt)
+        resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
+            # XXX: Mock twilio responses here.
+        })
+        assert resp.content == b"<thing>HELLO, WORLD\n</thing>\n"
+
 
     def create_test_attempt(self):
         app = Application.objects.create(name="test", contact="fnord@fnord.fnord",
