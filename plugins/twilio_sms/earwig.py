@@ -4,6 +4,7 @@ from django.conf import settings
 from .models import TwilioSMSStatus
 from ..utils import body_template_to_string, subject_template_to_string
 from ..base.plugin import BasePlugin
+from contact.models import DeliveryStatus
 
 import twilio
 from twilio.rest import TwilioRestClient
