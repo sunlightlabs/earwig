@@ -108,8 +108,8 @@ class PostmarkMessageTest(EmailTestCase):
         plugin = PostmarkContact()
         attempt = DeliveryAttempt.objects.get(pk=1)
         debug_info = plugin.send_message(attempt, debug=True)
-        self.assertEquals(debug_info['subject'], 'Test subject')
-        self.assertEquals(debug_info['body'], 'Test body\n')
+        self.assertEqual(debug_info['subject'], 'Test subject')
+        self.assertEqual(debug_info['body'], 'Test body\n')
 
 
 class ContactDetailTest(EmailTestCase):
@@ -216,6 +216,6 @@ class BounceHandlingTest(EmailTestCase):
         meta = debug_info['obj']
 
         # Make this id point at the bounced email.
-        pystmark.BOUNCED_EMAIL_ID = unicode(meta.message_id)
+        pystmark.BOUNCED_EMAIL_ID = str(meta.message_id)
         status = plugin.check_message_status(attempt)
         self.assertEqual(status, 'bad-data')

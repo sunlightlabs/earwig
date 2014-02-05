@@ -27,7 +27,7 @@ def handle_bounce(request):
       "Subject" : "Hello from our app!"
     }
     '''
-    data = json.load(request)
+    data = json.loads(request.body.decode('utf8'))
     meta = PostmarkDeliveryMeta.objects.get(message_id=data['MessageID'])
     status = convert_bounce_to_delivery_status(data['Type'])
     meta.attempt.status = status
