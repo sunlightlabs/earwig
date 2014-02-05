@@ -1,7 +1,6 @@
 from __future__ import print_function
 from django.conf import settings
 
-from contact.errors import InvalidContactValue
 from .models import TwilioSMSStatus
 from ..utils import body_template_to_string, subject_template_to_string
 from ..base.plugin import BasePlugin
