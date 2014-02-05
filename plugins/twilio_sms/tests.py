@@ -13,7 +13,6 @@ import pytz
 import twilio
 import twilio.rest
 
-from contact.errors import InvalidContactValue
 from contact.models import (
     Person,
     ContactDetail,
@@ -23,7 +22,7 @@ from contact.models import (
     Application,
     MessageRecipient,
 )
-from .earwig import TwilioSMSContact
+from .earwig import TwilioSmsContact
 from django.conf import settings
 
 
@@ -62,7 +61,7 @@ class TwilioSMSTests(TestCase):
         return attempt
 
     def setUp(self):
-        self.plugin = TwilioSMSContact()
+        self.plugin = TwilioSmsContact()
 
         # beyond this, we also need to mangle the path pretty bad.
         # so that we have our test templates set and nothing else. We'll
@@ -90,12 +89,12 @@ class TwilioSMSTests(TestCase):
 
     def test_status(self):
         """ Ensure that we can properly fetch the status out of the DB """
-        plugin = TwilioSMSContact()
+        plugin = TwilioSmsContact()
         attempt = self.create_test_attempt()
         plugin.send_message(attempt)
         id1 = plugin.check_message_status(attempt)
 
-        plugin = TwilioSMSContact()
+        plugin = TwilioSmsContact()
         id2 = plugin.check_message_status(attempt)
 
         assert id1 == id2, ("We got a different result from a check when"
@@ -107,11 +106,12 @@ class TwilioSMSTests(TestCase):
         attempt.contact.value = 'bad'
         attempt.contact.save()
 
-        plugin = TwilioSMSContact()
-        self.assertRaises(InvalidContactValue, plugin.send_message, attempt)
+        plugin = TwilioSmsContact()
+        plugin.send_message(attempt)
+        assert attempt.status == 'bad_data'
 
     def test_message(self):
-        plugin = TwilioSMSContact()
+        plugin = TwilioSmsContact()
         attempt = self.create_test_attempt()
         debug_info = plugin.send_message(attempt, debug=True)
         assert debug_info['subject'] == ''

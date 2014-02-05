@@ -1,16 +1,16 @@
 from __future__ import print_function
 from django.conf import settings
 
-from contact.errors import InvalidContactValue
 from .models import TwilioSMSStatus
 from ..utils import body_template_to_string, subject_template_to_string
 from ..base.plugin import BasePlugin
+from contact.models import DeliveryStatus
 
 import twilio
 from twilio.rest import TwilioRestClient
 
 
-class TwilioSMSContact(BasePlugin):
+class TwilioSmsContact(BasePlugin):
     def __init__(self):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings
@@ -44,7 +44,14 @@ class TwilioSMSContact(BasePlugin):
                                         body=body)
             obj.sent = True
         except twilio.TwilioRestException as e:
-            raise InvalidContactValue("Contact detail value seems wrong")
+            attempt.mark_attempted(
+                DeliveryStatus.bad_data,
+                'twilio_voice',
+                attempt.template
+            )
+            attempt.save()
+            obj.save()
+            return
 
         obj.save()
 
