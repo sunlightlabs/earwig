@@ -1,6 +1,6 @@
 from celery.utils.log import get_task_logger
 from celery.execute import send_task
-from contact.models import MessageRecipient, DeliveryAttempt
+from contact.models import MessageRecipient, DeliveryAttempt, MessageStatus
 
 logger = get_task_logger(__name__)
 
@@ -20,11 +20,15 @@ class Engine(object):
         attempt = DeliveryAttempt.objects.create(contact=contact, engine=self.__class__.__name__)
         # attach messages to it
         if isinstance(message, MessageRecipient):
+            message.status = MessageStatus.pending
+            message.save()
             attempt.messages.add(message)
             n = 1
         elif isinstance(message, list):
             n = len(list)
             for msg in message:
+                msg.status = MessageStatus.pending
+                msg.save()
                 attempt.messages.add(message)
 
         # throw this into the queue
@@ -41,5 +45,5 @@ class DumbEngine(Engine):
 
     def create_attempts(self, unscheduled_mrs):
         for mr in unscheduled_mrs:
-            first_contact = mr.contacts.all()[0]
+            first_contact = mr.recipient.contacts.all()[0]
             self.create_attempt(first_contact, mr)

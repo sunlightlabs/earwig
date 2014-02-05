@@ -14,5 +14,4 @@ setup(name='earwig',
       install_requires=[
           'Django>1.6',
           'pytz',
-      ]
-)
+      ])

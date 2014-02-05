@@ -3,8 +3,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'earwig.settings.dev')
 
 from datetime import timedelta
 from celery import Celery
-from contact.models import ContactType
-from plugins.postmark.earwig import PostmarkContact
+#from contact.models import ContactType
 from engine.engines import DumbEngine
 
 app = Celery('earwig', include=['engine.tasks'])
@@ -17,7 +16,6 @@ app.conf.CELERYBEAT_SCHEDULE = {
 }
 
 app.conf.EARWIG_PLUGINS = {
-    ContactType.email: PostmarkContact(),
 }
 app.conf.ENGINE = DumbEngine()
 
