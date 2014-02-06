@@ -24,6 +24,15 @@ from django.utils.timezone import utc
 
 class TestTwilioVoice(TestCase):
 
+    def test_jacked_sid(self):
+        c = Client()
+        attempt = self.create_test_attempt()
+        self.plugin.send_message(attempt)
+        resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
+            "AccountSid": "ACFOOFOOFOOFOOFOOFOOFOOFOOFOO",
+        })
+        assert resp.status_code == 404
+
     def test_voice_sending(self):
         c = Client()
         attempt = self.create_test_attempt()
@@ -32,8 +41,9 @@ class TestTwilioVoice(TestCase):
         assert attempt.status == 'scheduled'
 
         resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
-            # XXX: Mock twilio responses here.
+            "AccountSid": "ACTEST"
         })
+        assert resp.status_code == 200
 
         dba = DeliveryAttempt.objects.get(id=attempt.id)
         assert dba.status == 'sent'
@@ -43,7 +53,7 @@ class TestTwilioVoice(TestCase):
         attempt = self.create_test_attempt()
         self.plugin.send_message(attempt)
         resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
-            # XXX: Mock twilio responses here.
+            "AccountSid": "ACTEST"
         })
         assert resp.content == b"<thing>HELLO, WORLD\n</thing>\n"
 
@@ -87,6 +97,13 @@ class TestTwilioVoice(TestCase):
         # so that we have our test templates set and nothing else. We'll
         # fix this after for the other tests.
         self._templates = settings.TEMPLATE_DIRS
+
+        settings.CONTACT_PLUGIN_TWILIO = {
+            "account_sid": "ACTEST",
+            "auth_token": "NONAME",
+            "from_number": "test",
+        }
+
         settings.TEMPLATE_DIRS = (
             os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', 'test_templates')),

@@ -1,6 +1,7 @@
 # Helper methods for the twilio plugins.
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import Http404
+
 
 
 def validate(fn):
@@ -9,8 +10,14 @@ def validate(fn):
         # Right. We're going to validate that the incoming twilio sid is
         # the one we have on file. This will help to avoid blatent
         # POSTs back at the URL.
-        incoming_sid = request.POST['AccountSid']
+        incoming_sid = request.POST.get('AccountSid', None)
+
+        # incoming_sid.startswith("AC")
+        # incoming_sid length is 32
+        # (We should add this if we start being more liberal with AccountSid
+        #  that we get)
+
         if incoming_sid != twilio_settings['account_sid']:
-            return HttpResponse("Something went wrong.")
+            raise Http404("Something went wrong.")
         return fn(request, *args, **kwargs)
     return _
