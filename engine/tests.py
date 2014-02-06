@@ -1,11 +1,10 @@
 import datetime
 import mock
-import celery
 from django.test import TestCase
 from django.utils.timezone import utc
 from contact.models import (Application, Sender, Person, ContactDetail, MessageRecipient,
                             MessageType, Message, ContactType, DeliveryAttempt)
-from .tasks import create_delivery_attempts
+from .tasks import create_delivery_attempts, process_delivery_attempt
 from .core import app
 
 EXPIRY = datetime.datetime(2020, 1, 1, tzinfo=utc)
@@ -39,9 +38,7 @@ class TestCreateDeliveryAttempts(TestCase):
         attempt = DeliveryAttempt.objects.get()
         assert attempt.contact == self.contact
         assert attempt.messages.get().message == self.msg
-        # assert_called_once_with fails for some unknown reason
-        assert send_task.call_count == 1
-        assert send_task.call_args == (('engine.tasks.process_delivery_attempt',), {'args': (attempt,)})
+        send_task.assert_called_once_with('engine.tasks.process_delivery_attempt', args=(attempt,))
 
     @mock.patch('engine.engines.send_task')
     def test_only_one_attempt(self, send_task):
@@ -52,3 +49,46 @@ class TestCreateDeliveryAttempts(TestCase):
         res = create_delivery_attempts.delay()
         assert res.successful()
         assert DeliveryAttempt.objects.count() == 1
+
+
+class TestProcessDeliveryAttempt(TestCase):
+
+    def setUp(self):
+        self.plugin = mock.Mock()
+
+        # create DeliveryAttempt
+        application = Application.objects.create(name='app', contact='fake@example.com',
+                                                 template_set='')
+        sender = Sender.objects.create(name='sender', email_expires_at=EXPIRY, id='1'*64)
+        self.person = Person.objects.create(ocd_id='ocd-person/1', title='President',
+                                            name='Gerald Fnord')
+        self.vcontact = ContactDetail.objects.create(person=self.person, type=ContactType.voice,
+                                                     value='202-555-5555')
+        self.econtact = ContactDetail.objects.create(person=self.person, type=ContactType.email,
+                                                     value='test@example.com')
+        self.person.contacts.add(self.vcontact)
+        self.person.contacts.add(self.econtact)
+        self.msg = Message.objects.create(type=MessageType.private, sender=sender,
+                                          subject='subject', message='hello everyone',
+                                          application=application)
+        self.mr = MessageRecipient.objects.create(recipient=self.person, message=self.msg)
+
+        # app.conf
+        app.conf.EARWIG_PLUGINS[ContactType.voice] = self.plugin
+        app.conf.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+        app.conf.CELERY_ALWAYS_EAGER = True
+        app.conf.BROKER_BACKEND = 'memory'
+
+    def test_plugin_gets_called(self):
+        attempt = DeliveryAttempt.objects.create(contact=self.vcontact)
+        attempt.messages.add(self.mr)
+        res = process_delivery_attempt.delay(attempt)
+        assert res.successful()
+        self.plugin.send_message.assert_called_once_with(attempt)
+
+    def test_plugin_error(self):
+        attempt = DeliveryAttempt.objects.create(contact=self.econtact)
+        attempt.messages.add(self.mr)
+        res = process_delivery_attempt.delay(attempt)
+        assert res.successful()
+        assert not self.plugin.send_message.called

@@ -28,9 +28,9 @@ def process_delivery_attempt(attempt):
     Send a delivery attempt using the active plugin.
     """
     try:
-        plugin = app.conf.EARWIG_PLUGINS[attempt.type]
+        plugin = app.conf.EARWIG_PLUGINS[attempt.contact.type]
+        logger.info('processing {0} with {1}'.format(attempt, plugin.__class__.__name__))
+        plugin.send_message(attempt)
     except KeyError:
-        logger.error('no plugin for {0} ({1} not delivered)'.format(attempt.type, attempt))
+        logger.error('no plugin for {0} ({1} not delivered)'.format(attempt.contact.type, attempt))
         # XXX: do more here than log?
-    logger.info('processing {0} with {1}'.format(attempt, plugin.__name__))
-    plugin.send_message(attempt)
