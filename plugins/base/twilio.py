@@ -5,6 +5,11 @@ from django.http import Http404
 
 
 def validate(fn):
+    """
+    Validate incoming Django requests that we expect a twilio callback against.
+    This is to be used to decorate Django views.
+    """
+
     def _(request, *args, **kwargs):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         # Right. We're going to validate that the incoming twilio sid is
