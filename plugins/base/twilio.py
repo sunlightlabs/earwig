@@ -4,7 +4,7 @@ from django.http import HttpResponse
 
 
 def validate(fn):
-    def validate(request):
+    def _(request):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         # Right. We're going to validate that the incoming twilio sid is
         # the one we have on file. This will help to avoid blatent
@@ -13,3 +13,4 @@ def validate(fn):
         if incoming_sid != twilio_settings['account_sid']:
             return HttpResponse("Something went wrong.")
         return fn(request)
+    return _
