@@ -87,19 +87,6 @@ class TwilioSMSTests(TestCase):
         except IntegrityError:
             pass
 
-    def test_status(self):
-        """ Ensure that we can properly fetch the status out of the DB """
-        plugin = TwilioSmsContact()
-        attempt = self.create_test_attempt()
-        plugin.send_message(attempt)
-        id1 = plugin.check_message_status(attempt)
-
-        plugin = TwilioSmsContact()
-        id2 = plugin.check_message_status(attempt)
-
-        assert id1 == id2, ("We got a different result from a check when"
-                            " given a new plugin object. DB issue?")
-
     def test_bad_number(self):
         """ Ensure that we blow up with two identical inserts """
         attempt = self.create_test_attempt()

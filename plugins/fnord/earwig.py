@@ -23,7 +23,3 @@ class FnordContact(BasePlugin):
         # write to a file
         with open('fnord-{0}.txt'.format(receipt), 'w') as fh:
             fh.write("Subject: {0}\n\n\n{1}".format(subject, body))
-
-    def check_message_status(self, attempt):
-        obj = FnordStatus.objects.get(attempt=attempt)
-        return obj.remote_id

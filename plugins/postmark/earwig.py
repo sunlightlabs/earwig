@@ -42,10 +42,3 @@ class PostmarkContact(BasePlugin):
                 "body": body,
                 "subject": subject,
                 "obj": meta }
-
-    def check_message_status(self, attempt):
-        obj = PostmarkDeliveryMeta.objects.get(attempt=attempt)
-        response = pystmark.get_bounces(settings.POSTMARK_API_KEY)
-        for bounce in response.json()['Bounces']:
-            if bounce['MessageID'] == obj.message_id:
-                return convert_bounce_to_delivery_status(bounce['Type'])

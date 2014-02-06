@@ -61,7 +61,3 @@ class TwilioSmsContact(BasePlugin):
                 "subject": subject,
                 "obj": obj,
             }
-
-    def check_message_status(self, attempt):
-        obj = TwilioSMSStatus.objects.get(attempt=attempt)
-        return "sent" if obj.sent else "failed"

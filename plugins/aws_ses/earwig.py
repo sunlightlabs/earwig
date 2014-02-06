@@ -34,10 +34,3 @@ class SESContact(BasePlugin):
         request_id = resp['SendEmailResponse']['ResponseMetadata']['RequestID']
         message_id = resp['SendEmailResult']['MessageId']
         SentEmailStatus.create(attempt=attempt, request_id=request_id, message_id=message_id)
-
-    def check_message_status(self, attempt):
-        '''This function depends on shape of SNS notifactions and
-        the output we want from this funtion.
-        '''
-        #SESDeliveryMeta.get(attempt=attempt)
-        raise NotImplementedError()

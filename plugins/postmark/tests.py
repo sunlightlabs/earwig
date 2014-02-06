@@ -217,5 +217,3 @@ class BounceHandlingTest(EmailTestCase):
 
         # Make this id point at the bounced email.
         pystmark.BOUNCED_EMAIL_ID = str(meta.message_id)
-        status = plugin.check_message_status(attempt)
-        self.assertEqual(status, 'bad-data')

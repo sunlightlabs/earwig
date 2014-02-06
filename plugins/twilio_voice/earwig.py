@@ -56,8 +56,3 @@ class TwilioVoiceContact(BasePlugin):
             )
             attempt.save()
             return
-
-
-    def check_message_status(self, attempt):
-        obj = TwilioVoiceStatus.objects.get(attempt=attempt)
-        return "sent" if obj.sent else "failed"
