@@ -64,10 +64,5 @@ class Command(BaseCommand):
         print("")
         print(plugin.send_message(attempt))
         print("")
-        print("")
-        print("Status:")
-        print("")
-        print(plugin.check_message_status(attempt))
-        print("")
 
         #attempt.delete()
