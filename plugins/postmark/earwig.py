@@ -8,7 +8,7 @@ from django.conf import settings
 
 from ..base.plugin import BasePlugin
 from ..utils import body_template_to_string, subject_template_to_string
-from .models import PostmarkDeliveryMeta, convert_bounce_to_delivery_status
+from .models import PostmarkDeliveryMeta
 
 
 class PostmarkContact(BasePlugin):
@@ -41,4 +41,5 @@ class PostmarkContact(BasePlugin):
             return {
                 "body": body,
                 "subject": subject,
-                "obj": meta }
+                "obj": meta
+            }

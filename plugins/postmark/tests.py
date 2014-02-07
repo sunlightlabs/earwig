@@ -18,10 +18,8 @@ from django.conf import settings
 import pystmark
 
 from plugins.postmark.models import PostmarkDeliveryMeta
-from ..utils import body_template_to_string, subject_template_to_string
 from .earwig import PostmarkContact
 
-from contact.models import DeliveryAttempt
 from contact.models import (
     Person,
     ContactDetail,

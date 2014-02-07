@@ -9,10 +9,9 @@ class Connection(object):
             'SendEmailResponse': {
                 'ResponseMetadata': {
                     'RequestID': 'cow_id'
-                    },
                 },
+            },
             'SendEmailResult': {
                 'MessageId': 'message_id'
-                }
             }
-
+        }

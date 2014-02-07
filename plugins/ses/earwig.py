@@ -45,4 +45,5 @@ class SESContact(BasePlugin):
             return {
                 "body": body,
                 "subject": subject,
-                "obj": meta }
+                "obj": meta
+            }

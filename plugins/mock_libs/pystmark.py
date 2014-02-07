@@ -37,6 +37,7 @@ def send(message, *args):
 
 BOUNCED_EMAIL_ID = 'BOUNCED_EMAIL'
 
+
 def get_bounces(api_key):
     class Response(object):
         '''I feel so unclean.'''
@@ -46,16 +47,16 @@ def get_bounces(api_key):
                 'Bounces': [{
                     "ID": 'cow',
                     "Type": "HardBounce",
-                    "MessageID" : BOUNCED_EMAIL_ID,
-                    "TypeCode" : 1,
+                    "MessageID": BOUNCED_EMAIL_ID,
+                    "TypeCode": 1,
                     "Details": "test bounce",
                     "Email": "jim@test.com",
                     "BouncedAt": "[YESTERDAY]",
                     "DumpAvailable": True,
                     "Inactive": True,
                     "CanActivate": True,
-                    "Content" : "Return-Path:....",
-                    "Subject" : "Hello from our app!"
-                    }]
-                }
+                    "Content": "Return-Path:....",
+                    "Subject": "Hello from our app!"
+                }]
+            }
     return Response()

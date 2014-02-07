@@ -6,20 +6,15 @@ from os.path import abspath, dirname, join
 # models, that way we don't actually use the system copy.
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../mock_libs'))
 
-import json
 import uuid
 import datetime as dt
 
 from django.test import TestCase
-from django.test import Client
-from django.core.urlresolvers import reverse
 from django.conf import settings
 
 from plugins.ses.models import SESDeliveryMeta
-from ..utils import body_template_to_string, subject_template_to_string
 from .earwig import SESContact
 
-from contact.models import DeliveryAttempt
 from contact.models import (
     Person,
     ContactDetail,

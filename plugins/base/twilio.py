@@ -3,7 +3,6 @@ from django.conf import settings
 from django.http import Http404
 
 
-
 def validate(fn):
     """
     Validate incoming Django requests that we expect a twilio callback against.
