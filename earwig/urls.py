@@ -10,6 +10,7 @@ urlpatterns = patterns(
     url(r'^', include('contact.urls')),
     url(r'^plugins/postmark/', include('plugins.postmark.urls')),
     url(r'^plugins/twilio_voice/', include('plugins.twilio_voice.urls')),
+    url(r'^plugins/twilio_sms/', include('plugins.twilio_sms.urls')),
 )
 
 if settings.DEBUG:
