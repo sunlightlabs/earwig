@@ -29,7 +29,7 @@ def _handle_unsubscribe(request, number):
     }, content_type="application/xml")
 
 
-def _handle_unblacklist(request, number):
+def _handle_start(request, number):
     return render(request, "common/twilio/start.xml", {
         "request": request,
         "from": number,
