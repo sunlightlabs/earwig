@@ -20,6 +20,7 @@ INSTALLED_APPS = (
     'plugins.twilio_sms',
     'plugins.twilio_voice',
     'plugins.postmark',
+    'plugins.ses',
     'engine',
 )
 
