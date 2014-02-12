@@ -4,13 +4,30 @@ from ..base.twilio import validate, normalize_number
 from django.http import Http404
 
 # from ..utils import body_template_to_string
-# from contact.models import DeliveryStatus
+from contact.models import FeedbackType
 from .models import TwilioSMSStatus
 
 
 def _handle_unsubscribe(request, number):
 
-    da = TwilioSMSStatus.objects.all(sent_to=number)
+    status = TwilioSMSStatus.objects.all(
+        sent_to_normalized=normalize_number(number)
+    )
+
+    status = status[0] if status else None
+
+    if status is None:
+        # XXX: Uh.....
+        pass
+
+    da = status.attempt
+    da.set_feedback(
+        FeedbackType.contact_detail_blacklist
+        "Text-based unsubscribe notification",
+    )
+
+    da.save()
+    status.save()
 
     return render(request, "common/twilio/unsubscribe.xml", {
         "request": request,
