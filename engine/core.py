@@ -5,6 +5,7 @@ from datetime import timedelta
 from celery import Celery
 #from contact.models import ContactType
 from engine.engines import DumbEngine
+from engine.newengine import NewEngine
 
 app = Celery('earwig', include=['engine.tasks'])
 app.conf.CELERY_ENABLE_UTC = True
@@ -17,7 +18,8 @@ app.conf.CELERYBEAT_SCHEDULE = {
 
 app.conf.EARWIG_PLUGINS = {
 }
-app.conf.ENGINE = DumbEngine()
+#app.conf.ENGINE = DumbEngine()
+app.conf.ENGINE = NewEngine()
 
 if __name__ == '__main__':
     app.start()

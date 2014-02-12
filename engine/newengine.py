@@ -12,4 +12,20 @@ from .engines import Engine
 class NewEngine(Engine):
     def create_attempts(self, unscheduled_mrs):
         for mr in unscheduled_mrs:
-            print(mr.recipient.contacts.all())
+            contacts = mr.recipient.contacts.all()
+
+            detail = None
+            for contact in contacts:
+                if contact.type == 'email':
+                    detail = contact
+                    break
+            else:
+                for contact in contacts:
+                    if contact.type == 'voice':
+                        detail = contact
+                        break
+
+            if detail is None:
+                print("SOME_ERROR_CONDITION_HERE")
+
+            self.create_attempt(detail, mr)
