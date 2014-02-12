@@ -10,19 +10,18 @@ from .models import TwilioSMSStatus
 
 def _handle_unsubscribe(request, number):
 
-    status = TwilioSMSStatus.objects.all(
+    status = TwilioSMSStatus.objects.filter(
         sent_to_normalized=normalize_number(number)
     )
 
     status = status[0] if status else None
 
     if status is None:
-        # XXX: Uh.....
-        pass
+        raise Http404("No such number on record.")
 
     da = status.attempt
     da.set_feedback(
-        FeedbackType.contact_detail_blacklist
+        FeedbackType.contact_detail_blacklist,
         "Text-based unsubscribe notification",
     )
 
