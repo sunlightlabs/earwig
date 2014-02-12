@@ -9,23 +9,35 @@ from .engines import Engine
 # messages
 
 
+def get_prefered_contact_detail(contacts, methods):
+    if methods is None:
+        raise ValueError("No methods given")
+
+    try:
+        type_ = next(methods)
+    except StopIteration:
+        raise ValueError("No matching contact type")
+
+    for contact in contacts:
+        if contact.type == type_:
+            return contact
+
+    return get_prefered_contact_detail(contacts, methods=methods)
+
+
+
 class NewEngine(Engine):
     def create_attempts(self, unscheduled_mrs):
         for mr in unscheduled_mrs:
             contacts = mr.recipient.contacts.all()
 
-            detail = None
-            for contact in contacts:
-                if contact.type == 'email':
-                    detail = contact
-                    break
-            else:
-                for contact in contacts:
-                    if contact.type == 'voice':
-                        detail = contact
-                        break
-
-            if detail is None:
-                print("SOME_ERROR_CONDITION_HERE")
+            try:
+                detail = get_prefered_contact_detail(
+                    contacts,
+                    iter(["email", "voice", "sms"])
+                )
+            except ValueError:
+                print("SOME_ERROR_CONDITION")
+                return
 
             self.create_attempt(detail, mr)

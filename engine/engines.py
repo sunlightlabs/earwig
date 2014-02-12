@@ -2,7 +2,7 @@ from celery.utils.log import get_task_logger
 from celery.execute import send_task
 from contact.models import MessageRecipient, DeliveryAttempt, MessageStatus
 
-logger = get_task_logger(__name__) 
+logger = get_task_logger(__name__)
 
 class Engine(object):
     """
