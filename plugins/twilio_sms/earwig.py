@@ -26,10 +26,12 @@ class TwilioSmsContact(BasePlugin):
         cd = attempt.contact
 
         from_number = self.settings['from_number']
+        to_number = normalize_number(cd.value)
 
         obj = TwilioSMSStatus.objects.create(
             attempt=attempt,
             sent_to=cd.value,
+            sent_to_normalized=to_number,
             sent_from=from_number,
             sent=False
         )

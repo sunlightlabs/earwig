@@ -3,6 +3,20 @@ from django.conf import settings
 from django.http import Http404
 
 
+def normalize_number(number):
+    if number is None:
+        return None
+
+    number = number.replace(" ", "")
+    number = number.replace(".", "")
+    number = number.replace("(", "")
+    number = number.replace(")", "")
+    number = number.replace("-", "")
+    number = number.replace("+", "")
+    number = number[-10:]
+    return number
+
+
 def validate(fn):
     """
     Validate incoming Django requests that we expect a twilio callback against.

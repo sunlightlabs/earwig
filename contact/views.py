@@ -4,8 +4,8 @@ from django.shortcuts import render
 from django.conf import settings
 
 from .forms import FlaggingForm
-from .models import (Application, Sender, Person, Message, MessageRecipient, DeliveryAttempt,
-                     FeedbackType)
+from .models import (Application, Sender, Person, Message, MessageRecipient,
+                     DeliveryAttempt, FeedbackType)
 from .utils import utcnow
 
 import re

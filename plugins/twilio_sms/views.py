@@ -1,6 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from ..base.twilio import validate
+from ..base.twilio import validate, normalize_number
 from django.http import Http404
 
 # from ..utils import body_template_to_string
@@ -8,21 +8,10 @@ from django.http import Http404
 from .models import TwilioSMSStatus
 
 
-def _normalize_number(number):
-    if number is None:
-        return None
-
-    number = number.replace(" ", "")
-    number = number.replace(".", "")
-    number = number.replace("(", "")
-    number = number.replace(")", "")
-    number = number.replace("-", "")
-    number = number.replace("+", "")
-    number = number[-10:]
-    return number
-
-
 def _handle_unsubscribe(request, number):
+
+    da = TwilioSMSStatus.objects.all(sent_to=number)
+
     return render(request, "common/twilio/unsubscribe.xml", {
         "request": request,
         "from": number,
@@ -46,7 +35,7 @@ MESSAGE_HANDLERS = {
 @validate
 def text(request):
     body = request.POST.get("Body", "").lower().strip()
-    from_ = _normalize_number(request.POST.get("From"))
+    from_ = normalize_number(request.POST.get("From"))
 
     if from_ is None:
         raise Http404("No number")
