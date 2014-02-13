@@ -21,6 +21,7 @@ from contact.models import (
     Message,
     Application,
     MessageRecipient,
+    FeedbackType,
 )
 from .earwig import TwilioSmsContact
 from django.conf import settings
@@ -105,7 +106,7 @@ class TwilioSMSTests(TestCase):
             resp.content
         )
         attempt = DeliveryAttempt.objects.get(id=attempt.id)
-        assert attempt.feedback_type == "contact_detail_blacklist"
+        assert attempt.feedback_type == FeedbackType.contact_detail_blacklist
 
     def test_bad_number(self):
         """ Ensure that we blow up with two identical inserts """
