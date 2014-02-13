@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../mock_libs'))
 
 from datetime import datetime
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.db import IntegrityError
 from django.utils.timezone import utc
 import pytz
@@ -71,6 +71,11 @@ class TwilioSMSTests(TestCase):
             os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', 'test_templates')),
         )
+        settings.CONTACT_PLUGIN_TWILIO = {
+            "account_sid": "ACTEST",
+            "auth_token": "NONAME",
+            "from_number": "test",
+        }
 
     def tearDown(self):
         settings.TEMPLATE_DIRS = self._templates
@@ -86,6 +91,21 @@ class TwilioSMSTests(TestCase):
                                    "send_message")
         except IntegrityError:
             pass
+
+    def test_unsubscribe(self):
+        attempt = self.create_test_attempt()
+        self.plugin.send_message(attempt)
+        c = Client()
+        resp = c.post("/plugins/twilio_sms/text/", {
+            "AccountSid": "ACTEST",
+            "From": attempt.contact.value,
+            "Body": "unsubscribe",
+        })
+        assert resp.status_code == 200, "Bad unsubscribe response - %s" % (
+            resp.content
+        )
+        attempt = DeliveryAttempt.objects.get(id=attempt.id)
+        assert attempt.feedback_type == "contact_detail_blacklist"
 
     def test_bad_number(self):
         """ Ensure that we blow up with two identical inserts """
