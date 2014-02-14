@@ -33,7 +33,6 @@ class DumbSmartEngine(Engine):
         # Drop untimely followups.
         mrs = list(self.drop_mrs(mrs))
 
-        engine = self.__class__.__name__
         for recipient, mrs in self.groupby_recipient(mrs).items():
             for contact, mrs in self.groupby_contact(mrs).items():
                 self.create_attempt(contact, mrs)
@@ -129,17 +128,3 @@ class DumbSmartEngine(Engine):
             grouped[mr.recipient].append(mr)
         return grouped
 
-    # -----------------------------------------------------------------------
-    # Random plugin helper functions.
-    # -----------------------------------------------------------------------
-    def get_plugin(contact_type):
-        plugins = {
-            ContactType.voice: TwilioVoiceContact,
-            ContactType.sms: TwilioSmsContact,
-            ContactType.email: PostmarkContact,
-            }
-        try:
-            return plugins[contact_type]
-        except KeyError:
-            msg = 'No plugin available for contact_type: %r'
-            raise TypeError(msg % contact_type)
