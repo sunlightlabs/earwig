@@ -1,4 +1,4 @@
-from ..engine import Engine
+from . import Engine
 
 class DumbEngine(Engine):
     """
