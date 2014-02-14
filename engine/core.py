@@ -4,8 +4,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'earwig.settings.dev')
 from datetime import timedelta
 from celery import Celery
 #from contact.models import ContactType
-from engine.engines import DumbEngine
-from engine.newengine import NewEngine
+from engine.engines.dumb import DumbEngine
+from engine.engines.newengine import NewEngine
 
 app = Celery('earwig', include=['engine.tasks'])
 app.conf.CELERY_ENABLE_UTC = True
