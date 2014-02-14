@@ -29,7 +29,7 @@ class TestCreateDeliveryAttempts(TestCase):
         app.conf.CELERY_ALWAYS_EAGER = True
         app.conf.BROKER_BACKEND = 'memory'
 
-    @mock.patch('engine.engines.send_task')
+    @mock.patch('engine.engines.base.send_task')
     def test_single_attempt(self, send_task):
         assert DeliveryAttempt.objects.count() == 0
         res = create_delivery_attempts.delay()
@@ -40,7 +40,7 @@ class TestCreateDeliveryAttempts(TestCase):
         assert attempt.messages.get().message == self.msg
         send_task.assert_called_once_with('engine.tasks.process_delivery_attempt', args=(attempt,))
 
-    @mock.patch('engine.engines.send_task')
+    @mock.patch('engine.engines.base.send_task')
     def test_only_one_attempt(self, send_task):
         # nothing should change
         res = create_delivery_attempts.delay()
@@ -113,7 +113,7 @@ class TestCreateDeliveryAttempts(TestCase):
         app.conf.CELERY_ALWAYS_EAGER = True
         app.conf.BROKER_BACKEND = 'memory'
 
-    @mock.patch('engine.engines.send_task')
+    @mock.patch('engine.engines.base.send_task')
     def test_single_attempt(self, send_task):
         assert DeliveryAttempt.objects.count() == 0
         res = create_delivery_attempts.delay()
@@ -124,7 +124,7 @@ class TestCreateDeliveryAttempts(TestCase):
         assert attempt.messages.get().message == self.msg
         send_task.assert_called_once_with('engine.tasks.process_delivery_attempt', args=(attempt,))
 
-    @mock.patch('engine.engines.send_task')
+    @mock.patch('engine.engines.base.send_task')
     def test_only_one_attempt(self, send_task):
         # nothing should change
         res = create_delivery_attempts.delay()
