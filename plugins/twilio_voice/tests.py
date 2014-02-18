@@ -93,21 +93,8 @@ class TestTwilioVoice(TestCase):
     def setUp(self):
         self.plugin = TwilioVoiceContact()
 
-        # beyond this, we also need to mangle the path pretty bad.
-        # so that we have our test templates set and nothing else. We'll
-        # fix this after for the other tests.
-        self._templates = settings.TEMPLATE_DIRS
-
         settings.CONTACT_PLUGIN_TWILIO = {
             "account_sid": "ACTEST",
             "auth_token": "NONAME",
             "from_number": "test",
         }
-
-        settings.TEMPLATE_DIRS = (
-            os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                         '..', 'test_templates')),
-        )
-
-    def tearDown(self):
-        settings.TEMPLATE_DIRS = self._templates

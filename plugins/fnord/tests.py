@@ -8,11 +8,7 @@ class FnordTests(BaseTests, TestCase):
 
     def test_message(self):
         plugin = FnordContact()
-        debug_info = plugin.send_message(self.attempt, debug=True)
-        assert debug_info['subject'] == ''
-        assert debug_info['body'] == """green blue red blue red green green
-
-
-    HELLO WORLD
-
-"""
+        debug_info = plugin.send_message(self.email_attempt, debug=True)
+        self.assertIn(self.email_attempt.messages.all()[0].message.subject, debug_info['subject'])
+        self.assertIn(self.email_attempt.messages.all()[0].message.message, debug_info['body'])
+        self.assertIn(self.email_attempt.unsubscribe_url, debug_info['body'])

@@ -5,6 +5,8 @@ import uuid
 
 
 class FnordContact(BasePlugin):
+    medium = 'email'
+
     def send_message(self, attempt, debug=False):
         receipt = uuid.uuid1()
         obj = FnordStatus.objects.create(attempt=attempt, remote_id=receipt)
