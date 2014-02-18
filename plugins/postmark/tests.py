@@ -19,6 +19,7 @@ import pystmark
 
 from plugins.postmark.models import PostmarkDeliveryMeta
 from .earwig import PostmarkContact
+from ..utils import body_template_to_string, subject_template_to_string
 
 from contact.models import (
     Person,

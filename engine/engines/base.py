@@ -29,7 +29,7 @@ class Engine(object):
             # update status
             msg.status = MessageStatus.pending
             msg.save()
-            # throw this into the queue
-            send_task('engine.tasks.process_delivery_attempt', args=(attempt,))
 
+        # throw this into the queue
+        send_task('engine.tasks.process_delivery_attempt', args=(attempt,))
         logger.info('created DeliveryAttempt to {0} with {1} messages'.format(contact, n))

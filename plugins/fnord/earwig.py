@@ -8,6 +8,8 @@ class FnordContact(BasePlugin):
     medium = 'email'
 
     def send_message(self, attempt, debug=False):
+        if attempt.contact.type != self.medium:
+            raise ValueError('fnordplugin is for ' + self.medium + ' only')
         receipt = uuid.uuid1()
         obj = FnordStatus.objects.create(attempt=attempt, remote_id=receipt)
         obj.save()

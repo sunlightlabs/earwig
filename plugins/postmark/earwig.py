@@ -21,8 +21,9 @@ class PostmarkContact(BasePlugin):
         self.check_contact_detail(contact_detail)
         recipient_email_address = contact_detail.value
 
-        body = body_template_to_string(attempt.template, 'email', attempt)
-        subject = subject_template_to_string(attempt.template, 'email', attempt)
+        template_name = getattr(attempt, 'template') or 'default'
+        body = body_template_to_string(template_name, 'email', attempt)
+        subject = subject_template_to_string(template_name, 'email', attempt)
 
         message = pystmark.Message(
             sender=settings.EARWIG_EMAIL_SENDER,
