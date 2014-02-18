@@ -1,3 +1,8 @@
-This is the email body copy.
+Hello! You have messages! Here they are:
+{% for mr in attempt.messages.all %}
+    {{forloop.counter}}). {% with sender=mr.message.sender %}From {{ sender.name }}:
+    {% endwith %}
+        "{{mr.message.message}}"
+{% endfor %}
 
-This is where things would go.
+To respond publicly, go to earwig.com/login/.

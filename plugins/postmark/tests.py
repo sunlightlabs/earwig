@@ -19,6 +19,7 @@ import pystmark
 
 from plugins.postmark.models import PostmarkDeliveryMeta
 from .earwig import PostmarkContact
+from ..utils import body_template_to_string, subject_template_to_string
 
 from contact.models import (
     Person,
@@ -37,14 +38,6 @@ class EmailTestCase(TestCase):
     '''
     def setUp(self):
         self.create_attempt()
-        self.switch_templatedirs()
-
-    def switch_templatedirs(self):
-        '''Swtich TEMPLATE_DIRS to point at test templates.
-        '''
-        self._templates = settings.TEMPLATE_DIRS
-        dirs = [abspath(join(dirname(__file__), '..', 'test_templates'))]
-        settings.TEMPLATE_DIRS = dirs
 
     def create_attempt(self):
         '''Create a test attempt to use in the tests.
@@ -77,8 +70,7 @@ class EmailTestCase(TestCase):
 
         attempt = DeliveryAttempt.objects.create(
             contact=contact, status="scheduled",
-            engine="default",
-            template='postmark-testing-deterministic-name')
+            engine="default")
 
         attempt.messages.add(message_recipient)
 
@@ -88,7 +80,6 @@ class EmailTestCase(TestCase):
     def tearDown(self):
         '''Restore the template dirs and delete the test objects.
         '''
-        settings.TEMPLATE_DIRS = self._templates
         Application.objects.all().delete()
         Person.objects.all().delete()
         ContactDetail.objects.all().delete()
@@ -106,8 +97,12 @@ class PostmarkMessageTest(EmailTestCase):
         plugin = PostmarkContact()
         attempt = DeliveryAttempt.objects.get(pk=1)
         debug_info = plugin.send_message(attempt, debug=True)
-        self.assertEqual(debug_info['subject'], 'Test subject')
-        self.assertEqual(debug_info['body'], 'Test body\n')
+
+        template_name = getattr(attempt, 'template') or 'default'
+        expected_body = body_template_to_string(template_name, 'email', attempt)
+        expected_subject = subject_template_to_string(template_name, 'email', attempt)
+        self.assertEqual(debug_info['body'], expected_body)
+        self.assertEqual(debug_info['subject'], expected_subject)
 
 
 class ContactDetailTest(EmailTestCase):
