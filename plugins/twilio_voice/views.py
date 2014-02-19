@@ -36,9 +36,9 @@ def get_translate_contact(func):
 #                  content_type="application/xml")
 
 
-def _redirect_to_messages(request, status):
+def _redirect_to_endpoint(request, base, url):
     return render(request, 'common/twilio/voice/redirect.xml',
-                  {"url": "../../messages/%s/" % (status.attempt.id)},
+                  {"url": "%s%s" % (base, url)},
                   content_type="application/xml")
 
 
@@ -46,17 +46,20 @@ def _redirect_to_messages(request, status):
 #@validate
 @get_translate_contact
 def intro(request, status):
+    attempt = status.attempt
+
     digits = request.POST.get("Digits", None)
     if digits:
         try:
-            return {
-                "1": _redirect_to_messages,
-            }[digits](request, status)
+            handler = lambda *args: _redirect_to_endpoint(request,
+                                                          "../../", *args)
+            return handler({
+                "1": "messages/%s/" % (attempt.id),
+            }[digits])
         except KeyError:
             # Random keypress.
             pass
 
-    attempt = status.attempt
     template = attempt.template
     attempt.mark_attempted(DeliveryStatus.sent,
                            'twilio_voice', attempt.template)
@@ -89,9 +92,6 @@ def messages(request, status):
 @get_translate_contact
 def message(request, status, sequence_id):
     digits = request.POST.get("Digits", None)
-    # 1 => next
-    # 3 => respond
-    # 0 => main menu
 
     attempt = status.attempt
     template = attempt.template
@@ -99,12 +99,33 @@ def message(request, status, sequence_id):
 
     messages = list(attempt.messages.order_by('id'))
     message = messages[sequence_id].message
-    print(message.message)
+    sender = message.sender
     has_next = len(messages) > (sequence_id + 1)
+
+    # 1 => next
+    # 3 => respond
+    # 0 => main menu
+    digits = request.POST.get("Digits", None)
+    if digits:
+        try:
+            handler = lambda *args: _redirect_to_endpoint(request,
+                                                         "../../../", *args)
+            return handler({
+                "1": (
+                    "message/%s/%s/" % (attempt.id, (sequence_id + 1))
+                ) if has_next else ("intro/%s/" % (attempt.id)),
+                # 1 is next until it's end of thread, when it becomes
+                #
+                "0": "intro/%s/" % (attempt.id),
+            }[digits])
+        except KeyError:
+            # Random keypress.
+            pass
 
     return render(request,
                   'common/twilio/voice/message.xml',
                   {"attempt": attempt,
                    "has_next": has_next,
+                   "sender": sender,
                    "message": message},
                  content_type="application/xml")

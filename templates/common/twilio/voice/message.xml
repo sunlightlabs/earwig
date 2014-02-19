@@ -2,12 +2,17 @@
 
 {% block content %}
 <Gather>
-    <Say>From: {{attempt.contact.person.name}}, {{attempt.created_at}}.</Say>
+    <Say>From: {{sender.name}}.</Say>
     <Say>Subject: {{message.subject}}.</Say>
-    <Say>{{message.message}}</Say>
+    <Pause length="1"></Pause>
+    <Say>{{message.message}}.</Say>
+    <Pause length="1"></Pause>
 {% if has_next %}
     <Say>To hear the next message, press 1</Say>
 {% endif %}
     <Say>To go back to the main menu, press 0</Say>
 </Gather>
+<Redirect method="POST">
+    ./
+</Redirect>
 {% endblock %}
