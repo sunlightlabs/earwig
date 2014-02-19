@@ -9,7 +9,7 @@ from .models import TwilioVoiceStatus
 
 def get_translate_contact(func):
     def get_translate_contact(request, contact_id, *args):
-        status = TwilioVoiceStatus.objects.get(id=contact_id)
+        status = TwilioVoiceStatus.objects.get(attempt__id=contact_id)
         return func(request, status, *args)
     return get_translate_contact
 
@@ -35,7 +35,6 @@ def get_translate_contact(func):
 
 @csrf_exempt
 @validate
-@get_translate_contact
 def intro(request, status):
     attempt = status.attempt
     template = attempt.template

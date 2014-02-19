@@ -37,9 +37,6 @@ class TwilioVoiceContact(BasePlugin):
             sent_from=from_number,
             sent=False
         )
-        # We're going to save this record and only actually issue the sent
-        # when we get the callback from the Twilio service.
-        obj.save()
 
         callback_url = "{0}{1}".format(
             settings.EARWIG_PUBLIC_LINK_ROOT,
