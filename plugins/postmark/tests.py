@@ -105,7 +105,7 @@ class PostmarkMessageTest(EmailTestCase):
         body_html = plugin.render_template(path, **ctx)
 
         path = 'plugins/default/email/body.txt'
-        body_txt = plugin.render_template(path, **ctx)
+        body_txt = plugin.render_text_template(path, **ctx)
 
         path = 'plugins/default/email/subject.txt'
         subject = plugin.render_template(path, **ctx)

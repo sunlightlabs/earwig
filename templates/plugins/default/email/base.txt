@@ -1,6 +1,5 @@
 {% block content %}
 {% endblock %}
-
 ============================================
 These notifications are powered by the nonpartisan Sunlight Foundation (http://sunlightfoundation.com), a nonprofit that uses cutting-edge technology and ideas to make government transparent and accountable.
 
