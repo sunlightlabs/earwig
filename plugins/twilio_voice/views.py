@@ -10,7 +10,7 @@ from .models import TwilioVoiceStatus
 @csrf_exempt
 @validate
 def call(request, contact_id):
-    status = TwilioVoiceStatus.objects.get(id=contact_id)
+    status = TwilioVoiceStatus.objects.get(attempt__id=contact_id)
     attempt = status.attempt
     template = attempt.template
 
