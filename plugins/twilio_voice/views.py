@@ -16,26 +16,6 @@ def get_translate_contact(func):
     return get_translate_contact
 
 
-
-#@csrf_exempt
-#@validate
-#@get_translate_contact
-#def call(request, status):
-#    attempt = status.attempt
-#    template = attempt.template
-#
-#    attempt.mark_attempted(DeliveryStatus.sent,
-#                           'twilio_voice', attempt.template)
-#    attempt.save()
-#
-#    return render(request,
-#                  'plugins/{template}/voice.xml'.format(template=template),
-#                  {"attempt": attempt, "status": status,
-#                   "body": body_template_to_string(
-#                       attempt.template, 'voice', attempt)},
-#                  content_type="application/xml")
-
-
 def _redirect_to_endpoint(request, base, url):
     return render(request, 'common/twilio/voice/redirect.xml',
                   {"url": "%s%s" % (base, url)},
@@ -43,7 +23,7 @@ def _redirect_to_endpoint(request, base, url):
 
 
 @csrf_exempt
-#@validate
+@validate
 @get_translate_contact
 def intro(request, status):
     attempt = status.attempt
@@ -88,7 +68,7 @@ def messages(request, status):
 
 
 @csrf_exempt
-#@validate
+@validate
 @get_translate_contact
 def message(request, status, sequence_id):
     digits = request.POST.get("Digits", None)
