@@ -20,13 +20,21 @@ from .earwig import TwilioVoiceContact
 from django.conf import settings
 from datetime import datetime
 from django.utils.timezone import utc
+from ..base.tests import BaseTests
+
+settings.CONTACT_PLUGIN_TWILIO = {
+    "account_sid": "ACTEST",
+    "auth_token": "NONAME",
+    "from_number": "test",
+}
 
 
-class TestTwilioVoice(TestCase):
+class TestTwilioVoice(BaseTests, TestCase):
+    plugin = TwilioVoiceContact()
 
     def test_jacked_sid(self):
         c = Client()
-        attempt = self.create_test_attempt()
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
         resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
             "AccountSid": "ACFOOFOOFOOFOOFOOFOOFOOFOOFOO",
@@ -35,7 +43,7 @@ class TestTwilioVoice(TestCase):
 
     def test_voice_sending(self):
         c = Client()
-        attempt = self.create_test_attempt()
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
         # Right, great.
         assert attempt.status == 'scheduled'
@@ -50,64 +58,9 @@ class TestTwilioVoice(TestCase):
 
     def test_voice_response(self):
         c = Client()
-        attempt = self.create_test_attempt()
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
         resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
             "AccountSid": "ACTEST"
         })
         assert resp.content == b"<thing>HELLO, WORLD\n</thing>\n"
-
-
-    def create_test_attempt(self):
-        app = Application.objects.create(name="test", contact="fnord@fnord.fnord",
-            template_set="None", active=True)
-
-        pt = Person.objects.create(
-            ocd_id='test', title='Mr.', name='Paul Tagliamonte', photo_url="")
-
-        cd = ContactDetail.objects.create(
-            person=pt, type='sms', value='good', note='Twilio!',
-            blacklisted=False)
-
-        send = Sender.objects.create(
-            id='randomstring', email_expires_at=datetime(2020, 1, 1, tzinfo=utc))
-
-        message = Message(
-            type='fnord', sender=send, subject="Hello, World",
-            message="HELLO WORLD", application=app)
-
-        message.save()
-
-        mr = MessageRecipient(message=message, recipient=pt, status='pending')
-        mr.save()
-
-        attempt = DeliveryAttempt(
-            contact=cd, status="scheduled",
-            template='twilio-testing-deterministic-name',
-            engine="default")
-
-        attempt.save()
-        attempt.messages.add(mr)
-        return attempt
-
-    def setUp(self):
-        self.plugin = TwilioVoiceContact()
-
-        # beyond this, we also need to mangle the path pretty bad.
-        # so that we have our test templates set and nothing else. We'll
-        # fix this after for the other tests.
-        self._templates = settings.TEMPLATE_DIRS
-
-        settings.CONTACT_PLUGIN_TWILIO = {
-            "account_sid": "ACTEST",
-            "auth_token": "NONAME",
-            "from_number": "test",
-        }
-
-        settings.TEMPLATE_DIRS = (
-            os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                         '..', 'test_templates')),
-        )
-
-    def tearDown(self):
-        settings.TEMPLATE_DIRS = self._templates

@@ -13,6 +13,8 @@ from twilio.rest import TwilioRestClient
 
 
 class TwilioVoiceContact(BasePlugin):
+    medium = 'voice'
+
     def __init__(self):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings
@@ -24,6 +26,9 @@ class TwilioVoiceContact(BasePlugin):
 
     def send_message(self, attempt, debug=True):
         cd = attempt.contact
+
+        self.check_contact_detail(cd)
+
         from_number = self.settings['from_number']
 
         obj = TwilioVoiceStatus.objects.create(
