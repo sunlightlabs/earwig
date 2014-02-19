@@ -34,7 +34,7 @@ class TestTwilioVoice(BaseTests, TestCase):
 
     def test_jacked_sid(self):
         c = Client()
-        attempt = self.make_delivery_attempt('phone', '202-555-2222')
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
         resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
             "AccountSid": "ACFOOFOOFOOFOOFOOFOOFOOFOOFOO",
@@ -43,7 +43,7 @@ class TestTwilioVoice(BaseTests, TestCase):
 
     def test_voice_sending(self):
         c = Client()
-        attempt = self.make_delivery_attempt('phone', '202-555-2222')
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
         # Right, great.
         assert attempt.status == 'scheduled'
@@ -58,7 +58,7 @@ class TestTwilioVoice(BaseTests, TestCase):
 
     def test_voice_response(self):
         c = Client()
-        attempt = self.make_delivery_attempt('phone', '202-555-2222')
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
         resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
             "AccountSid": "ACTEST"

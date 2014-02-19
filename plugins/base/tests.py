@@ -33,27 +33,28 @@ class BaseTests(object):
                                                   status='pending')
 
         self.email_attempt = self.make_delivery_attempt(type='email', value='test@example.com')
-        self.phone_attempt = self.make_delivery_attempt(type='phone', value='555-123-0000')
+        self.good_attempt = self.make_delivery_attempt(type=self.plugin.medium, value='555-222-2222')
         self.bad_type_attempt = self.make_delivery_attempt(type='junk', value='555')
-        self.blacklist_attempt = self.make_delivery_attempt(type='phone', value='555-222-1111',
-                                                            blacklisted=True)
 
     def test_duplicate(self):
         """
         Verify the plugin raises an error if it gets two identical messages to send.
         """
-        self.plugin.send_message(self.email_attempt, debug=True)
+        self.plugin.send_message(self.good_attempt, debug=True)
 
         with self.assertRaises(IntegrityError):
-            self.plugin.send_message(self.email_attempt, debug=True)
+            self.plugin.send_message(self.good_attempt, debug=True)
 
 
     def test_blacklist(self):
         '''
         Verify the plugin raises an error if it the contact detail is blacklisted.
         '''
+        blacklist_attempt = self.make_delivery_attempt(type=self.plugin.medium,
+                                                       value='555-222-1111',
+                                                       blacklisted=True)
         with self.assertRaises(ValueError):
-            self.plugin.send_message(self.blacklist_attempt, debug=True)
+            self.plugin.send_message(blacklist_attempt, debug=True)
 
     def test_wrong_medium(self):
         '''

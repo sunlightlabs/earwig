@@ -12,6 +12,8 @@ from twilio.rest import TwilioRestClient
 
 
 class TwilioSmsContact(BasePlugin):
+    medium = 'sms'
+
     def __init__(self):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings
@@ -22,9 +24,9 @@ class TwilioSmsContact(BasePlugin):
         )
 
     def send_message(self, attempt, debug=True):
-        # OK. let's ensure this is something we can handle.
-
         cd = attempt.contact
+
+        self.check_contact_detail(cd)
 
         from_number = self.settings['from_number']
         to_number = normalize_number(cd.value)
