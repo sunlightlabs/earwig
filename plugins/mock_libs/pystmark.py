@@ -10,11 +10,12 @@ class Message(object):
     subject=subject,
     text=body)
     '''
-    def __init__(self, sender, to, subject, text):
+    def __init__(self, sender, to, subject, text, html):
         self.sender = sender
         self.to = to
         self.subject = subject
         self.text = text
+        self.html = html
 
 
 class Response(object):
