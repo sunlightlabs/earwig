@@ -2,10 +2,11 @@ from __future__ import print_function
 from django.conf import settings
 
 from .models import TwilioSMSStatus
-from ..utils import body_template_to_string, subject_template_to_string
+from ..utils import (body_template_to_string, subject_template_to_string,
+                     intro_template_to_string)
 from ..base.plugin import BasePlugin
 from ..base.twilio import normalize_number
-from contact.models import DeliveryStatus
+from contact.models import DeliveryStatus, DeliveryAttempt
 
 import twilio
 from twilio.rest import TwilioRestClient
@@ -28,6 +29,23 @@ class TwilioSmsContact(BasePlugin):
 
         from_number = self.settings['from_number']
         to_number = normalize_number(cd.value)
+
+        prior_attempts = TwilioSMSStatus.objects.filter(
+            sent_to=to_number
+        ).count()
+
+        needs_intro = (prior_attempts == 0)
+
+        if needs_intro:
+            intro = intro_template_to_string(attempt.template, 'sms', attempt)
+            try:
+                self.client.messages.create(to=cd.value,
+                                            from_=from_number,
+                                            body=intro)
+            except twilio.TwilioRestException as e:
+                # Uhhh... Let's handle this below where we can do some record
+                # keeping.
+                pass
 
         obj = TwilioSMSStatus.objects.create(
             attempt=attempt,
