@@ -56,7 +56,7 @@ def intro(request, status):
 
 
 @csrf_exempt
-#@validate
+@validate
 @get_translate_contact
 def messages(request, status):
     attempt = status.attempt

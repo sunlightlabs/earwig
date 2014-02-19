@@ -8,9 +8,9 @@
     <Say>{{message.message}}.</Say>
     <Pause length="1"></Pause>
 {% if has_next %}
-    <Say>To hear the next message, press 1</Say>
+    <Say>To hear the next message, press 1.</Say>
 {% endif %}
-    <Say>To go back to the main menu, press 0</Say>
+    <Say>To go back to the main menu, press 0.</Say>
 </Gather>
 <Redirect method="POST">
     ./
