@@ -1,0 +1,9 @@
+{% block content %}
+{% endblock %}
+
+============================================
+These notifications are powered by the nonpartisan Sunlight Foundation (http://sunlightfoundation.com), a nonprofit that uses cutting-edge technology and ideas to make government transparent and accountable.
+
+Manage your subscriptions on the web ({{manage_notifications_url}}), or unsubscribe from emails to this account ({{attempt.unsubscribe_url|safe}}).
+
+Reply to this email to send feedback, bug reports, or effusive praise our way.

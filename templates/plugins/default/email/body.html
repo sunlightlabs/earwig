@@ -1,0 +1,34 @@
+{% extends "plugins/default/email/base.html" %}
+{% block content %}
+Dear {{attempt.contact.person}},
+
+{# If user has claimed account, show account status #}
+{% if attempt.user %}
+    {% include "plugins/default/email/account_status.html" %}
+{% else %}
+    {# If this is the first contact ever, explain. #}
+    {% if attempt.is_first_for_recipient %}
+      {% include "plugins/default/email/first_attempt/recipient.html" %}
+    {% endif %}
+{% endif %}
+
+{# If this is first email attempt, explain. #}
+{% if attempt.is_first_via_contact_medium %}
+  {% include "plugins/default/email/first_attempt/contact_medium.html" %}
+{% elif attempt.is_first_via_contact_detail %}
+  {% include "plugins/default/email/first_attempt/contact_detail.html" %}
+{% endif %}
+
+<h3>Messages</h3>
+{% for mr in attempt.messages.all %}
+    {% include "plugins/default/email/message.html" %}
+{% endfor %}
+
+{% if attempt.user %}
+    To respond publicly, either click on the messages shown
+    above or log in to your account at {{login_url}}
+{% else %}
+    To respond publicly, create an account at {{login_url}}.
+{% endif %}
+
+{% endblock %}

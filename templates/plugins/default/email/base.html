@@ -1,0 +1,62 @@
+<html>
+<head>
+<style>
+@media only screen and (max-width: 720px) {
+  .table_column_width {
+    width: 7% !important;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .table_column_width {
+    width: 3% !important;
+  }
+  .scout_logo {
+    max-width: 300px !important;
+  }
+}
+</style>
+</head>
+
+<body style="background: white;color: #47464A; font-family: 'helvetica Neue', arial, sans-serif;"><table width="100%" border="0" cellspacing="0" cellpadding="0" id="email_header" style="text-align: left; background: url(https://scout-assets.s3.amazonaws.com/assets/images/bg_header_email.gif) repeat center bottom; min-height: 80px; width: 100%;">
+  <tr>
+    <td>
+      <a href="https://scout.sunlightfoundation.com/url?&from=email&to=https%3A%2F%2Fscout.sunlightfoundation.com" target="_blank">
+        <img width="207" src="https://scout-assets.s3.amazonaws.com/assets/images/logo_scout.png" style="border: 0;text-align: top;display: inline; padding: 20px; padding-bottom: 30px;">
+      </a>
+    </td>
+  </tr>
+</table>
+<div style="margin: 0; padding: 0; margin-top: 20px; margin-bottom: 0px; width: 100%; background-color: #238397; padding-left: 5px;">
+{% block content %}
+{% endblock %}
+</div>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" id="footer" style="padding: 20px;margin: 0;margin-top: 1em;font-size: 90%;width: 100%;color: #666;background: url(https://scout-assets.s3.amazonaws.com/assets/images/bg_header_email.gif) repeat center top; min-height: 80px;">
+  <tr>
+
+    <td class="table_center" style="text-align: center;">&nbsp;</td>
+    <td class="table_center" style="text-align: center;">
+      <a href="https://scout.sunlightfoundation.com/url?&from=email&to=http%3A%2F%2Fsunlightfoundation.com%2F" target="_blank">
+        <img src="https://scout-assets.s3.amazonaws.com/assets/images/logo_sunlightFoundation_email.png" class="logo_footer" style="padding-left: 20px;padding-bottom: 20px;padding-right: 20px;">
+      </a>
+    </td>
+    <td class="table_center" style="text-align: center;">&nbsp;</td>
+
+  </tr><tr>
+    <td class="table_column_width" style="width: 15%;">&nbsp;</td>
+    <td>
+      <p>
+        These notifications are powered by the nonpartisan <a href="http://sunlightfoundation.com" target="_blank" style="color: #1c8398;">Sunlight Foundation</a>, a nonprofit that uses cutting-edge technology and ideas to make government transparent and accountable.
+      </p>
+      <p>
+        <a href="{{manage_notifications_url}}">Manage your subscriptions</a> on the web, or <a href="{{attempt.unsubscribe_url|safe}}" target="_blank" style="color: #1c8398;">unsubscribe from emails to this account</a>.
+      </p>
+      <p>
+        Reply to this email to send feedback, bug reports, or effusive praise our way.
+      </p>
+    </td>
+    <td class="table_column_width" style="width: 15%;">&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>
