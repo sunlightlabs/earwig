@@ -1,1 +1,0 @@
-You have {{attempt.messages.count}} message{{ attempt.messages.count|pluralize}}

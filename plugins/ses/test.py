@@ -13,6 +13,7 @@ from django.test import TestCase
 from django.conf import settings
 
 from plugins.ses.models import SESDeliveryMeta
+from ..utils import body_template_to_string, subject_template_to_string
 from .earwig import SESContact
 
 from contact.models import (
@@ -32,14 +33,6 @@ class EmailTestCase(TestCase):
     '''
     def setUp(self):
         self.create_attempt()
-        self.switch_templatedirs()
-
-    def switch_templatedirs(self):
-        '''Swtich TEMPLATE_DIRS to point at test templates.
-        '''
-        self._templates = settings.TEMPLATE_DIRS
-        dirs = [abspath(join(dirname(__file__), '..', 'test_templates'))]
-        settings.TEMPLATE_DIRS = dirs
 
     def create_attempt(self):
         '''Create a test attempt to use in the tests.
@@ -72,8 +65,7 @@ class EmailTestCase(TestCase):
 
         attempt = DeliveryAttempt.objects.create(
             contact=contact, status="scheduled",
-            engine="default",
-            template='postmark-testing-deterministic-name')
+            engine="default")
 
         attempt.messages.add(message_recipient)
 
@@ -83,7 +75,6 @@ class EmailTestCase(TestCase):
     def tearDown(self):
         '''Restore the template dirs and delete the test objects.
         '''
-        settings.TEMPLATE_DIRS = self._templates
         Application.objects.all().delete()
         Person.objects.all().delete()
         ContactDetail.objects.all().delete()
@@ -101,8 +92,22 @@ class SESMessageTest(EmailTestCase):
         plugin = SESContact()
         attempt = DeliveryAttempt.objects.get(pk=1)
         debug_info = plugin.send_message(attempt, debug=True)
-        self.assertEqual(debug_info['subject'], 'Test subject')
-        self.assertEqual(debug_info['body'], 'Test body\n')
+
+        ctx = dict(
+            attempt=attempt,
+            login_url=getattr(settings, 'LOGIN_URL', 'PUT REAL LOGIN URL HERE'))
+
+        path = 'plugins/default/email/body.html'
+        body_html = plugin.render_template(path, **ctx)
+
+        path = 'plugins/default/email/body.txt'
+        body_txt = plugin.render_template(path, **ctx)
+
+        path = 'plugins/default/email/subject.txt'
+        subject = plugin.render_template(path, **ctx)
+
+        # self.assertEqual(debug_info['html'], body_html)
+        self.assertEqual(debug_info['text'], body_txt)
 
 
 class ContactDetailTest(EmailTestCase):

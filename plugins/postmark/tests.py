@@ -97,13 +97,21 @@ class PostmarkMessageTest(EmailTestCase):
         plugin = PostmarkContact()
         attempt = DeliveryAttempt.objects.get(pk=1)
         debug_info = plugin.send_message(attempt, debug=True)
+        ctx = dict(
+            attempt=attempt,
+            login_url=getattr(settings, 'LOGIN_URL', 'PUT REAL LOGIN URL HERE'))
 
-        template_name = getattr(attempt, 'template') or 'default'
-        expected_body = body_template_to_string(template_name, 'email', attempt)
-        expected_subject = subject_template_to_string(template_name, 'email', attempt)
-        self.assertEqual(debug_info['body'], expected_body)
-        self.assertEqual(debug_info['subject'], expected_subject)
+        path = 'plugins/default/email/body.html'
+        body_html = plugin.render_template(path, **ctx)
 
+        path = 'plugins/default/email/body.txt'
+        body_txt = plugin.render_template(path, **ctx)
+
+        path = 'plugins/default/email/subject.txt'
+        subject = plugin.render_template(path, **ctx)
+
+        self.assertEqual(debug_info['html'], body_html)
+        self.assertEqual(debug_info['text'], body_txt)
 
 class ContactDetailTest(EmailTestCase):
 
