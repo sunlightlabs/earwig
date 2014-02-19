@@ -2,7 +2,7 @@
 
 {% block content %}
 <Say>Please press 0 at any time to cancel and return to the main menu.</Say>
-<Redirect method="GET">
-    ../message/0/
+<Redirect method="POST">
+    ../../message/{{attempt.id}}/0/
 </Redirect>
 {% endblock %}

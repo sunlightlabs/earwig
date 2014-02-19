@@ -2,11 +2,11 @@
 
 {% block content %}
     <Say>{{intro}}</Say>
-    <Gather timeout="10" numDigits='1'>
+    <Gather method="POST" timeout="10" numDigits='1'>
         <Say>To listen to your messages, please press 1</Say>
         <Say>If you got this message by mistake, please press 9</Say>
     </Gather>
-    <Redirect method="GET">
-        #
+    <Redirect method="POST">
+        ./
     </Redirect>
 {% endblock %}

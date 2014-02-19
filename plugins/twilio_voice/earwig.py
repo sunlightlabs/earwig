@@ -2,11 +2,12 @@ from __future__ import print_function
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from ..utils import body_template_to_string, subject_template_to_string
+from ..utils import (intro_template_to_string, body_template_to_string,
+                     subject_template_to_string)
 from ..base.plugin import BasePlugin
 from .models import TwilioVoiceStatus
 from contact.models import DeliveryStatus
-from .views import call
+from .views import intro
 
 import twilio
 from twilio.rest import TwilioRestClient
@@ -40,10 +41,11 @@ class TwilioVoiceContact(BasePlugin):
 
         callback_url = "{0}{1}".format(
             settings.EARWIG_PUBLIC_LINK_ROOT,
-            reverse(call, args=[obj.id]),
+            reverse(intro, args=[obj.id]),
         )
 
         try:
+            print(callback_url)
             twilio_call = self.client.calls.create(to=cd.value,
                                                    from_=from_number,
                                                    url=callback_url)
