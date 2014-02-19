@@ -106,6 +106,12 @@ class Person(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_attempts(self):
+        """ Get all attempts to this person. More accurately,
+        get all attempts to this person's contact details. """
+        contact_ids = self.contacts.values_list('pk')
+        return DeliveryAttempt.objects.filter(contact_id__in=contact_ids)
+
 
 class ContactDetail(models.Model):
     """ contact details for a Person, popolo-like """
