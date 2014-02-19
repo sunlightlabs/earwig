@@ -200,3 +200,27 @@ class DeliveryAttempt(models.Model):
         return ''.join([settings.EARWIG_PUBLIC_LINK_ROOT,
                        reverse('flag', args=(str(self.id),
                                              str(self.unsubscribe_token())))])
+
+    def is_first_via_contact_detail(self):
+        """ Returns whether this is the first attempt to
+        contact the recipient via this contact detail. """
+        return bool(self.contact.attempts.count())
+
+    def is_first_via_contact_medium(self):
+        """ Returns whether this is the first attempt to
+        contact the recipient via this contact detail. """
+        attempts = self.contact.person.get_attempts()
+        return attempts.filter(contact__type=self.contact.type)
+
+    def is_first_for_recipient(self):
+        """ Whether this is the first attempt to contact the
+        recipient. """
+        return bool(self.contact.person.get_attempts())
+
+    def get_user(self):
+        """ Once accounts are set up, this method will return the
+        user associated with the recipient Person.
+        """
+        return
+        return self.contact.person.get_user()
+
