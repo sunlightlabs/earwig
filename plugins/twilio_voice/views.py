@@ -5,7 +5,7 @@ from ..base.twilio import validate
 from ..utils import (intro_template_to_string, body_template_to_string,
                      subject_template_to_string)
 
-from contact.models import DeliveryStatus
+from contact.models import DeliveryStatus, FeedbackType
 from .models import TwilioVoiceStatus
 
 
@@ -35,6 +35,7 @@ def intro(request, status):
                                                           "../../", *args)
             return handler({
                 "1": "messages/%s/" % (attempt.id),
+                "9": "flag/%s/" % (attempt.id),
             }[digits])
         except KeyError:
             # Random keypress.
@@ -108,4 +109,21 @@ def message(request, status, sequence_id):
                    "has_next": has_next,
                    "sender": sender,
                    "message": message},
+                 content_type="application/xml")
+
+@csrf_exempt
+@validate
+@get_translate_contact
+def flag(request, status):
+    attempt = status.attempt
+    attempt.set_feedback(
+        FeedbackType.wrong_person,
+        "Flagged via the Phone Menu for review.",
+    )
+    attempt.save()
+
+    return render(request,
+                  'common/twilio/voice/flag.xml',
+                  {"attempt": attempt,
+                   "status": status,},
                  content_type="application/xml")
