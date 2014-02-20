@@ -42,9 +42,8 @@ class PostmarkMessageTest(BaseTests, TestCase):
 
         attempt = DeliveryAttempt.objects.get(pk=1)
         debug_info = self.plugin.send_message(attempt, debug=True)
-        ctx = dict(
-            attempt=attempt,
-            login_url=getattr(settings, 'LOGIN_URL', 'PUT REAL LOGIN URL HERE'))
+        login_url = getattr(settings, 'LOGIN_URL', 'PUT REAL LOGIN URL HERE')
+        ctx = dict(attempt=attempt, login_url=login_url)
 
         path = 'plugins/default/email/body.html'
         body_html = self.plugin.render_template(path, **ctx)
@@ -55,8 +54,37 @@ class PostmarkMessageTest(BaseTests, TestCase):
         path = 'plugins/default/email/subject.txt'
         subject = self.plugin.render_template(path, **ctx)
 
+        # Assert that templates got rendered to the expected output.
         self.assertEqual(debug_info['html'], body_html)
         self.assertEqual(debug_info['text'], body_txt)
+
+        # --------------------------------------------------------------------
+        # Now several sanity checks to make sure the model content
+        # is ending up the rendered output:
+        # --------------------------------------------------------------------
+
+        # 1) Make sure the first 300 characters of each message
+        #    are being displayed.
+        for message in attempt.messages.values_list('message__message', flat=True):
+            self.assertIn(message[:300], body_html)
+            self.assertIn(message[:300], body_txt)
+
+        # 2) Make sure the recipient's full name is displayed.
+        self.assertIn(attempt.contact.person.name, body_html)
+        self.assertIn(attempt.contact.person.name, body_txt)
+
+        # 3) Make sure each sender's name is displayed.
+        for name in attempt.messages.values_list('message__sender__name', flat=True):
+            self.assertIn(name, body_html)
+            self.assertIn(name, body_txt)
+
+        # 4) Verify that the unsubscribe url is displayed.
+        self.assertIn(attempt.unsubscribe_url(), body_html)
+        self.assertIn(attempt.unsubscribe_url(), body_txt)
+
+        # 5) Verify that login url is displayed.
+        self.assertIn(login_url, body_html)
+        self.assertIn(login_url, body_txt)
 
 
 class BounceHandlingTest(BaseTests, TestCase):
