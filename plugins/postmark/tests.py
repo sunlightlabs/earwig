@@ -47,13 +47,13 @@ class PostmarkMessageTest(BaseTests, TestCase):
             login_url=getattr(settings, 'LOGIN_URL', 'PUT REAL LOGIN URL HERE'))
 
         path = 'plugins/default/email/body.html'
-        body_html = plugin.render_template(path, **ctx)
+        body_html = self.plugin.render_template(path, **ctx)
 
         path = 'plugins/default/email/body.txt'
-        body_txt = plugin.render_text_template(path, **ctx)
+        body_txt = self.plugin.render_text_template(path, **ctx)
 
         path = 'plugins/default/email/subject.txt'
-        subject = plugin.render_template(path, **ctx)
+        subject = self.plugin.render_template(path, **ctx)
 
         self.assertEqual(debug_info['html'], body_html)
         self.assertEqual(debug_info['text'], body_txt)
