@@ -75,3 +75,16 @@ class TestTwilioVoice(BaseTests, TestCase):
 
         assert str(message_count) in string
         assert "message" in string.lower()
+
+    def test_messages(self):
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
+        self.plugin.send_message(attempt)
+        resp = self._twilio_call(
+            '/plugins/twilio_voice/messages/%s/' % (attempt.id)
+        )
+        redirects = resp.xpath("//Redirect/text()")
+        for string in redirects:
+            if "message/%s/%s/" % (attempt.id, 0) in string:
+                break
+        else:
+            assert False, "Didn't find a redirect to the first message."
