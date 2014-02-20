@@ -16,6 +16,7 @@ from contact.models import (
     Message,
     Application,
     MessageRecipient,
+    FeedbackType,
 )
 from .earwig import TwilioVoiceContact
 from django.conf import settings
@@ -80,6 +81,28 @@ class TestTwilioVoice(BaseTests, TestCase):
         assert str(message_count) in string
         assert "message" in string.lower()
 
+        # 1 is messages root
+        # 9 is call by error
+
+        resp = self._twilio_call(
+            '/plugins/twilio_voice/intro/%s/' % (attempt.id), Digits="1")
+        redirect, = resp.xpath("//Redirect/text()")
+        assert redirect.strip() == "../../messages/%s/" % (attempt.id)
+
+        attempt = DeliveryAttempt.objects.get(id=attempt.id)
+        assert attempt.feedback_type == FeedbackType.none
+
+        resp = self._twilio_call(
+            '/plugins/twilio_voice/intro/%s/' % (attempt.id), Digits="9")
+        redirect, = resp.xpath("//Redirect/text()")
+        assert redirect.strip() == "../../flag/%s/" % (attempt.id)
+
+        # We don't flag until we follow the href.
+
+        attempt = DeliveryAttempt.objects.get(id=attempt.id)
+        assert attempt.feedback_type == FeedbackType.none
+
+
     def test_messages(self):
         attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
@@ -108,3 +131,17 @@ class TestTwilioVoice(BaseTests, TestCase):
                 break
         else:
             assert False, "Didn't spot the message body in the endpoint"
+
+    def test_flagging(self):
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
+        self.plugin.send_message(attempt)
+
+        attempt = DeliveryAttempt.objects.get(id=attempt.id)
+        assert attempt.feedback_type == FeedbackType.none
+
+        resp = self._twilio_call(
+            '/plugins/twilio_voice/flag/%s/' % (attempt.id)
+        )
+
+        attempt = DeliveryAttempt.objects.get(id=attempt.id)
+        assert attempt.feedback_type == FeedbackType.wrong_person
