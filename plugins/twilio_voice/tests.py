@@ -145,3 +145,66 @@ class TestTwilioVoice(BaseTests, TestCase):
 
         attempt = DeliveryAttempt.objects.get(id=attempt.id)
         assert attempt.feedback_type == FeedbackType.wrong_person
+
+    def test_two_message_views(self):
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
+
+        app = Application.objects.create(name="test2",
+                                         contact="fnord@fnord.fnord",
+                                         template_set="None", active=True)
+
+        send = Sender.objects.create(
+            id='randomstring2',
+            email_expires_at=datetime(2020, 1, 1, tzinfo=utc)
+        )
+
+        message = Message.objects.create(
+            type='fnord', sender=send, subject="Hello, World WORLD",
+            message="HELLO WORLD WORLD", application=app
+        )
+
+        mr = MessageRecipient.objects.create(
+            message=message, recipient=self.person,
+            status='pending'
+        )
+
+        attempt.messages.add(mr)
+
+        message = Message.objects.create(
+            type='fnord', sender=send, subject="Hello, World WORLDS",
+            message="HELLO WORLD WORLDS", application=app
+        )
+
+        mr = MessageRecipient.objects.create(
+            message=message, recipient=self.person,
+            status='pending'
+        )
+
+        attempt.messages.add(mr)
+        self.plugin.send_message(attempt)
+
+        messages = attempt.messages.order_by('id').all()
+        message_counts = len(messages)
+
+        for index, message in enumerate(messages):
+            resp = self._twilio_call(
+                '/plugins/twilio_voice/message/%s/%s/' % (attempt.id, index)
+            )
+            says = resp.xpath("//Say/text()")
+            for say in says:
+                if message.message.message in say:
+                    break
+            else:
+                assert False, "I didn't find the right message in this view"
+
+            resp = self._twilio_call(
+                '/plugins/twilio_voice/message/%s/%s/' % (attempt.id, index),
+                Digits="1",
+            )
+
+            says, = [x.strip() for x in resp.xpath("//Redirect/text()")]
+            if (index + 1) < message_counts:
+                assert says == "../../../message/%s/%s/" % (attempt.id,
+                                                            (index + 1))
+            else:
+                assert says == "../../../intro/%s/" % (attempt.id)
