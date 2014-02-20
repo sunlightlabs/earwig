@@ -37,10 +37,11 @@ class PostmarkMessageTest(BaseTests, TestCase):
     '''Tests sending a message using a mock pystmark library. Assumes the
     library does what it's supposed to and the message is successfully sent.
     '''
+    plugin = PostmarkContact()
     def test_message(self):
-        plugin = PostmarkContact()
+
         attempt = DeliveryAttempt.objects.get(pk=1)
-        debug_info = plugin.send_message(attempt, debug=True)
+        debug_info = self.plugin.send_message(attempt, debug=True)
         ctx = dict(
             attempt=attempt,
             login_url=getattr(settings, 'LOGIN_URL', 'PUT REAL LOGIN URL HERE'))
