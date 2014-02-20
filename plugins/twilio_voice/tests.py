@@ -1,5 +1,6 @@
 import os
 import sys
+import lxml.etree
 
 # We're forcing this in before we import the
 # models, that way we don't actually use the system copy.
@@ -32,11 +33,18 @@ settings.CONTACT_PLUGIN_TWILIO = {
 class TestTwilioVoice(BaseTests, TestCase):
     plugin = TwilioVoiceContact()
 
+    def _twilio_call(self, url, **kwargs):
+        c = Client()
+        data = {"AccountSid": "ACTEST"}
+        data.update(kwargs)
+        resp = c.post(url, data)
+        return lxml.etree.fromstring(resp.content)
+
     def test_jacked_sid(self):
         c = Client()
         attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
-        resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
+        resp = c.post('/plugins/twilio_voice/intro/%s/' % (attempt.id), {
             "AccountSid": "ACFOOFOOFOOFOOFOOFOOFOOFOOFOO",
         })
         assert resp.status_code == 404
@@ -48,7 +56,7 @@ class TestTwilioVoice(BaseTests, TestCase):
         # Right, great.
         assert attempt.status == 'scheduled'
 
-        resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
+        resp = c.post('/plugins/twilio_voice/intro/%s/' % (attempt.id), {
             "AccountSid": "ACTEST"
         })
         assert resp.status_code == 200
@@ -56,11 +64,14 @@ class TestTwilioVoice(BaseTests, TestCase):
         dba = DeliveryAttempt.objects.get(id=attempt.id)
         assert dba.status == 'sent'
 
-    def test_voice_response(self):
-        c = Client()
+    def test_intro(self):
         attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
-        resp = c.post('/plugins/twilio_voice/call/%s/' % (attempt.id), {
-            "AccountSid": "ACTEST"
-        })
-        assert resp.content == b"<thing>HELLO, WORLD\n</thing>\n"
+        resp = self._twilio_call(
+            '/plugins/twilio_voice/intro/%s/' % (attempt.id)
+        )
+        message_count = len(attempt.messages.all())
+        string = resp.xpath("//Say/text()")[0]
+
+        assert str(message_count) in string
+        assert "message" in string.lower()
