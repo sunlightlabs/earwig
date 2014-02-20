@@ -38,6 +38,7 @@ class PostmarkMessageTest(BaseTests, TestCase):
     library does what it's supposed to and the message is successfully sent.
     '''
     plugin = PostmarkContact()
+
     def test_message(self):
 
         attempt = DeliveryAttempt.objects.get(pk=1)
@@ -79,8 +80,8 @@ class PostmarkMessageTest(BaseTests, TestCase):
             self.assertIn(name, body_txt)
 
         # 4) Verify that the unsubscribe url is displayed.
-        self.assertIn(attempt.unsubscribe_url(), body_html)
-        self.assertIn(attempt.unsubscribe_url(), body_txt)
+        self.assertIn(attempt.unsubscribe_url, body_html)
+        self.assertIn(attempt.unsubscribe_url, body_txt)
 
         # 5) Verify that login url is displayed.
         self.assertIn(login_url, body_html)
