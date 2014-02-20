@@ -38,6 +38,10 @@ class TestTwilioVoice(BaseTests, TestCase):
         data = {"AccountSid": "ACTEST"}
         data.update(kwargs)
         resp = c.post(url, data)
+
+        if resp.content.strip() == b"":
+            raise ValueError("View returned empty response.")
+
         return lxml.etree.fromstring(resp.content)
 
     def test_jacked_sid(self):
@@ -88,3 +92,19 @@ class TestTwilioVoice(BaseTests, TestCase):
                 break
         else:
             assert False, "Didn't find a redirect to the first message."
+
+    def test_message(self):
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
+        self.plugin.send_message(attempt)
+        resp = self._twilio_call(
+            '/plugins/twilio_voice/message/%s/0/' % (attempt.id)
+        )
+        says = resp.xpath("//Say/text()")
+        message, = attempt.messages.all()
+        message = message.message.message  # wat.
+
+        for say in says:
+            if message in say:
+                break
+        else:
+            assert False, "Didn't spot the message body in the endpoint"
