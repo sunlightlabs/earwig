@@ -1,0 +1,7 @@
+{% extends 'common/twilio/voice/base.xml' %}
+
+{% block content %}
+    <Say>Ok. Sorry to bother you. I've flagged this number for manual review
+         in the system. Thanks.</Say>
+     <Hangup/>
+{% endblock %}

@@ -1,9 +1,7 @@
 {% extends 'common/twilio/voice/base.xml' %}
 
 {% block content %}
-<Response>
-    <Redirect method="GET">
+    <Redirect method="POST">
         {{url}}
     </Redirect>
-</Response>
 {% endblock %}
