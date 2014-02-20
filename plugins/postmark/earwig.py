@@ -33,7 +33,7 @@ class PostmarkContact(BasePlugin):
         body_html = self.render_template(path, **ctx)
 
         path = 'plugins/default/email/body.txt'
-        body_txt = self.render_text_template(path, **ctx)
+        body_txt = self.render_template(path, **ctx)
 
         path = 'plugins/default/email/subject.txt'
         subject = self.render_template(path, **ctx)
@@ -60,11 +60,7 @@ class PostmarkContact(BasePlugin):
                 "obj": meta
             }
 
-    def render_text_template(self, path, **kwargs):
-        template = get_template(path)
-        result = template.render(Context(kwargs))
-        return re.sub(r'\n+', '\n\n', result).strip()
-
     def render_template(self, path, **kwargs):
         template = get_template(path)
-        return template.render(Context(kwargs))
+        result = template.render(Context(kwargs))
+        return re.sub(r'\n{3,}', '\n\n', result).strip()

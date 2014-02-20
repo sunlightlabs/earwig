@@ -50,7 +50,7 @@ class PostmarkMessageTest(BaseTests, TestCase):
         body_html = self.plugin.render_template(path, **ctx)
 
         path = 'plugins/default/email/body.txt'
-        body_txt = self.plugin.render_text_template(path, **ctx)
+        body_txt = self.plugin.render_template(path, **ctx)
 
         path = 'plugins/default/email/subject.txt'
         subject = self.plugin.render_template(path, **ctx)
