@@ -1,0 +1,8 @@
+{% extends 'common/twilio/voice/base.xml' %}
+
+{% block content %}
+<Say>Please press 0 at any time to cancel and return to the main menu.</Say>
+<Redirect method="GET">
+    ../message/0/
+</Redirect>
+{% endblock %}

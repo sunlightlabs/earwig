@@ -1,0 +1,12 @@
+{% extends 'common/twilio/voice/base.xml' %}
+
+{% block content %}
+    <Say>{{intro}}</Say>
+    <Gather timeout="10" numDigits='1'>
+        <Say>To listen to your messages, please press 1</Say>
+        <Say>If you got this message by mistake, please press 9</Say>
+    </Gather>
+    <Redirect method="GET">
+        #
+    </Redirect>
+{% endblock %}

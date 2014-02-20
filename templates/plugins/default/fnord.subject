@@ -1,1 +1,3 @@
-Fnord Subject
+{% for message in attempt.messages.all %}
+    {{message.message.subject}} ,
+{% endfor %}

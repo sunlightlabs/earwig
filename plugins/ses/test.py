@@ -25,6 +25,7 @@ from contact.models import (
     DeliveryAttempt,
     Application)
 from contact.utils import utcnow
+from ..base.tests import BaseTests
 
 
 class EmailTestCase(TestCase):
@@ -142,7 +143,6 @@ class BounceHandlingTest(EmailTestCase):
     '''Verify that a hypothetical bounce notifaction from postmark results
     in an accurate RecieverFeedback record.
     '''
-
     def test_hard_bounce(self):
         '''Verify that hard bounces result in DeliveryAttempt.status
         being toggled to 'bad-data'.

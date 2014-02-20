@@ -1,1 +1,0 @@
-green blue red blue red green green. You've got {{ attempt.messages.all|length }} message(s).

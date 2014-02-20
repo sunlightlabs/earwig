@@ -1,0 +1,1 @@
+Hello, {{person.name}}! This is Earwig, a service where your constituants send you messages. You can unsubscribe at any time by texting "Unsubscribe".

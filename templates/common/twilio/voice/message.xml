@@ -1,0 +1,13 @@
+{% extends 'common/twilio/voice/base.xml' %}
+
+{% block content %}
+<Gather>
+    <Say>From: {{attempt.sender.name}}, {{attempt.sender.created_at}}.</Say>
+    <Say>Subject: {{message.subject}}.</Say>
+    <Say>{{message.message}}</Say>
+{% if next %}
+    <Say>To hear the next message, press 1</Say>
+{% endif %}
+    <Say>To go back to the main menu, press 0</Say>
+</Gather>
+{% endblock %}

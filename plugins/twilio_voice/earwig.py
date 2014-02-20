@@ -13,6 +13,8 @@ from twilio.rest import TwilioRestClient
 
 
 class TwilioVoiceContact(BasePlugin):
+    medium = 'voice'
+
     def __init__(self):
         twilio_settings = settings.CONTACT_PLUGIN_TWILIO
         self.settings = twilio_settings
@@ -24,6 +26,9 @@ class TwilioVoiceContact(BasePlugin):
 
     def send_message(self, attempt, debug=True):
         cd = attempt.contact
+
+        self.check_contact_detail(cd)
+
         from_number = self.settings['from_number']
 
         obj = TwilioVoiceStatus.objects.create(
@@ -32,9 +37,6 @@ class TwilioVoiceContact(BasePlugin):
             sent_from=from_number,
             sent=False
         )
-        # We're going to save this record and only actually issue the sent
-        # when we get the callback from the Twilio service.
-        obj.save()
 
         callback_url = "{0}{1}".format(
             settings.EARWIG_PUBLIC_LINK_ROOT,

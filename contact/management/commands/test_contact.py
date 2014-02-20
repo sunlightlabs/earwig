@@ -12,6 +12,8 @@ from contact.models import (
     Sender,
     DeliveryAttempt,
     Message,
+    Application,
+    MessageRecipient,
 )
 
 
@@ -30,13 +32,25 @@ def create_test_attempt(value, type_):
         email_expires_at=datetime.datetime.now(pytz.timezone('US/Eastern')),
     )
 
-    message = Message(type=type_, sender=send, subject="Hello, World", message="HELLO WORLD")
+    app = Application.objects.create(name="test", contact="fnord@fnord.fnord",
+        template_set="None", active=True)
+    app.save()
+
+
+    message = Message(type=type_, sender=send, subject="Hello, World",
+                      message="HELLO WORLD", application=app)
+    message.save()
+
+    mr = MessageRecipient(message=message, recipient=pt, status='pending')
+    mr.save()
+
     attempt = DeliveryAttempt(contact=cd, status="scheduled",
                               template='default',
                               created_at=datetime.datetime.now(pytz.timezone('US/Eastern')),
                               updated_at=datetime.datetime.now(pytz.timezone('US/Eastern')),
                               engine="default")
     attempt.save()
+    attempt.messages.add(mr)
     return attempt
 
 

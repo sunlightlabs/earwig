@@ -1,1 +1,5 @@
 Unsubscribe at {{ attempt.unsubscribe_url }} !
+
+{% for message in attempt.messages.all %}
+    {{message.message.message}}
+{% endfor %}
