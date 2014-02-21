@@ -48,6 +48,7 @@ class TwilioVoiceContact(BasePlugin):
             print(callback_url)
             twilio_call = self.client.calls.create(to=cd.value,
                                                    from_=from_number,
+                                                   IfMachine="Continue",
                                                    url=callback_url)
             # OK. We're not marking it as sent, since we're not actually
             # confirming that it's been sent until we get the callback

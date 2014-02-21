@@ -1,6 +1,10 @@
 {% extends 'common/twilio/voice/base.xml' %}
 
 {% block content %}
+{% if is_machine %}
+    <Say>{{intro}}</Say>
+    <Hangup/>
+{% else %}
     <Say>{{intro}}</Say>
     <Gather method="POST" timeout="10" numDigits='1'>
         <Say>To listen to your messages, please press 1</Say>
@@ -9,4 +13,5 @@
     <Redirect method="POST">
         ./
     </Redirect>
+{% endif %}
 {% endblock %}

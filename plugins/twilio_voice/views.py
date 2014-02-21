@@ -41,18 +41,36 @@ def intro(request, status):
             # Random keypress.
             pass
 
+    man_or_machine = request.POST.get("AnsweredBy", "machine")
+
     template = attempt.template
     attempt.mark_attempted(DeliveryStatus.sent,
                            'twilio_voice', attempt.template)
     attempt.save()
 
+    human_intro = intro_template_to_string(attempt.template,
+                                           'voice.landing.human',
+                                           attempt)
+
+    machine_intro = intro_template_to_string(attempt.template,
+                                             'voice.landing.human',
+                                             attempt)
+    is_machine = man_or_machine == "machine"
+    if is_machine:
+        print("Got a machine")
+    else:
+        print("Got a person")
+
     return render(request,
                   'common/twilio/voice/intro.xml',
                   {"attempt": attempt,
                    "status": status,
-                   "intro": intro_template_to_string(attempt.template,
-                                                     'voice.landing',
-                                                     attempt)},
+                   "person": attempt.contact.person,
+                   "is_machine": is_machine,
+                   "human_intro": human_intro,
+                   "machine_intro": machine_intro,
+                   "intro": (machine_intro if is_machine else human_intro),
+                  },
                  content_type="application/xml")
 
 
@@ -66,7 +84,7 @@ def messages(request, status):
                   'common/twilio/voice/messages.xml',
                   {"attempt": attempt,
                    "intro": intro_template_to_string(attempt.template,
-                                                     'voice.messages',
+                                                     'voice.landing',
                                                      attempt)},
                  content_type="application/xml")
 
