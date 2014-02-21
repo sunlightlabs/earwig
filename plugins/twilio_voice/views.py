@@ -51,7 +51,7 @@ def intro(request, status):
                   {"attempt": attempt,
                    "status": status,
                    "intro": intro_template_to_string(attempt.template,
-                                                     'voice.human',
+                                                     'voice.landing',
                                                      attempt)},
                  content_type="application/xml")
 
@@ -64,7 +64,10 @@ def messages(request, status):
     template = attempt.template
     return render(request,
                   'common/twilio/voice/messages.xml',
-                  {"attempt": attempt,},
+                  {"attempt": attempt,
+                   "intro": intro_template_to_string(attempt.template,
+                                                     'voice.landing',
+                                                     attempt)},
                  content_type="application/xml")
 
 
