@@ -19,8 +19,8 @@ from contact.models import (
 
 def create_test_attempt(value, type_):
     pt = Person.objects.create(ocd_id='ocd-person/%s' % (uuid.uuid4()),
-                               title='Mr(s).',
-                               name='[INTERNAL] Manual Testing of plugins',
+                               title='Mr.',
+                               name='John Q. Public',
                                photo_url="")
 
     cd = ContactDetail.objects.create(person=pt, type=type_, value=value, note='Manual test',

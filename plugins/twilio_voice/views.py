@@ -53,7 +53,7 @@ def intro(request, status):
                                            attempt)
 
     machine_intro = intro_template_to_string(attempt.template,
-                                             'voice.landing.human',
+                                             'voice.landing.machine',
                                              attempt)
     is_machine = man_or_machine == "machine"
     if is_machine:
