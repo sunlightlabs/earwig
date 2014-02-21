@@ -116,6 +116,15 @@ class TestTwilioVoice(BaseTests, TestCase):
         else:
             assert False, "Didn't find a redirect to the first message."
 
+    def test_machine_intro(self):
+        attempt = self.make_delivery_attempt('voice', '202-555-2222')
+        self.plugin.send_message(attempt)
+        resp = self._twilio_call(
+            '/plugins/twilio_voice/intro/%s/' % (attempt.id),
+            AnsweredBy="machine"
+        )
+        assert 'Hangup' in [x.tag for x in resp.xpath("./*")]
+
     def test_message(self):
         attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)

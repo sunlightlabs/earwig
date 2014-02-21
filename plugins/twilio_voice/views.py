@@ -84,7 +84,7 @@ def messages(request, status):
                   'common/twilio/voice/messages.xml',
                   {"attempt": attempt,
                    "intro": intro_template_to_string(attempt.template,
-                                                     'voice.landing',
+                                                     'voice.messages',
                                                      attempt)},
                  content_type="application/xml")
 
