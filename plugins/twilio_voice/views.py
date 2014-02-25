@@ -39,6 +39,8 @@ def intro(request, status):
             # Random keypress.
             pass
 
+    retry = request.GET.get("retry", "true")
+
     man_or_machine = request.POST.get("AnsweredBy", "machine")
 
     attempt.mark_attempted(DeliveryStatus.sent,
@@ -64,6 +66,7 @@ def intro(request, status):
                    "status": status,
                    "person": attempt.contact.person,
                    "is_machine": is_machine,
+                   "hangup": (retry == "false"),
                    "human_intro": human_intro,
                    "machine_intro": machine_intro,
                    "intro": (machine_intro if is_machine else human_intro)},
