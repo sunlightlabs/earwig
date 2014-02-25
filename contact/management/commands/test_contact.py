@@ -33,9 +33,8 @@ def create_test_attempt(value, type_):
     )
 
     app = Application.objects.create(name="test", contact="fnord@fnord.fnord",
-        template_set="None", active=True)
+                                     template_set="None", active=True)
     app.save()
-
 
     message = Message(type=type_, sender=send, subject="Hello, World",
                       message="HELLO WORLD", application=app)
