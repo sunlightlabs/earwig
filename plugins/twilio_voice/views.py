@@ -36,8 +36,11 @@ def intro(request, status):
                 "9": "flag/%s/" % (attempt.id),
             }[digits])
         except KeyError:
-            # Random keypress.
-            pass
+            return render(request,
+                          'common/twilio/voice/redirect.xml',
+                          {"say": "Sorry, that's not a valid option.",
+                           "url": request.get_full_path()},
+                          content_type="application/xml")
 
     retry = request.GET.get("retry", "true")
 
@@ -117,8 +120,11 @@ def message(request, status, sequence_id):
                 "0": "intro/%s/" % (attempt.id),
             }[digits])
         except KeyError:
-            # Random keypress.
-            pass
+            return render(request,
+                          'common/twilio/voice/redirect.xml',
+                          {"say": "Sorry, that's not a valid option.",
+                           "url": request.get_full_path()},
+                          content_type="application/xml")
 
     return render(request,
                   'common/twilio/voice/message.xml',
