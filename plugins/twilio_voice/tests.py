@@ -8,16 +8,9 @@ sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../
 
 from django.test import TestCase, Client
 
-from contact.models import (
-    Person,
-    ContactDetail,
-    Sender,
-    DeliveryAttempt,
-    Message,
-    Application,
-    MessageRecipient,
-    FeedbackType,
-)
+from contact.models import (Sender, DeliveryAttempt, Message, Application, MessageRecipient,
+                            FeedbackType)
+
 from .earwig import TwilioVoiceContact
 from django.conf import settings
 from datetime import datetime

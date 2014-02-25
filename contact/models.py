@@ -223,4 +223,3 @@ class DeliveryAttempt(models.Model):
         """
         return
         return self.contact.person.get_user()
-

@@ -2,9 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from ..base.twilio import validate
 
-from ..utils import (intro_template_to_string, body_template_to_string,
-                     subject_template_to_string)
-
+from ..utils import intro_template_to_string
 from contact.models import DeliveryStatus, FeedbackType
 from .models import TwilioVoiceStatus
 
@@ -43,7 +41,6 @@ def intro(request, status):
 
     man_or_machine = request.POST.get("AnsweredBy", "machine")
 
-    template = attempt.template
     attempt.mark_attempted(DeliveryStatus.sent,
                            'twilio_voice', attempt.template)
     attempt.save()
@@ -71,7 +68,7 @@ def intro(request, status):
                    "machine_intro": machine_intro,
                    "intro": (machine_intro if is_machine else human_intro),
                   },
-                 content_type="application/xml")
+                  content_type="application/xml")
 
 
 @csrf_exempt
@@ -79,14 +76,13 @@ def intro(request, status):
 @get_translate_contact
 def messages(request, status):
     attempt = status.attempt
-    template = attempt.template
     return render(request,
                   'common/twilio/voice/messages.xml',
                   {"attempt": attempt,
                    "intro": intro_template_to_string(attempt.template,
                                                      'voice.messages',
                                                      attempt)},
-                 content_type="application/xml")
+                  content_type="application/xml")
 
 
 @csrf_exempt
@@ -96,7 +92,6 @@ def message(request, status, sequence_id):
     digits = request.POST.get("Digits", None)
 
     attempt = status.attempt
-    template = attempt.template
     sequence_id = int(sequence_id)
 
     messages = list(attempt.messages.order_by('id'))
@@ -110,8 +105,7 @@ def message(request, status, sequence_id):
     digits = request.POST.get("Digits", None)
     if digits:
         try:
-            handler = lambda *args: _redirect_to_endpoint(request,
-                                                         "../../../", *args)
+            handler = lambda *args: _redirect_to_endpoint(request, "../../../", *args)
             return handler({
                 "1": (
                     "message/%s/%s/" % (attempt.id, (sequence_id + 1))
@@ -130,7 +124,8 @@ def message(request, status, sequence_id):
                    "has_next": has_next,
                    "sender": sender,
                    "message": message},
-                 content_type="application/xml")
+                  content_type="application/xml")
+
 
 @csrf_exempt
 @validate
@@ -143,8 +138,6 @@ def flag(request, status):
     )
     attempt.save()
 
-    return render(request,
-                  'common/twilio/voice/flag.xml',
-                  {"attempt": attempt,
-                   "status": status,},
-                 content_type="application/xml")
+    return render(request, 'common/twilio/voice/flag.xml',
+                  {"attempt": attempt, "status": status},
+                  content_type="application/xml")

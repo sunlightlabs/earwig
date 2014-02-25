@@ -2,8 +2,6 @@ from __future__ import print_function
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from ..utils import (intro_template_to_string, body_template_to_string,
-                     subject_template_to_string)
 from ..base.plugin import BasePlugin
 from .models import TwilioVoiceStatus
 from contact.models import DeliveryStatus
@@ -46,7 +44,6 @@ class TwilioVoiceContact(BasePlugin):
         )
 
         try:
-            print(callback_url)
             twilio_call = self.client.calls.create(to=cd.value,
                                                    from_=from_number,
                                                    IfMachine="Continue",
@@ -54,7 +51,7 @@ class TwilioVoiceContact(BasePlugin):
             # OK. We're not marking it as sent, since we're not actually
             # confirming that it's been sent until we get the callback
             # from the actual phonecall. We set it to sent in the view.
-        except twilio.TwilioRestException as e:
+        except twilio.TwilioRestException:
             attempt.mark_attempted(
                 DeliveryStatus.bad_data,
                 'twilio_voice',

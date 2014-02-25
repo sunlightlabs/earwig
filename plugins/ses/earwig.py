@@ -1,7 +1,4 @@
 import re
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.utils import COMMASPACE
 
 import boto.ses
 
@@ -9,7 +6,6 @@ from django.conf import settings
 from django.template import Context
 from django.template.loader import get_template
 
-from ..utils import body_template_to_string, subject_template_to_string
 from .models import SESDeliveryMeta
 from ..base.plugin import BasePlugin
 
