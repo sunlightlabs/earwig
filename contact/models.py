@@ -103,8 +103,9 @@ class Person(models.Model):
     photo_url = models.URLField()
     # more needed here from upstream
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
+    __unicode__ = __str__
 
     def get_attempts(self):
         """ Get all attempts to this person. More accurately,
@@ -121,8 +122,9 @@ class ContactDetail(models.Model):
     note = models.CharField(max_length=100)
     blacklisted = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
+    __unicode__ = __str__
 
 
 class Message(models.Model):
@@ -135,8 +137,9 @@ class Message(models.Model):
     message = models.TextField()
     recipients = models.ManyToManyField(Person, through='MessageRecipient')
 
-    def __unicode__(self):
+    def __str__(self):
         return 'from %s' % self.sender.name
+    __unicode__ = __str__
 
 
 class MessageRecipient(models.Model):
@@ -146,8 +149,9 @@ class MessageRecipient(models.Model):
     status = models.CharField(max_length=10, choices=MessageStatus.choices,
                               default=MessageStatus.unscheduled)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.recipient.name
+    __unicode__ = __str__
 
 
 class DeliveryAttempt(models.Model):
@@ -171,9 +175,10 @@ class DeliveryAttempt(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return 'to {0} on {1}'.format(self.contact.person.name,
                                       self.created_at.strftime('%Y-%m-%d'))
+    __unicode__ = __str__
 
     def unsubscribe_token(self):
         m = hashlib.md5()
