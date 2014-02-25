@@ -66,8 +66,7 @@ def intro(request, status):
                    "is_machine": is_machine,
                    "human_intro": human_intro,
                    "machine_intro": machine_intro,
-                   "intro": (machine_intro if is_machine else human_intro),
-                  },
+                   "intro": (machine_intro if is_machine else human_intro)},
                   content_type="application/xml")
 
 

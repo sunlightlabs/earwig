@@ -95,7 +95,6 @@ class TestTwilioVoice(BaseTests, TestCase):
         attempt = DeliveryAttempt.objects.get(id=attempt.id)
         assert attempt.feedback_type == FeedbackType.none
 
-
     def test_messages(self):
         attempt = self.make_delivery_attempt('voice', '202-555-2222')
         self.plugin.send_message(attempt)
@@ -141,7 +140,7 @@ class TestTwilioVoice(BaseTests, TestCase):
         attempt = DeliveryAttempt.objects.get(id=attempt.id)
         assert attempt.feedback_type == FeedbackType.none
 
-        resp = self._twilio_call(
+        self._twilio_call(
             '/plugins/twilio_voice/flag/%s/' % (attempt.id)
         )
 
