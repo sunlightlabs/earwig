@@ -38,10 +38,11 @@ class TwilioVoiceContact(BasePlugin):
             sent_from=from_number,
             sent=False
         )
+        obj.save()
 
         callback_url = "{0}{1}".format(
             settings.EARWIG_PUBLIC_LINK_ROOT,
-            reverse(intro, args=[obj.id]),
+            reverse(intro, args=[attempt.id]),
         )
 
         try:
