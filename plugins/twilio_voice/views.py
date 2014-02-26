@@ -7,6 +7,18 @@ from contact.models import DeliveryStatus, FeedbackType
 from .models import TwilioVoiceStatus
 
 
+
+@csrf_exempt
+#@validate
+def incoming(request):
+    return render(
+        request,
+        'common/twilio/voice/incoming.xml',
+        {},
+        content_type="application/xml"
+    )
+
+
 def get_translate_contact(func):
     def get_translate_contact(request, contact_id, *args, **kwargs):
         status = TwilioVoiceStatus.objects.get(attempt__id=contact_id)

@@ -1,0 +1,9 @@
+{% extends 'common/twilio/voice/base.xml' %}
+
+{% block content %}
+    <Say>
+        Hello! This is an automated system running at example dot com.
+        Please visit our site for more information.
+    </Say>
+    <Hangup/>
+{% endblock %}
