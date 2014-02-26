@@ -9,7 +9,7 @@ from .models import TwilioVoiceStatus
 
 
 @csrf_exempt
-#@validate
+@validate
 def incoming(request):
     return render(
         request,
