@@ -1,8 +1,14 @@
 import json
+import time
+import email
+import datetime as dt
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import utc
 
+from contact.models import MessageReply
+from plugins.postmark.earwig import PostmarkContact
 from plugins.postmark.models import (
     PostmarkDeliveryMeta,
     convert_bounce_to_delivery_status)
@@ -39,6 +45,45 @@ def handle_bounce(request):
 def handle_inbound(request):
     '''Body should be a json payload. See:
     http://developer.postmarkapp.com/developer-inbound-configure.html
+
+    document format:
+
+    http://developer.postmarkapp.com/developer-inbound-parse.html
+    mail = {
+        "From": "myUser@theirDomain.com",
+        "FromFull": {
+            "Email": "myUser@theirDomain.com",
+            "Name": "John Doe"
+        },
+        "To": "451d9b70cf9364d23ff6f9d51d870251569e+ahoy@inbound.postmarkapp.com",
+        "ToFull": [{
+            "Email": "451d9b70cf9364d23ff6f9d51d870251569e+ahoy@inbound.postmarkapp.com",
+            "Name": ""}],
+        ],
+        "ReplyTo": "myUsersReplyAddress@theirDomain.com",
+        "Subject": "This is an inbound message",
+        "MessageID": "22c74902-a0c1-4511-804f2-341342852c90",
+        "Date": "Thu, 5 Apr 2012 16:59:01 +0200",
+        "MailboxHash": "ahoy",
+        "TextBody": "[ASCII]",
+        "HtmlBody": "[HTML(encoded)]",
+        "Tag": "",
+        "Headers": [{
+            "Name": "X-Spam-Checker-Version",
+            "Value": "SpamAssassin 3.3.1 (2010-03-16) onrs-ord-pm-inbound1.wildbit.com"
+            },
+        }
     '''
-    raise NotImplemented()
+    mail = json.load(request)
+
+    created_at = email.utils.parsedate(mail['Date'])
+    created_at = dt.datetime.fromtimestamp(time.mktime(created_at))
+    created_at = created_at.replace(tzinfo=utc)
+
+    reply = MessageReply.objects.create(
+        body=mail['TextBody'],
+        subject=mail['Subject'],
+        email=mail['FromFull']['Email'],
+        message_id=int(mail['MailboxHash']),
+        created_at=created_at)
     return HttpResponse()
