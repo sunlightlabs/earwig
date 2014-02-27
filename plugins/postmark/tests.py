@@ -123,7 +123,7 @@ class BounceHandlingTest(BaseTests, TestCase):
             "CanActivate": True,
             "Subject": "Hello from our app!"
         }
-        client.post(reverse('handle_bounce'), json.dumps(payload),
+        client.post(reverse('postmark.handle_bounce'), json.dumps(payload),
                     content_type='application/json')
 
         attempt = DeliveryAttempt.objects.get(pk=1)
@@ -156,7 +156,7 @@ class BounceHandlingTest(BaseTests, TestCase):
             "CanActivate": True,
             "Subject": "Hello from our app!"
         }
-        client.post(reverse('handle_bounce'), json.dumps(payload), content_type='application/json')
+        client.post(reverse('postmark.handle_bounce'), json.dumps(payload), content_type='application/json')
         attempt = DeliveryAttempt.objects.all()[0]
 
         # Make sure the hard bounce was recorded as vendor-hard-bounce.
