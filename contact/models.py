@@ -224,3 +224,17 @@ class DeliveryAttempt(models.Model):
         return
         return self.contact.person.get_user()
 
+
+class MessageReply(models.Model):
+
+    created_at = models.DateTimeField()
+    email = models.EmailField(null=True)
+    subject = models.CharField(max_length=100, )
+    message = models.ForeignKey(MessageRecipient, related_name='replies')
+
+    # This field arguably is insconsistent with Message.message
+    body = models.TextField()
+
+    @property
+    def thread_id(self):
+        return self.message.id
