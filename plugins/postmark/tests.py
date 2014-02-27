@@ -6,14 +6,17 @@ from os.path import abspath, dirname, join
 # models, that way we don't actually use the system copy.
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../mock_libs'))
 
+import time
 import json
 import uuid
+import email
 import datetime as dt
 
 from django.test import TestCase
 from django.test import Client
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.utils.timezone import utc
 
 import pystmark
 
@@ -166,3 +169,63 @@ class BounceHandlingTest(BaseTests, TestCase):
 
         # Make this id point at the bounced email.
         pystmark.BOUNCED_EMAIL_ID = str(meta.message_id)
+
+
+
+class InboundTest(BaseTests, TestCase):
+    '''Verify that inbound email (that has a MailboxHash) results
+    in a reply object.
+    '''
+    plugin = PostmarkContact()
+
+    def test_hard_bounce(self):
+        '''Verify that hard bounces result in DeliveryAttempt.status
+        being toggled to 'bad-data'.
+        '''
+        attempt = DeliveryAttempt.objects.get(pk=1)
+        message_recip = attempt.messages.get()
+
+        # Assume an email message has been sent.
+        PostmarkDeliveryMeta.objects.create(attempt=attempt, message_id='test-hard-bounce')
+
+        # Simulate a bounce notification from postmark.
+        client = Client()
+        payload = {
+            "From": attempt.contact.value,
+            "FromFull": {
+                "Email": attempt.contact.value,
+                "Name": "John Doe"
+                },
+            "To": "InboundHash+MailboxHash@inbound.postmarkapp.com",
+            "ToFull": [{
+                "Email": "InboundHash+MailboxHash@inbound.postmarkapp.com",
+                "Name": ""
+                }],
+            "ReplyTo": self.plugin.get_reply_to(message_recip),
+            "Subject": "This is an inbound message",
+            "MessageID": "22c74902-a0c1-4511-804f2-341342852c90",
+            "Date": "Thu, 5 Apr 2012 16:59:01 +0200",
+            "MailboxHash": str(message_recip.id),
+            "TextBody": "[ASCII]",
+            "HtmlBody": "[HTML(encoded)]",
+            "Tag": "",
+            "Headers": [{
+                "Name": "X-Spam-Checker-Version",
+                "Value": "SpamAssassin 3.3.1 (2010-03-16) onrs-ord-pm-inbound1.wildbit.com"
+                }]
+            }
+        client.post(
+            reverse('postmark.handle_inbound'),
+            json.dumps(payload),
+            content_type='application/json')
+
+        reply = attempt.messages.get().replies.get()
+        created_at = email.utils.parsedate(payload['Date'])
+        created_at = dt.datetime.fromtimestamp(time.mktime(created_at))
+        created_at = created_at.replace(tzinfo=utc)
+
+        self.assertEqual(reply.message_id, int(payload['MailboxHash']))
+        self.assertEqual(reply.email, payload['FromFull']['Email'])
+        self.assertEqual(reply.subject, payload['Subject'])
+        self.assertEqual(reply.body, payload['TextBody'])
+        self.assertEqual(reply.created_at, created_at)
