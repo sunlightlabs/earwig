@@ -6,7 +6,7 @@ from ..utils import (body_template_to_string, subject_template_to_string,
                      intro_template_to_string)
 from ..base.plugin import BasePlugin
 from ..base.twilio import normalize_number
-from contact.models import DeliveryStatus, DeliveryAttempt
+from contact.models import DeliveryStatus
 
 import twilio
 from twilio.rest import TwilioRestClient
@@ -44,7 +44,7 @@ class TwilioSmsContact(BasePlugin):
                 self.client.messages.create(to=cd.value,
                                             from_=from_number,
                                             body=intro)
-            except twilio.TwilioRestException as e:
+            except twilio.TwilioRestException:
                 # Uhhh... Let's handle this below where we can do some record
                 # keeping.
                 pass
@@ -66,12 +66,8 @@ class TwilioSmsContact(BasePlugin):
                                         subject=subject,
                                         body=body)
             obj.sent = True
-        except twilio.TwilioRestException as e:
-            attempt.mark_attempted(
-                DeliveryStatus.bad_data,
-                'twilio_voice',
-                attempt.template
-            )
+        except twilio.TwilioRestException:
+            attempt.mark_attempted(DeliveryStatus.bad_data, 'twilio_voice', attempt.template)
             attempt.save()
             obj.save()
             return

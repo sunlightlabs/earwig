@@ -1,7 +1,5 @@
-import os
 import datetime
 from django.utils.timezone import utc
-from django.conf import settings
 from django.db import IntegrityError
 from contact.models import (Person, ContactDetail, Sender, DeliveryAttempt, Message,
                             MessageRecipient, Application)
@@ -33,7 +31,8 @@ class BaseTests(object):
                                                   status='pending')
 
         self.email_attempt = self.make_delivery_attempt(type='email', value='test@example.com')
-        self.good_attempt = self.make_delivery_attempt(type=self.plugin.medium, value='555-222-2222')
+        self.good_attempt = self.make_delivery_attempt(type=self.plugin.medium,
+                                                       value='555-222-2222')
         self.bad_type_attempt = self.make_delivery_attempt(type='junk', value='555')
 
     def test_duplicate(self):
@@ -44,7 +43,6 @@ class BaseTests(object):
 
         with self.assertRaises(IntegrityError):
             self.plugin.send_message(self.good_attempt, debug=True)
-
 
     def test_blacklist(self):
         '''

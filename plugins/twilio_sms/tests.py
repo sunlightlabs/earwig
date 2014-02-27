@@ -5,24 +5,9 @@ import os
 # models, that way we don't actually use the system copy.
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), '../mock_libs'))
 
-from datetime import datetime
 from django.test import TestCase, Client
-from django.db import IntegrityError
-from django.utils.timezone import utc
-import pytz
-import twilio
-import twilio.rest
 
-from contact.models import (
-    Person,
-    ContactDetail,
-    Sender,
-    DeliveryAttempt,
-    Message,
-    Application,
-    MessageRecipient,
-    FeedbackType,
-)
+from contact.models import DeliveryAttempt, FeedbackType
 from .earwig import TwilioSmsContact
 from django.conf import settings
 from ..base.tests import BaseTests

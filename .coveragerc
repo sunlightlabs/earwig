@@ -1,0 +1,8 @@
+[run]
+source = 
+    engine
+    contact
+    plugins
+omit = 
+    plugins/mock_libs/*/*
+    contact/management/commands/test_contact.py

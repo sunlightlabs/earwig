@@ -21,6 +21,7 @@ def subject_template_to_string(template_set, module, attempt):
     )
     return _render_template_path(path, attempt)
 
+
 def intro_template_to_string(template_set, module, attempt):
     """
     """

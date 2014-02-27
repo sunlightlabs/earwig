@@ -10,3 +10,6 @@ earwig/earwig.sqlite3
 earwig/settings/local.py
 fnord-*.txt
 celerybeat-schedule
+.coverage
+.coveragerc
+htmlcov/

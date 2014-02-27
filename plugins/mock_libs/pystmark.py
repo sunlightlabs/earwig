@@ -26,11 +26,11 @@ class Response(object):
 
     def json(self):
         return {
-            u'ErrorCode': 0,
-            u'To': self.message.sender,
-            u'Message': u'OK',
-            u'SubmittedAt': datetime.datetime.utcnow().isoformat(),
-            u'MessageID': uuid.uuid4()}
+            'ErrorCode': 0,
+            'To': self.message.sender,
+            'Message': 'OK',
+            'SubmittedAt': datetime.datetime.utcnow().isoformat(),
+            'MessageID': uuid.uuid4()}
 
 
 def send(message, *args):

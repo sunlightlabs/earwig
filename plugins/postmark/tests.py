@@ -1,6 +1,5 @@
 import os
 import sys
-from os.path import abspath, dirname, join
 
 # We're forcing this in before we import the
 # models, that way we don't actually use the system copy.
@@ -22,17 +21,8 @@ import pystmark
 
 from plugins.postmark.models import PostmarkDeliveryMeta
 from .earwig import PostmarkContact
-from ..utils import body_template_to_string, subject_template_to_string
 
-from contact.models import (
-    Person,
-    ContactDetail,
-    Sender,
-    Message,
-    MessageRecipient,
-    DeliveryAttempt,
-    Application)
-from contact.utils import utcnow
+from contact.models import DeliveryAttempt
 from ..base.tests import BaseTests
 
 

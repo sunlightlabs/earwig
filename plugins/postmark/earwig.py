@@ -11,7 +11,6 @@ from django.template import Context
 from django.template.loader import get_template
 
 from ..base.plugin import BasePlugin
-from ..utils import body_template_to_string, subject_template_to_string
 from .models import PostmarkDeliveryMeta
 
 

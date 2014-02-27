@@ -1,7 +1,7 @@
 {% extends 'common/twilio/voice/base.xml' %}
 
 {% block content %}
-<Say>Please press 0 at any time to cancel and return to the main menu.</Say>
+<Say>{{intro}}</Say>
 <Redirect method="POST">
     ../../message/{{attempt.id}}/0/
 </Redirect>
