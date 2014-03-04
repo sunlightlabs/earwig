@@ -7,6 +7,18 @@ from contact.models import DeliveryStatus, FeedbackType
 from .models import TwilioVoiceStatus
 
 
+
+@csrf_exempt
+@validate
+def incoming(request):
+    return render(
+        request,
+        'common/twilio/voice/incoming.xml',
+        {},
+        content_type="application/xml"
+    )
+
+
 def get_translate_contact(func):
     def get_translate_contact(request, contact_id, *args, **kwargs):
         status = TwilioVoiceStatus.objects.get(attempt__id=contact_id)
@@ -36,8 +48,13 @@ def intro(request, status):
                 "9": "flag/%s/" % (attempt.id),
             }[digits])
         except KeyError:
-            # Random keypress.
-            pass
+            return render(request,
+                          'common/twilio/voice/redirect.xml',
+                          {"say": "Sorry, that's not a valid option.",
+                           "url": request.get_full_path()},
+                          content_type="application/xml")
+
+    retry = request.GET.get("retry", "true")
 
     man_or_machine = request.POST.get("AnsweredBy", "machine")
 
@@ -64,6 +81,7 @@ def intro(request, status):
                    "status": status,
                    "person": attempt.contact.person,
                    "is_machine": is_machine,
+                   "hangup": (retry == "false"),
                    "human_intro": human_intro,
                    "machine_intro": machine_intro,
                    "intro": (machine_intro if is_machine else human_intro)},
@@ -114,8 +132,11 @@ def message(request, status, sequence_id):
                 "0": "intro/%s/" % (attempt.id),
             }[digits])
         except KeyError:
-            # Random keypress.
-            pass
+            return render(request,
+                          'common/twilio/voice/redirect.xml',
+                          {"say": "Sorry, that's not a valid option.",
+                           "url": request.get_full_path()},
+                          content_type="application/xml")
 
     return render(request,
                   'common/twilio/voice/message.xml',

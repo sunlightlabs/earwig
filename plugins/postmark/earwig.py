@@ -19,6 +19,15 @@ class PostmarkContact(BasePlugin):
     '''
     medium = 'email'
 
+    def get_reply_to(self, message_recip):
+        if settings.POSTMARK_MX_FORWARDING_ENABLED:
+            inbound_host = settings.EARWIG_INBOUND_EMAIL_HOST
+        else:
+            inbound_host = settings.POSTMARK_INBOUND_HOST
+        reply_to_tmpl = '{0.POSTMARK_INBOUND_HASH}+{1.id}@{2}'
+        reply_to = reply_to_tmpl.format(settings, message_recip, inbound_host)
+        return reply_to
+
     def send_message(self, attempt, debug=False):
         contact_detail = attempt.contact
         self.check_contact_detail(contact_detail)
@@ -37,8 +46,12 @@ class PostmarkContact(BasePlugin):
         path = 'plugins/default/email/subject.txt'
         subject = self.render_template(path, **ctx)
 
+        message = attempt.messages.get()
+        reply_to = self.get_reply_to(message)
+
         message = pystmark.Message(
             sender=settings.EARWIG_EMAIL_SENDER,
+            reply_to=reply_to,
             to=recipient_email_address,
             subject=subject,
             text=body_txt,
