@@ -214,7 +214,7 @@ class InboundTest(BaseTests, TestCase):
         created_at = dt.datetime.fromtimestamp(time.mktime(created_at))
         created_at = created_at.replace(tzinfo=utc)
 
-        self.assertEqual(reply.message_id, int(payload['MailboxHash']))
+        self.assertEqual(reply.message_recip_id, int(payload['MailboxHash']))
         self.assertEqual(reply.email, payload['FromFull']['Email'])
         self.assertEqual(reply.subject, payload['Subject'])
         self.assertEqual(reply.body, payload['TextBody'])

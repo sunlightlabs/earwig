@@ -84,6 +84,6 @@ def handle_inbound(request):
         body=mail['TextBody'],
         subject=mail['Subject'],
         email=mail['FromFull']['Email'],
-        message_id=int(mail['MailboxHash']),
+        message_recip_id=int(mail['MailboxHash']),
         created_at=created_at)
     return HttpResponse()

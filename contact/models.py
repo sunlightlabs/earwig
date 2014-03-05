@@ -235,7 +235,7 @@ class MessageReply(models.Model):
     created_at = models.DateTimeField()
     email = models.EmailField(null=True)
     subject = models.CharField(max_length=100, )
-    message = models.ForeignKey(MessageRecipient, related_name='replies')
+    message_recip = models.ForeignKey(MessageRecipient, related_name='replies')
 
     # This field arguably is insconsistent with Message.message
     body = models.TextField()
