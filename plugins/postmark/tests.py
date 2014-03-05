@@ -16,7 +16,9 @@ from django.test import Client
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils.timezone import utc
+from django.template.loader import render_to_string
 
+import mock
 import pystmark
 
 from plugins.postmark.models import PostmarkDeliveryMeta
@@ -168,9 +170,9 @@ class InboundTest(BaseTests, TestCase):
     '''
     plugin = PostmarkContact()
 
-    def test_hard_bounce(self):
-        '''Verify that hard bounces result in DeliveryAttempt.status
-        being toggled to 'bad-data'.
+    def test_message_reply(self):
+        '''Verify that inbound replies result in the creation of
+        the correct MessageReply record.
         '''
         attempt = DeliveryAttempt.objects.get(pk=1)
         message_recip = attempt.messages.get()
@@ -178,7 +180,7 @@ class InboundTest(BaseTests, TestCase):
         # Assume an email message has been sent.
         PostmarkDeliveryMeta.objects.create(attempt=attempt, message_id='test-hard-bounce')
 
-        # Simulate a bounce notification from postmark.
+        # Simulate in inbound email from postmark.
         client = Client()
         payload = {
             "From": attempt.contact.value,
@@ -219,3 +221,67 @@ class InboundTest(BaseTests, TestCase):
         self.assertEqual(reply.subject, payload['Subject'])
         self.assertEqual(reply.body, payload['TextBody'])
         self.assertEqual(reply.created_at, created_at)
+
+    @mock.patch('pystmark.send')
+    def test_unsolicited(self, pystmark_send):
+        '''Verify that unsolicited inbound emails result in a default
+        email directing people to the site.
+        '''
+        # Simulate in inbound email from postmark.
+        client = Client()
+        payload = {
+            "From": 'cow@example.com',
+            "FromFull": {
+                "Email": 'cow@example.com',
+                "Name": "John Doe"
+                },
+            "To": "InboundHash+MailboxHash@inbound.postmarkapp.com",
+            "ToFull": [{
+                "Email": "InboundHash+MailboxHash@inbound.postmarkapp.com",
+                "Name": ""
+                }],
+            "ReplyTo": 'cow@example.com',
+            "Subject": "This is an inbound message",
+            "MessageID": "22c74902-a0c1-4511-804f2-341342852c90",
+            "Date": "Thu, 5 Apr 2012 16:59:01 +0200",
+            "MailboxHash": None,
+            "TextBody": "[ASCII]",
+            "HtmlBody": "[HTML(encoded)]",
+            "Tag": "",
+            "Headers": [{
+                "Name": "X-Spam-Checker-Version",
+                "Value": "SpamAssassin 3.3.1 (2010-03-16) onrs-ord-pm-inbound1.wildbit.com"
+                }]
+            }
+
+        client.post(
+            reverse('postmark.handle_inbound'),
+            json.dumps(payload),
+            content_type='application/json')
+
+        # ---------------------------------------------------------------------
+        # Create the message we expect to be sent.
+        # ---------------------------------------------------------------------
+
+        # Create the reply-to address.
+        if settings.POSTMARK_MX_FORWARDING_ENABLED:
+            inbound_host = settings.EARWIG_INBOUND_EMAIL_HOST
+        else:
+            inbound_host = settings.POSTMARK_INBOUND_HOST
+        reply_to_tmpl = '{0.POSTMARK_INBOUND_HASH}@{1}'
+        reply_to = reply_to_tmpl.format(settings, inbound_host)
+
+        subject_tmpl = 'plugins/default/email/unsolicited/subject.txt'
+        body_text_tmpl = 'plugins/default/email/unsolicited/body.txt'
+        body_html_tmpl = 'plugins/default/email/unsolicited/body.html'
+
+        message = pystmark.Message(
+            sender=settings.EARWIG_EMAIL_SENDER,
+            reply_to=reply_to,
+            to=payload['FromFull']['Email'],
+            subject=render_to_string(subject_tmpl, {}),
+            text=render_to_string(body_text_tmpl, {}),
+            html=render_to_string(body_html_tmpl, {}))
+
+        # Verify it was called.
+        self.assertEqual(pystmark_send.mock_calls[0][1][0], message)
