@@ -18,6 +18,21 @@ class Message(object):
         self.text = text
         self.html = html
 
+    def __eq__(self, other):
+        if self.sender != other.sender:
+            return False
+        if self.reply_to != other.reply_to:
+            return False
+        if self.to != other.to:
+            return False
+        if self.subject != other.subject:
+            return False
+        if self.text != other.text:
+            return False
+        if self.html != other.html:
+            return False
+        return True
+
 
 class Response(object):
 
