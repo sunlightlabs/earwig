@@ -78,7 +78,7 @@ def handle_inbound(request):
             },
         }
     '''
-    mail = json.load(request)
+    mail = json.loads(request.read().decode('utf-8'))
 
     created_at = email.utils.parsedate(mail['Date'])
     created_at = dt.datetime.fromtimestamp(time.mktime(created_at))
