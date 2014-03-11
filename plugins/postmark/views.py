@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import utc
 from django.template.loader import render_to_string
+from django.core.exceptions import PermissionDenied
 
 import pystmark
 
@@ -37,6 +38,15 @@ def handle_bounce(request):
       "Subject" : "Hello from our app!"
     }
     '''
+    # First, verify that this payload originated from postmark, not from
+    # mischeivous teenagers forging flame messages to people in our system.
+    allowed_hosts = [
+        'testserver',  # The host during "manage.py test"
+        settings.POSTMARK_INBOUND_HOST]
+
+    if request.get_host() not in allowed_hosts:
+        return PermissionDenied('Hey. You are not allowed.')
+
     data = json.loads(request.body.decode('utf8'))
     meta = PostmarkDeliveryMeta.objects.get(message_id=data['MessageID'])
     status = convert_bounce_to_delivery_status(data['Type'])
@@ -78,6 +88,16 @@ def handle_inbound(request):
             },
         }
     '''
+
+    # First, verify that this payload originated from postmark, not from
+    # mischeivous teenagers forging flame messages to people in our system.
+    allowed_hosts = [
+        'testserver',  # The host during "manage.py test"
+        settings.POSTMARK_INBOUND_HOST]
+
+    if request.get_host() not in allowed_hosts:
+        return PermissionDenied('Hey. You are not allowed.')
+
     mail = json.loads(request.read().decode('utf-8'))
 
     created_at = email.utils.parsedate(mail['Date'])
