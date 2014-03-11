@@ -1,0 +1,32 @@
+=== Information on copy to change ===
+
+
+== Static Templates ==
+
+Voice Templates:
+
+  - incoming.xml
+    o URL is present - this is due to not having the delivery attempt
+      at request-time, so we don't know which template to defer to.
+
+== Dynamic Templates ==
+
+SMS Templates:
+
+  - sms.body
+    o URL is present
+
+  - sms.intro
+    o Service name is present
+
+  - sms.subject
+    o Service name is present
+
+
+Voice Templates:
+
+  - voice.landing.human.intro
+    o URL is present
+
+  - voice.landing.machine.intro
+    o URL is present
