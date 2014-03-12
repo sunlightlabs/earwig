@@ -10,4 +10,3 @@ class DumbEngine(Engine):
         for mr in unscheduled_mrs:
             first_contact = mr.recipient.contacts.all()[0]
             self.create_attempt(first_contact, mr)
-
