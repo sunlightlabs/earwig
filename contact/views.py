@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
 from django.shortcuts import render
@@ -59,6 +60,7 @@ def _get_or_create_sender(email, name, ttl):
     return sender
 
 
+@csrf_exempt
 @require_POST
 def create_sender(request):
     """ create a new sender (can also be done from within create_message call) """
@@ -72,6 +74,7 @@ def create_sender(request):
     return HttpResponse(_sender_to_json(sender))
 
 
+@csrf_exempt
 @require_POST
 def create_message(request):
     """ create a new message """
@@ -127,6 +130,7 @@ def create_message(request):
     return HttpResponse(_msg_to_json(msg))
 
 
+@csrf_exempt
 @require_GET
 def get_message(request, message_id):
     """ simply get a message if it exists """
