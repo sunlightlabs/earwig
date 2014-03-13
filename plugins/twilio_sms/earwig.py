@@ -66,8 +66,14 @@ class TwilioSmsContact(BasePlugin):
                                         subject=subject,
                                         body=body)
             obj.sent = True
+            attempt.mark_attempted(
+                DeliveryStatus.sent,
+                'twilio_sms',
+                attempt.template
+            )
         except twilio.TwilioRestException:
-            attempt.mark_attempted(DeliveryStatus.bad_data, 'twilio_voice', attempt.template)
+            attempt.mark_attempted(
+                DeliveryStatus.bad_data, 'twilio_sms', attempt.template)
             attempt.save()
             obj.save()
             return
