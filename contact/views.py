@@ -110,7 +110,7 @@ def create_message(request):
         except KeyError as e:
             return HttpResponseBadRequest('sender payload missing field: {0}'.format(e))
         except ValueError:
-            return HttpResponseBadRequest('invalid JSON')
+            return HttpResponseBadRequest('invalid sender JSON')
 
     # add recipients by ocd_id
     recipients = []
