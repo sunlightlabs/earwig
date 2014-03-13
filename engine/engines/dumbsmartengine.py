@@ -33,9 +33,12 @@ class DumbSmartEngine(Engine):
         # Drop untimely followups.
         mrs = list(self.drop_mrs(mrs))
 
-        for recipient, mrs in self.groupby_recipient(mrs).items():
-            for contact, mrs in self.groupby_contact(mrs).items():
-                self.create_attempt(contact, mrs)
+        # for recipient, mrs in self.groupby_recipient(mrs).items():
+            # for contact, mrs in self.groupby_contact(mrs).items():
+            #     self.create_attempt(contact, mrs)
+        for mr in mrs:
+            contact = self.choose_contact(mr)
+            self.create_attempt(contact, [mr])
 
     # -----------------------------------------------------------------------
     # Functions for choosing next best available contact method.
