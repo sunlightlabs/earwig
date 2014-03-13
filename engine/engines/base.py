@@ -16,7 +16,7 @@ class Engine(object):
     def create_attempt(self, contact, messages):
         """ called by child classes, shouldn't be overridden without being extremely careful """
         # create a basic attempt
-        attempt = DeliveryAttempt.objects.create(contact=contact, engine=self.__class__.__name__)
+        attempt = DeliveryAttempt.objects.create(contact=contact, template='default', engine=self.__class__.__name__)
         # attach messages to it
         if isinstance(messages, MessageRecipient):
             messages = [messages]

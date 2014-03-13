@@ -6,7 +6,7 @@ from django.conf import settings
 
 from .forms import FlaggingForm
 from .models import (Application, Sender, Person, Message, MessageRecipient,
-                     DeliveryAttempt, FeedbackType)
+                     MessageStatus, DeliveryAttempt, FeedbackType)
 from .utils import utcnow
 
 import re
@@ -124,7 +124,7 @@ def create_message(request):
     msg = Message.objects.create(type=msg_type, sender=sender, application=app, subject=subject,
                                  message=message)
     for recip in recipients:
-        MessageRecipient.objects.create(message=msg, recipient=recip, status='pending')
+        MessageRecipient.objects.create(message=msg, recipient=recip, status=MessageStatus.unscheduled)
 
     # return the complete message object
     return HttpResponse(_msg_to_json(msg))
