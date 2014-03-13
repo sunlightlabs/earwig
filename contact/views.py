@@ -102,7 +102,7 @@ def create_message(request):
             return HttpResponseBadRequest('invalid sender')
     else:
         # otherwise it is a json payload
-        # {'email': 'j@t.com', 'name': 'j', 'ttl': 4}
+        # {"email": "j@t.com", "name": "j", "ttl": 4}
         try:
             sender_data = json.loads(sender_payload)
             sender = _get_or_create_sender(sender_data['email'], sender_data['name'],
