@@ -317,43 +317,43 @@ class TestDumbSmartEngine(TestCase):
         process_func = 'engine.tasks.process_delivery_attempt'
         send_task.assert_called_once_with(process_func, args=(new_attempt,))
 
-    @mock.patch('engine.engines.base.send_task')
-    def test_groupby_recipient(self, send_task):
-        '''If mr has a prior failed delivery attempt, ensure the
-        new attempt uses a different contact attempt.
-        '''
-        engine = DumbSmartEngine()
+    # @mock.patch('engine.engines.base.send_task')
+    # def test_groupby_recipient(self, send_task):
+    #     '''If mr has a prior failed delivery attempt, ensure the
+    #     new attempt uses a different contact attempt.
+    #     '''
+    #     engine = DumbSmartEngine()
 
-        # Create 3 delivery attempts to Henry Fnord.
-        mrs = []
-        for i in range(3):
-            msg = Message.objects.create(
-                type=MessageType.private, sender=self.sender,
-                subject='subject', message='hello everyone %d' % i,
-                application=self.application)
-            henry = self.people[2]
-            mr = MessageRecipient.objects.create(recipient=henry, message=msg)
-            mrs.append(mr)
+    #     # Create 3 delivery attempts to Henry Fnord.
+    #     mrs = []
+    #     for i in range(3):
+    #         msg = Message.objects.create(
+    #             type=MessageType.private, sender=self.sender,
+    #             subject='subject', message='hello everyone %d' % i,
+    #             application=self.application)
+    #         henry = self.people[2]
+    #         mr = MessageRecipient.objects.create(recipient=henry, message=msg)
+    #         mrs.append(mr)
 
-        # The attempts from before we call create_attempts.
-        attempts_before = list(mr.attempts.all())
-        engine.create_attempts(mrs)
+    #     # The attempts from before we call create_attempts.
+    #     attempts_before = list(mr.attempts.all())
+    #     engine.create_attempts(mrs)
 
-        # The attempts from after we call create_attempts.
-        attempts_after = list(mr.attempts.order_by('created_at'))
+    #     # The attempts from after we call create_attempts.
+    #     attempts_after = list(mr.attempts.order_by('created_at'))
 
-        # This time, only 1 consolidated attempt should exist.
-        self.assertEqual(0, len(attempts_before))
-        self.assertEqual(1, len(attempts_after))
+    #     # This time, only 1 consolidated attempt should exist.
+    #     self.assertEqual(0, len(attempts_before))
+    #     self.assertEqual(1, len(attempts_after))
 
-        attempt = attempts_after.pop(0)
+    #     attempt = attempts_after.pop(0)
 
-        # And the single attempt should have 3 assoc'd messages.
-        self.assertEqual(3, attempt.messages.count())
+    #     # And the single attempt should have 3 assoc'd messages.
+    #     self.assertEqual(3, attempt.messages.count())
 
-        # The contact method should be email.
-        self.assertEqual('email', attempt.contact.type)
+    #     # The contact method should be email.
+    #     self.assertEqual('email', attempt.contact.type)
 
-        # Ensure send_task was called with the new attempt.
-        process_func = 'engine.tasks.process_delivery_attempt'
-        send_task.assert_called_once_with(process_func, args=(attempt,))
+    #     # Ensure send_task was called with the new attempt.
+    #     process_func = 'engine.tasks.process_delivery_attempt'
+    #     send_task.assert_called_once_with(process_func, args=(attempt,))
