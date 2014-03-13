@@ -61,7 +61,15 @@ class PostmarkContact(BasePlugin):
         api_key = getattr(settings, 'POSTMARK_API_KEY', None)
         response = pystmark.send(message, api_key)
         resp_json = response.json()
-        message_id = resp_json['MessageID']
+
+        message_id = resp_json.get('MessageID')
+        if message_id is None:
+            attempt.mark_attempted(
+                status=DeliveryStatus.invalid,
+                plugin='postmark',
+                template='default')
+            return
+
         meta = PostmarkDeliveryMeta.objects.create(
             attempt=attempt, message_id=message_id)
 
