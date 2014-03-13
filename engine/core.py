@@ -5,6 +5,7 @@ from datetime import timedelta
 from celery import Celery
 #from contact.models import ContactType
 from engine.engines.dumb import DumbEngine
+from engine.engines.dumbsmartengine import DumbSmartEngine
 
 from plugins.twilio_sms.earwig import TwilioSmsContact
 from plugins.twilio_voice.earwig import TwilioVoiceContact
@@ -24,7 +25,7 @@ app.conf.EARWIG_PLUGINS = {
     "voice": TwilioVoiceContact(),
     "email": PostmarkContact(),
 }
-app.conf.ENGINE = DumbEngine()
+app.conf.ENGINE = DumbSmartEngine()
 
 if __name__ == '__main__':
     app.start()
