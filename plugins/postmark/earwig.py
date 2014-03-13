@@ -10,6 +10,7 @@ from django.conf import settings
 from django.template import Context
 from django.template.loader import get_template
 
+from contact.models import DeliveryStatus
 from ..base.plugin import BasePlugin
 from .models import PostmarkDeliveryMeta
 
@@ -63,6 +64,9 @@ class PostmarkContact(BasePlugin):
         message_id = resp_json['MessageID']
         meta = PostmarkDeliveryMeta.objects.create(
             attempt=attempt, message_id=message_id)
+
+        # Mark the attempt sent.
+        attempt.mark_attempted(DeliveryStatus.sent)
 
         if debug:
             return {
