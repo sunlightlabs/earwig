@@ -66,7 +66,10 @@ class PostmarkContact(BasePlugin):
             attempt=attempt, message_id=message_id)
 
         # Mark the attempt sent.
-        attempt.mark_attempted(DeliveryStatus.sent)
+        attempt.mark_attempted(
+            status=DeliveryStatus.sent,
+            plugin='postmark',
+            template='default')
 
         if debug:
             return {
