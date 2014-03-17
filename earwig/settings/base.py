@@ -21,6 +21,7 @@ INSTALLED_APPS = (
     'plugins.twilio_voice',
     'plugins.postmark',
     'plugins.ses',
+    'plugins.orm',
     'engine',
 )
 
