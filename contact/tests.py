@@ -169,7 +169,7 @@ class TestCreateMessage(TestCase):
         msg['sender'] = '~not even json~'
         resp = c.post('/message/', msg)
         assert resp.status_code == 400
-        assert 'invalid JSON' in str(resp.content)
+        assert 'invalid sender JSON' in str(resp.content)
 
     def test_bad_key(self):
         """ ensure that bad API keys are flagged """
