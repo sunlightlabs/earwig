@@ -13,7 +13,7 @@ from django.core.exceptions import PermissionDenied
 import pystmark
 
 from contact.models import MessageReply
-from plugins.postmark.earwig import PostmarkContact
+from plugins.postmark.earwig import PostmarkPlugin
 from plugins.postmark.models import (
     PostmarkDeliveryMeta,
     convert_bounce_to_delivery_status)

@@ -22,7 +22,7 @@ import mock
 import pystmark
 
 from plugins.postmark.models import PostmarkDeliveryMeta
-from .earwig import PostmarkContact
+from .earwig import PostmarkPlugin
 
 from contact.models import DeliveryAttempt
 from ..base.tests import BaseTests
@@ -32,7 +32,7 @@ class PostmarkMessageTest(BaseTests, TestCase):
     '''Tests sending a message using a mock pystmark library. Assumes the
     library does what it's supposed to and the message is successfully sent.
     '''
-    plugin = PostmarkContact()
+    plugin = PostmarkPlugin()
 
     def test_message(self):
 
@@ -88,7 +88,7 @@ class BounceHandlingTest(BaseTests, TestCase):
     in an accurate RecieverFeedback record.
     '''
 
-    plugin = PostmarkContact()
+    plugin = PostmarkPlugin()
 
     def test_hard_bounce(self):
         '''Verify that hard bounces result in DeliveryAttempt.status
@@ -168,7 +168,7 @@ class InboundTest(BaseTests, TestCase):
     '''Verify that inbound email (that has a MailboxHash) results
     in a reply object.
     '''
-    plugin = PostmarkContact()
+    plugin = PostmarkPlugin()
 
     def test_message_reply(self):
         '''Verify that inbound replies result in the creation of

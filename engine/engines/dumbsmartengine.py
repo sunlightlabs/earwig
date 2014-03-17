@@ -5,7 +5,7 @@ from itertools import chain
 from django.utils.timezone import utc
 
 from contact.models import ContactType, DeliveryStatus, DeliveryAttempt
-from plugins.postmark.earwig import PostmarkContact
+from plugins.postmark.earwig import PostmarkPlugin
 from plugins.twilio_voice.earwig import TwilioVoiceContact
 from plugins.twilio_sms.earwig import TwilioSmsContact
 from .base import Engine

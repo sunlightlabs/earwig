@@ -9,7 +9,7 @@ from engine.engines.dumbsmartengine import DumbSmartEngine
 
 from plugins.twilio_sms.earwig import TwilioSmsContact
 from plugins.twilio_voice.earwig import TwilioVoiceContact
-from plugins.postmark.earwig import PostmarkContact
+from plugins.postmark.earwig import PostmarkPlugin
 
 app = Celery('earwig', include=['engine.tasks'])
 app.conf.CELERY_ENABLE_UTC = True
@@ -23,7 +23,7 @@ app.conf.CELERYBEAT_SCHEDULE = {
 app.conf.EARWIG_PLUGINS = {
     "sms": TwilioSmsContact(),
     "voice": TwilioVoiceContact(),
-    "email": PostmarkContact(),
+    "email": PostmarkPlugin(),
 }
 app.conf.ENGINE = DumbSmartEngine()
 

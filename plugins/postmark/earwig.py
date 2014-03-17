@@ -15,7 +15,7 @@ from ..base.plugin import BasePlugin
 from .models import PostmarkDeliveryMeta
 
 
-class PostmarkContact(BasePlugin):
+class PostmarkPlugin(BasePlugin):
     '''Send an email from through the postmark API.
     '''
     medium = 'email'

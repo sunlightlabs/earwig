@@ -5,7 +5,7 @@
 # from django.utils.timezone import utc
 
 # from contact.models import ContactType, DeliveryStatus, DeliveryAttempt
-# from plugins.postmark.earwig import PostmarkContact
+# from plugins.postmark.earwig import PostmarkPlugin
 # from plugins.twilio_voice.earwig import TwilioVoiceContact
 # from plugins.twilio_sms.earwig import TwilioSmsContact
 # from .engines import Engine
@@ -145,7 +145,7 @@
 #         plugins = {
 #             ContactType.voice: TwilioVoiceContact,
 #             ContactType.sms: TwilioSmsContact,
-#             ContactType.email: PostmarkContact,
+#             ContactType.email: PostmarkPlugin,
 #             }
 #         try:
 #             return plugins[contact_type]
