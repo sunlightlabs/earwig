@@ -226,8 +226,8 @@ class DeliveryAttempt(models.Model):
 class MessageReply(models.Model):
 
     created_at = models.DateTimeField()
-    email = models.EmailField(null=True)
-    subject = models.CharField(max_length=100, )
+    from_original_sender = models.BooleanField()
+    subject = models.CharField(max_length=100, null=True)
     message_recip = models.ForeignKey(MessageRecipient, related_name='replies')
 
     # This field arguably is insconsistent with Message.message
@@ -235,4 +235,4 @@ class MessageReply(models.Model):
 
     @property
     def thread_id(self):
-        return self.message.id
+        return self.message_recip.id
