@@ -222,13 +222,6 @@ class DeliveryAttempt(models.Model):
         recipient. """
         return bool(self.contact.person.get_attempts())
 
-    def get_user(self):
-        """ Once accounts are set up, this method will return the
-        user associated with the recipient Person.
-        """
-        return
-        return self.contact.person.get_user()
-
 
 class MessageReply(models.Model):
 
