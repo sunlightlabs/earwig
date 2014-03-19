@@ -170,7 +170,8 @@ class InboundTest(BaseTests, TestCase):
     '''
     plugin = PostmarkPlugin()
 
-    def test_message_reply(self):
+    @mock.patch('pystmark.send')
+    def test_message_reply(self, pystmark_send):
         '''Verify that inbound replies result in the creation of
         the correct MessageReply record.
         '''
@@ -217,10 +218,12 @@ class InboundTest(BaseTests, TestCase):
         created_at = created_at.replace(tzinfo=utc)
 
         self.assertEqual(reply.message_recip_id, int(payload['MailboxHash']))
-        self.assertEqual(reply.email, payload['FromFull']['Email'])
         self.assertEqual(reply.subject, payload['Subject'])
         self.assertEqual(reply.body, payload['TextBody'])
         self.assertEqual(reply.created_at, created_at)
+
+        # Verify it was called.
+        self.assertEqual(pystmark_send.mock_calls[0][1][0], message)
 
     @mock.patch('pystmark.send')
     def test_unsolicited(self, pystmark_send):
