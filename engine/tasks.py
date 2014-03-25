@@ -34,7 +34,7 @@ def create_delivery_attempts():
         logger.debug('no unscheduled MRs to dispatch')
 
 
-@app.task(ignore_result=True, bind=True, base=EngineTask)
+@app.task(ignore_result=True, bind=True, base=EngineTask, max_retries=None)
 def process_delivery_attempt(self, attempt):
     """
     Send a delivery attempt using the active plugin.
@@ -44,7 +44,7 @@ def process_delivery_attempt(self, attempt):
         plugin = app.conf.EARWIG_PLUGINS[attempt.contact.type]
     except KeyError as exc:
         logger.error('no plugin for {0} ({1} not delivered)'.format(attempt.contact.type, attempt))
-        raise self.retry(exc=exc, countdown=0)
+        raise self.retry(exc=exc, countdown=120)
         # Retry the task in 2 minutes; don't spam the system.
 
     logger.info('processing {0} with {1}'.format(attempt, plugin.__class__.__name__))
