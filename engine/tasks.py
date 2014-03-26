@@ -40,6 +40,19 @@ def process_delivery_attempt(self, attempt):
     Send a delivery attempt using the active plugin.
     """
 
+    # Before we do anything; let's ensure that we have a template set.
+    #
+    # It may be the case that an engine forgets to set the template
+    # on the DA. This will lead to annoying problems with the sending of
+    # the DA, so we'll put failsafe logic here, where all DAs get handled,
+    # before the plugins get it.
+    if not attempt.template:
+        logger.error('yikes! engine forgot to sent template! '
+                     'Fix this!!! -- {0}'.format(attempt))
+        attempt.template = 'default'  # XXX: Configure default template?
+        attempt.save()
+        logger.info("I've set that DA's template set to to default.")
+
     try:
         plugin = app.conf.EARWIG_PLUGINS[attempt.contact.type]
     except KeyError as exc:
