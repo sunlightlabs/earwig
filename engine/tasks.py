@@ -1,3 +1,5 @@
+from django.utils.timezone import utc
+
 from celery.utils.log import get_task_logger
 from contact.models import (MessageRecipient, MessageStatus,
                             DeliveryAttempt, DeliveryStatus)
@@ -74,7 +76,7 @@ def janitor():
     """
     hanging = list(DeliveryAttempt.objects.filter(
         status=DeliveryStatus.scheduled,
-        created_at__lte=dt.datetime.utcnow() - dt.timedelta(days=5)
+        created_at__lte=dt.datetime.utcnow().replace(tzinfo=utc) - dt.timedelta(days=5)
     ))
 
     hanging_count = len(hanging)
