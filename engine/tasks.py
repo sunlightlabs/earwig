@@ -1,7 +1,10 @@
 from celery.utils.log import get_task_logger
-from contact.models import MessageRecipient, MessageStatus
+from contact.models import (MessageRecipient, MessageStatus,
+                            DeliveryAttempt, DeliveryStatus)
 from celery import Task
 from .core import app
+
+import datetime as dt
 
 logger = get_task_logger(__name__)
 
@@ -14,6 +17,9 @@ class EngineTask(Task):
         # is a massive pain to debug, since all stdout / logging messages
         # from here seem to get squashed (but stuff like NameError triggers
         # an exception)
+
+        # XXX: Email the administrator, letting them know the IDs of the
+        #      hanging attempts.
         pass
 
 
@@ -62,3 +68,21 @@ def process_delivery_attempt(self, attempt):
 
     logger.info('processing {0} with {1}'.format(attempt, plugin.__class__.__name__))
     plugin.send_message(attempt)
+
+
+@app.task(ignore_result=True, base=EngineTask)
+def janitor():
+    """
+    Cron-like that looks at the data and reports any errors that it can't
+    handle.
+    """
+    hanging = list(DeliveryAttempt.objects.filter(
+        status=DeliveryStatus.scheduled,
+        created_at__lte=dt.datetime.utcnow() - dt.timedelta(days=5)
+    ))
+
+    # hanging_count = len(hanging)
+
+    # XXX: Email the administrator, letting them know the IDs of the
+    #      hanging attempts. Any way to check if there's a celery
+    #      job?
