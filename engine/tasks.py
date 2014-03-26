@@ -3,6 +3,7 @@ from contact.models import (MessageRecipient, MessageStatus,
                             DeliveryAttempt, DeliveryStatus)
 from celery import Task
 from .core import app
+from .utils import notify_admins
 
 import datetime as dt
 
@@ -13,14 +14,9 @@ class EngineTask(Task):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         # In the future, some code will go here to notify us that something
         # has gone wrong with this task (but not swamp our stuff), or perhaps
-        # call raven and tell sentery that something's gone wrong. This method
-        # is a massive pain to debug, since all stdout / logging messages
-        # from here seem to get squashed (but stuff like NameError triggers
-        # an exception)
+        # call raven and tell sentery that something's gone wrong.
 
-        # XXX: Email the administrator, letting them know the IDs of the
-        #      hanging attempts.
-        pass
+        notify_admins('failing-job', 'job %s has been failed' % (task_id))
 
 
 @app.task(ignore_result=True, base=EngineTask)
@@ -81,7 +77,8 @@ def janitor():
         created_at__lte=dt.datetime.utcnow() - dt.timedelta(days=5)
     ))
 
-    # hanging_count = len(hanging)
+    hanging_count = len(hanging)
+    notify_admins('hanging-jobs', '%s stalled jobs' % (hanging_count))
 
     # XXX: Email the administrator, letting them know the IDs of the
     #      hanging attempts. Any way to check if there's a celery
