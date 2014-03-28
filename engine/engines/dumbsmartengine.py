@@ -66,7 +66,10 @@ class DumbSmartEngine(Engine):
         return list(mr.recipient.contacts.all())
 
     def contact_method_sorter(self, contact):
-        return self.contact_priority.index(contact.type)
+        try:
+            return self.contact_priority.index(contact.type)
+        except ValueError:
+            return None
 
     def choose_contact(self, mr):
         failed_contacts = self.get_failed_contacts(mr)
