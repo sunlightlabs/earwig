@@ -1,0 +1,17 @@
+{% extends "contact/base.html" %}
+
+{% block content %}
+<h1>Can you tell us a bit about what you received?</h1>
+
+We love to get some feedback about your representative's response to your
+message. A minute of your time would be very helpful to us!
+
+<form method="post" action="" >
+    <table>
+        {{form.as_table}}
+    </table>
+    {% csrf_token %}
+    <input type="submit" name="submit" value="submit" />
+</form>
+
+{% endblock %}

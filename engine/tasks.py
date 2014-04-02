@@ -76,7 +76,7 @@ def janitor():
     """
     hanging = list(DeliveryAttempt.objects.filter(
         status=DeliveryStatus.scheduled,
-        created_at__lte=dt.datetime.utcnow().replace(tzinfo=utc) - dt.timedelta(days=5)
+        created_at__lte=dt.datetime.utcnow().replace(tzinfo=utc) - dt.timedelta(hours=1)
     ))
 
     hanging_count = len(hanging)

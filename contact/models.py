@@ -223,6 +223,22 @@ class DeliveryAttempt(models.Model):
         return bool(self.contact.person.get_attempts())
 
 
+class MessageResponseStatisticTypes(ChoiceEnum):
+    reply_good = 'It was a good reply'
+    reply_bad = 'It was a bad reply'
+    reply_none = 'I got no reply'
+    reply_unknown = "I'm not sure if I got a reply"
+
+
+class MessageResponseStatistic(models.Model):
+    message_feedback = models.CharField(
+        max_length=50,
+        choices=MessageResponseStatisticTypes.choices,
+        default=FeedbackType.none,
+    )
+    delivery_attempt = models.ForeignKey(DeliveryAttempt)
+
+
 class MessageReply(models.Model):
 
     created_at = models.DateTimeField()

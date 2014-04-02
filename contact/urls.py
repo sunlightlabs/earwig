@@ -9,4 +9,6 @@ urlpatterns = patterns(
 
     # other views
     url(r'^flag/(?P<transaction>.*)/(?P<secret>.*)/$', 'contact.views.flag', name='flag'),
+    url(r'^feedback/(?P<attempt_id>.*)/$',
+            'contact.views.submit_feedback', name='feedback'),
 )

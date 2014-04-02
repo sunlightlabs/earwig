@@ -1,10 +1,14 @@
 from django import forms
-from .models import FeedbackType
+from .models import FeedbackType, MessageResponseStatisticTypes
 
-
-choices = FeedbackType.choices
 
 
 class FlaggingForm(forms.Form):
-    feedback_type = forms.ChoiceField(choices=choices)
+    feedback_type = forms.ChoiceField(choices=FeedbackType.choices)
     note = forms.CharField(widget=forms.Textarea, required=False)
+
+
+class FeedbackForm(forms.Form):
+    feedback_type = forms.ChoiceField(
+        choices=MessageResponseStatisticTypes.choices
+    )
