@@ -234,7 +234,7 @@ class MessageResponseStatistic(models.Model):
     message_feedback = models.CharField(
         max_length=50,
         choices=MessageResponseStatisticTypes.choices,
-        default=FeedbackType.none,
+        default=MessageResponseStatisticTypes.reply_unknown,
     )
     delivery_attempt = models.ForeignKey(DeliveryAttempt)
 

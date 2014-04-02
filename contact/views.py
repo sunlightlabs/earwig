@@ -4,7 +4,7 @@ from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseNotFou
 from django.shortcuts import render
 from django.conf import settings
 
-from .forms import FlaggingForm, FeedbackForm
+from .forms import FlaggingForm, StatisticsForm
 from .models import (Application, Sender, Person, Message, MessageRecipient,
                      MessageStatus, DeliveryAttempt, FeedbackType,
                      MessageResponseStatisticTypes)
@@ -131,24 +131,23 @@ def create_message(request):
     return HttpResponse(_msg_to_json(msg))
 
 
-def submit_feedback(request, attempt_id):
+def submit_statistic(request, attempt_id):
     attempt = DeliveryAttempt.objects.get(id=int(attempt_id))
 
     if request.method == 'POST':
-        form = FeedbackForm(request.POST)
+        form = StatisticsForm(request.POST)
         if form.is_valid():
-            return render(request, 'contact/feedback_thanks.html', {
+            return render(request, 'contact/statistic_thanks.html', {
                 'form': form,
                 "attempt": attempt,
                 "attempt_id": attempt_id,
             })
 
-
-    form = FeedbackForm(initial={
-        "feedback_type": MessageResponseStatisticTypes.reply_unknown,
+    form = StatisticsForm(initial={
+        "statistic_type": MessageResponseStatisticTypes.reply_unknown,
     })
 
-    return render(request, 'contact/feedback.html', {
+    return render(request, 'contact/statistic.html', {
         "attempt_id": attempt_id,
         "attempt": attempt,
         "form": form,
