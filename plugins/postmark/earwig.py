@@ -29,6 +29,21 @@ class PostmarkPlugin(BasePlugin):
         reply_to = reply_to_tmpl.format(settings, message_recip, inbound_host)
         return reply_to
 
+    def send(self, to, reply_to, subject, body_txt, body_html):
+        '''Send an email using stock earwig sender, reply-to addresses.
+        '''
+        message = pystmark.Message(
+            sender=settings.EARWIG_EMAIL_SENDER,
+            reply_to=reply_to,
+            to=to,
+            subject=subject,
+            text=body_txt,
+            html=body_html)
+        api_key = getattr(settings, 'POSTMARK_API_KEY', None)
+        response = pystmark.send(message, api_key)
+        resp_json = response.json()
+        return resp_json
+
     def send_message(self, attempt, debug=False):
         contact_detail = attempt.contact
         self.check_contact_detail(contact_detail)
@@ -50,17 +65,8 @@ class PostmarkPlugin(BasePlugin):
         message = attempt.messages.get()
         reply_to = self.get_reply_to(message)
 
-        message = pystmark.Message(
-            sender=settings.EARWIG_EMAIL_SENDER,
-            reply_to=reply_to,
-            to=recipient_email_address,
-            subject=subject,
-            text=body_txt,
-            html=body_html)
-
-        api_key = getattr(settings, 'POSTMARK_API_KEY', None)
-        response = pystmark.send(message, api_key)
-        resp_json = response.json()
+        resp_json = self.send(
+            recipient_email_address, reply_to, subject, body_txt, body_html)
 
         message_id = resp_json.get('MessageID')
         if message_id is None:
