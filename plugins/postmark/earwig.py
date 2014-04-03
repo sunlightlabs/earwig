@@ -84,7 +84,6 @@ class PostmarkPlugin(BasePlugin):
             status=DeliveryStatus.sent,
             plugin='postmark',
             template='default')
-
         if debug:
             return {
                 "text": body_txt,
@@ -92,6 +91,27 @@ class PostmarkPlugin(BasePlugin):
                 "subject": subject,
                 "obj": meta
             }
+
+    def send_reply_notification(self, message_reply, debug=False):
+        reply_to = self.get_reply_to(message_reply.message_recip)
+        to = message_reply.message_recip.message.sender.email
+
+        # Is this wrongish?
+        if to is None:
+            return
+
+        ctx = dict(
+            message_reply=message_reply,
+            login_url=getattr(settings, 'LOGIN_URL', 'PUT REAL LOGIN URL HERE'))
+
+        # Render the email components.
+        path = 'plugins/default/email/forwarded_reply/body.html'
+        body_html = self.render_template(path, **ctx)
+        path = 'plugins/default/email/forwarded_reply/body.txt'
+        body_txt = self.render_template(path, **ctx)
+        path = 'plugins/default/email/forwarded_reply/subject.txt'
+        subject = self.render_template(path, **ctx)
+        self.send(to, reply_to, subject, body_txt, body_html)
 
     def render_template(self, path, **kwargs):
         template = get_template(path)
