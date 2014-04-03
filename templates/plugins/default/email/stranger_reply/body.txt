@@ -1,0 +1,6 @@
+<h1>Hello!</h1>
+
+You emailed a discussion thread on Earwig with an unverified email address, so we couldn't
+deliver your message to the other person.
+
+Please respond from the same email account you're registered with at Earwig.
