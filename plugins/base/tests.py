@@ -20,6 +20,7 @@ class BaseTests(object):
         app = Application.objects.create(name="test", contact="fnord@fnord.fnord",
                                          template_set="None", active=True)
         send = Sender.objects.create(id='randomstring',
+                                     email='oldschool@mario.com',
                                      email_expires_at=datetime.datetime(2020, 1, 1, tzinfo=utc))
 
         self.person = Person.objects.create(ocd_id='test', title='Mr.', name='Paul Tagliamonte',
