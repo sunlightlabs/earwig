@@ -4,9 +4,10 @@ from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseNotFou
 from django.shortcuts import render
 from django.conf import settings
 
-from .forms import FlaggingForm
+from .forms import FlaggingForm, StatisticsForm
 from .models import (Application, Sender, Person, Message, MessageRecipient,
-                     MessageStatus, DeliveryAttempt, FeedbackType)
+                     MessageStatus, DeliveryAttempt, FeedbackType,
+                     MessageResponseStatisticTypes)
 from .utils import utcnow
 
 import re
@@ -128,6 +129,29 @@ def create_message(request):
 
     # return the complete message object
     return HttpResponse(_msg_to_json(msg))
+
+
+def submit_statistic(request, attempt_id):
+    attempt = DeliveryAttempt.objects.get(id=int(attempt_id))
+
+    if request.method == 'POST':
+        form = StatisticsForm(request.POST)
+        if form.is_valid():
+            return render(request, 'contact/statistic_thanks.html', {
+                'form': form,
+                "attempt": attempt,
+                "attempt_id": attempt_id,
+            })
+
+    form = StatisticsForm(initial={
+        "statistic_type": MessageResponseStatisticTypes.reply_unknown,
+    })
+
+    return render(request, 'contact/statistic.html', {
+        "attempt_id": attempt_id,
+        "attempt": attempt,
+        "form": form,
+    })
 
 
 @csrf_exempt

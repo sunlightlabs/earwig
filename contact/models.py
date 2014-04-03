@@ -10,17 +10,17 @@ class ChoiceEnumBase(type):
     # allow declarative assignment but attribute access
 
     def __new__(cls, name, bases, attrs):
-        # django choices
-        cls.choices = []
-        # set of choices for quick validation
-        cls.valid_choices = set()
+        choices = []  # django choices
+        valid_choices = set()  # set of choices for quick validation
 
         for key, attr in attrs.items():
             if not key.startswith('__'):
-                cls.choices.append((key, attr))
+                choices.append((key, attr))
                 attrs[key] = key
 
-        return type.__new__(cls,  name, bases, attrs)
+        obj = type.__new__(cls,  name, bases, attrs)
+        obj.choices = choices
+        return obj
 
 
 @six.add_metaclass(ChoiceEnumBase)
@@ -221,6 +221,22 @@ class DeliveryAttempt(models.Model):
         """ Whether this is the first attempt to contact the
         recipient. """
         return bool(self.contact.person.get_attempts())
+
+
+class MessageResponseStatisticTypes(ChoiceEnum):
+    reply_good = 'It was a good reply'
+    reply_bad = 'It was a bad reply'
+    reply_none = 'I got no reply'
+    reply_unknown = "I'm not sure if I got a reply"
+
+
+class MessageResponseStatistic(models.Model):
+    message_feedback = models.CharField(
+        max_length=50,
+        choices=MessageResponseStatisticTypes.choices,
+        default=MessageResponseStatisticTypes.reply_unknown,
+    )
+    delivery_attempt = models.ForeignKey(DeliveryAttempt)
 
 
 class MessageReply(models.Model):

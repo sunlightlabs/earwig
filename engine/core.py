@@ -17,7 +17,11 @@ app.conf.CELERYBEAT_SCHEDULE = {
     'create-delivery-attempts': {
         'task': 'engine.tasks.create_delivery_attempts',
         'schedule': timedelta(seconds=5),
-    }
+    },
+    'janitor': {
+        'task': 'engine.tasks.janitor',
+        'schedule': timedelta(seconds=5),
+    },
 }
 
 app.conf.EARWIG_PLUGINS = {

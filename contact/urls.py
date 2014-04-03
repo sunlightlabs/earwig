@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 
 urlpatterns = patterns(
     '',
@@ -9,4 +9,9 @@ urlpatterns = patterns(
 
     # other views
     url(r'^flag/(?P<transaction>.*)/(?P<secret>.*)/$', 'contact.views.flag', name='flag'),
+    url(r'^statistics/(?P<attempt_id>.*)/$',
+            'contact.views.submit_statistic', name='statistics'),
+
+    # Administrative views.
+    (r'^management/',include('contact.admin.urls')),
 )
