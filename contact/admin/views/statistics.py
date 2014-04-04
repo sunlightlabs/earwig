@@ -9,4 +9,6 @@ def overview(request):
 
     return render(request, 'contact/admin/statistics/overview.html', {
         "responses": listing,
+        "MessageResponseStatistic": MessageResponseStatistic,
+        "statistics": MessageResponseStatistic.get_statistics_breakdown_by_template()
     })

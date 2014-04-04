@@ -3,8 +3,35 @@
 {% block content %}
 <h1>User Statistical Response Info</h1>
 
-{% for response in responses %}
-    {{response}}
+<b>Breakdown by Template</b><br />
+
+<table>
+    <tr>
+        <th>Template</th>
+        <th>Good</th>
+        <th>Bad</th>
+        <th>Unknown</th>
+        <th>None</th>
+    </tr>
+    <tr>
+        <td>
+{% for key, value in statistics.breakdown.items %}
+{{key}}
+        </td>
+        <td>
+{{value.reply_good}}
+        </td>
+        <td>
+{{value.reply_bad}}
+        </td>
+        <td>
+{{value.reply_unknown}}
+        </td>
+        <td>
+{{value.reply_none}}
+        </td>
+    </tr>
 {% endfor %}
+</table>
 
 {% endblock %}

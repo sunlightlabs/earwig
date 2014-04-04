@@ -1,6 +1,7 @@
 import uuid
 import hashlib
 import six
+from collections import defaultdict
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -238,14 +239,44 @@ class MessageResponseStatistic(models.Model):
     )
     delivery_attempt = models.ForeignKey(DeliveryAttempt)
 
-    def get_statistics_by_template(self, template):
-        pass
+    @classmethod
+    def get_statistics_breakdown_by_template(cls):
+        templates = set([
+            x['template'] for x in DeliveryAttempt.objects.values(
+                "template").distinct()
+        ])
+        raw = {x: cls.get_statistics_by_template(x) for x in templates}
 
-    def get_statistics_by_person(self, person):
-        pass
+        breakdown = {}
+        for key, value in raw.items():
+            if key not in breakdown:
+                breakdown[key] = {
+                    x: 0 for x in [
+                        y[0] for y in MessageResponseStatisticTypes.choices
+                    ]
+                }
 
-    def get_statistics_by_sender(self, whom):
-        pass
+            for statistic in value:
+                breakdown[key][statistic.message_feedback] += 1
+
+        return {
+            "raw": raw,
+            "breakdown": breakdown
+        }
+
+    ####
+
+    @classmethod
+    def get_statistics_by_template(cls, template):
+        return cls.objects.filter(delivery_attempt__template=template)
+
+    @classmethod
+    def get_statistics_by_person(cls, person):
+        return cls.objects.filter(delivery_attempt__person=person)
+
+    @classmethod
+    def get_statistics_by_contact_detail(cls, contact):
+        return cls.objects.filter(delivery_attempt__contact=contact)
 
 
 class MessageReply(models.Model):
