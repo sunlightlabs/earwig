@@ -238,6 +238,15 @@ class MessageResponseStatistic(models.Model):
     )
     delivery_attempt = models.ForeignKey(DeliveryAttempt)
 
+    def get_statistics_by_template(self, template):
+        pass
+
+    def get_statistics_by_person(self, person):
+        pass
+
+    def get_statistics_by_sender(self, whom):
+        pass
+
 
 class MessageReply(models.Model):
 
