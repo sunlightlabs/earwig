@@ -8,5 +8,5 @@ def overview(request):
     listing = MessageResponseStatistic.objects.all()
 
     return render(request, 'contact/admin/statistics/overview.html', {
-        "listing": listing,
+        "responses": listing,
     })

@@ -1,0 +1,10 @@
+{% extends "contact/admin/base.html" %}
+
+{% block content %}
+<h1>User Statistical Response Info</h1>
+
+{% for response in responses %}
+    {{response}}
+{% endfor %}
+
+{% endblock %}
