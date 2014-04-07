@@ -240,12 +240,13 @@ class MessageResponseStatistic(models.Model):
     delivery_attempt = models.ForeignKey(DeliveryAttempt)
 
     @classmethod
-    def get_statistics_breakdown_by_template(cls):
+    def get_statistics_breakdown_by_template(cls, limit=None):
         templates = set([
             x['template'] for x in DeliveryAttempt.objects.values(
                 "template").distinct()
         ])
-        raw = {x: cls.get_statistics_by_template(x) for x in templates}
+        raw = {x: cls.get_statistics_by_template(
+            x, limit=limit) for x in templates}
 
         breakdown = {}
         for key, value in raw.items():
@@ -261,22 +262,31 @@ class MessageResponseStatistic(models.Model):
 
         return {
             "raw": raw,
-            "breakdown": breakdown
+            "breakdown": breakdown,
         }
 
     ####
 
     @classmethod
-    def get_statistics_by_template(cls, template):
-        return cls.objects.filter(delivery_attempt__template=template)
+    def get_statistics_by_template(cls, template, limit=None):
+        x = cls.objects.filter(delivery_attempt__template=template)
+        if limit:
+            x = x[:limit]
+        return x
 
     @classmethod
-    def get_statistics_by_person(cls, person):
-        return cls.objects.filter(delivery_attempt__person=person)
+    def get_statistics_by_person(cls, person, limit=None):
+        x = cls.objects.filter(delivery_attempt__person=person)
+        if limit:
+            x = x[:limit]
+        return x
 
     @classmethod
-    def get_statistics_by_contact_detail(cls, contact):
-        return cls.objects.filter(delivery_attempt__contact=contact)
+    def get_statistics_by_contact_detail(cls, contact, limit=None):
+        x = cls.objects.filter(delivery_attempt__contact=contact)
+        if limit:
+            x = x[:limit]
+        return x
 
 
 class MessageReply(models.Model):

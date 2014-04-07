@@ -4,6 +4,25 @@
 <h1>{{template}}</h1>
 
 <table>
+{% for key, value in breakdown.items %}
+    <tr>
+        <td>
+            {{key}}
+        </td>
+        <td>
+            {{value}}
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+<!-- pie chart or something -->
+
+<p>
+    Last {{statistics|length}} feedback entries
+</p>
+
+<table>
     <tr>
         <td>
             Feedback
