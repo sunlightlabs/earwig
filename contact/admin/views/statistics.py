@@ -12,3 +12,11 @@ def overview(request):
         "MessageResponseStatistic": MessageResponseStatistic,
         "statistics": MessageResponseStatistic.get_statistics_breakdown_by_template()
     })
+
+
+def overview_template(request, template):
+
+    return render(request, 'contact/admin/statistics/template.html', {
+        "template": template,
+        "statistics": MessageResponseStatistic.get_statistics_by_template(template)
+    })

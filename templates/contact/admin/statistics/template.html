@@ -1,0 +1,40 @@
+{% extends "contact/admin/base.html" %}
+
+{% block content %}
+<h1>{{template}}</h1>
+
+<table>
+    <tr>
+        <td>
+            Feedback
+        </td>
+        <td>
+            DeliveryAttempt
+        </td>
+        <td>
+            Contact Detail
+        </td>
+        <td>
+            Whom
+        </td>
+    </tr>
+
+{% for statistic in statistics %}
+    <tr>
+        <td>
+            {{statistic.message_feedback}}
+        </td>
+        <td>
+            {{statistic.delivery_attempt.id}}
+        </td>
+        <td>
+            {{statistic.delivery_attempt.contact}}
+        </td>
+        <td>
+            {{statistic.delivery_attempt.contact.person.name}}
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+{% endblock %}
