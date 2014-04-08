@@ -36,4 +36,15 @@ def import_ocd_person(ocd_id):
     person.save()
 
     for detail in cds:
-        print(detail)
+        # person, type, value
+        type, value = [detail.get(x) for x in ['type', 'value']]
+        kwargs = {"type": type, "value": value,}
+        try:
+            cd = ContactDetail.objects.get(**kwargs)
+        except ContactDetail.DoesNotExist:
+            cd = ContactDetail.objects.create(person=person, **kwargs)
+
+        if detail.get("note"):
+            cd.note = detail['note']
+
+        cd.save()
