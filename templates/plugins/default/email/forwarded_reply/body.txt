@@ -1,8 +1,8 @@
 {% extends "plugins/default/email/base.txt" %}
 {% block content %}
-Dear {{message_reply.message_recip.message.sender}},
+Dear {{message_reply.recipient_name}},
 
-{{message_reply.message_recip.recipient.name}} replied to your message! Here it is:
+{{message_reply.sender_name}} replied to your message! Here it is:
 
 
 "{{message_reply.body}}"

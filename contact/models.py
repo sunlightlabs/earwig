@@ -252,3 +252,42 @@ class MessageReply(models.Model):
     @property
     def thread_id(self):
         return self.message_recip.id
+
+    def sender_name(self):
+        '''This is the name of the person who sent the reply.
+        '''
+        if self.from_original_sender:
+            return self.message_recip.message.sender.name
+        else:
+            return self.message_recip.recipient.name
+
+    def recipient_name(self):
+        '''This is the name of the person who recieved the reply.
+        '''
+        if not self.from_original_sender:
+            return self.message_recip.message.sender.name
+        else:
+            return self.message_recip.recipient.name
+
+    def get_recip_email(self):
+        attempt = self.message_recip.attempts.filter(
+            status=DeliveryStatus.success).get()
+        contact = attempt.contact
+        assert contact.type == 'email'
+        return contact.value
+
+    def sender_email(self):
+        '''This is the name of the person who sent the reply.
+        '''
+        if self.from_original_sender:
+            return self.message_recip.message.sender.email
+        else:
+            return self.get_recip_email()
+
+    def recipient_email(self):
+        '''This is the name of the person who recieved the reply.
+        '''
+        if not self.from_original_sender:
+            return self.message_recip.message.sender.email
+        else:
+            return self.get_recip_email()

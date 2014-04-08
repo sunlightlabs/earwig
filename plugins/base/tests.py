@@ -19,7 +19,7 @@ class BaseTests(object):
         super(BaseTests, self).setUp()
         app = Application.objects.create(name="test", contact="fnord@fnord.fnord",
                                          template_set="None", active=True)
-        send = Sender.objects.create(id='randomstring',
+        send = Sender.objects.create(id='randomstring', name="Mario",
                                      email='oldschool@mario.com',
                                      email_expires_at=datetime.datetime(2020, 1, 1, tzinfo=utc))
 

@@ -24,7 +24,7 @@ import pystmark
 from plugins.postmark.models import PostmarkDeliveryMeta
 from .earwig import PostmarkPlugin
 
-from contact.models import DeliveryAttempt
+from contact.models import DeliveryAttempt, DeliveryStatus
 from ..base.tests import BaseTests
 
 
@@ -283,7 +283,13 @@ class InboundTest(BaseTests, TestCase):
             html=render_to_string(body_html_tmpl, {}))
 
         # Verify it was called.
-        pystmark_send.assert_called_once_with(message, settings.POSTMARK_API_KEY)
+        pystmark_send.assert_called_once_with(
+            message, settings.POSTMARK_API_KEY)
+
+
+class ReplyForwardingTest(BaseTests, TestCase):
+
+    plugin = PostmarkPlugin()
 
     @mock.patch('pystmark.send')
     def test_reply_forwarded_to_orig_sender(self, pystmark_send):
@@ -294,7 +300,8 @@ class InboundTest(BaseTests, TestCase):
         message_recip = attempt.messages.get()
 
         # Assume an email message has been sent.
-        PostmarkDeliveryMeta.objects.create(attempt=attempt, message_id='test-hard-bounce')
+        PostmarkDeliveryMeta.objects.create(
+            attempt=attempt, message_id='test-hard-bounce')
 
         # Simulate in inbound email from postmark.
         client = Client()
@@ -351,3 +358,105 @@ class InboundTest(BaseTests, TestCase):
 
         # Verify it was called.
         pystmark_send.assert_called_once_with(message, settings.POSTMARK_API_KEY)
+
+    @mock.patch('pystmark.send')
+    def test_reply_forwarded_to_legislator(self, pystmark_send):
+        '''If the target of an attempt replies, verify the reply gets
+        forwarded to the original sender.
+        '''
+        # Assume the attempt was succesfully delivered.
+        attempt = DeliveryAttempt.objects.get(pk=1)
+        attempt.mark_attempted(DeliveryStatus.success, self.plugin, 'cow')
+
+        message_recip = attempt.messages.get()
+
+        # Simulate in inbound email from the legislator.
+        client = Client()
+        payload = {
+            "From": attempt.contact.value,
+            "FromFull": {
+                "Email": attempt.contact.value,
+                "Name": "John Doe"
+                },
+            "To": "InboundHash+MailboxHash@inbound.postmarkapp.com",
+            "ToFull": [{
+                "Email": "InboundHash+MailboxHash@inbound.postmarkapp.com",
+                "Name": ""
+                }],
+            "ReplyTo": self.plugin.get_reply_to(message_recip),
+            "Subject": "This is an inbound message",
+            "MessageID": "22c74902-a0c1-4511-804f2-341342852c90",
+            "Date": "Thu, 5 Apr 2012 16:59:01 +0200",
+            "MailboxHash": str(message_recip.id),
+            "TextBody": "[ASCII]",
+            "HtmlBody": "[HTML(encoded)]",
+            "Tag": "",
+            "Headers": [{
+                "Name": "X-Spam-Checker-Version",
+                "Value": "SpamAssassin 3.3.1 (2010-03-16) onrs-ord-pm-inbound1.wildbit.com"
+                }]
+            }
+        client.post(
+            reverse('postmark.handle_inbound'),
+            json.dumps(payload),
+            content_type='application/json')
+
+        # Now simulate in inbound email (reply to legislator) from the user.
+        client = Client()
+        payload = {
+            "From": 'oldschool@mario.com',
+            "FromFull": {
+                "Email": 'oldschool@mario.com',
+                "Name": "Oldschool Mario"
+                },
+            "To": "InboundHash+%s@inbound.postmarkapp.com" % str(message_recip.id),
+            "ToFull": [{
+                "Email": "InboundHash+%s@inbound.postmarkapp.com" % str(message_recip.id),
+                "Name": ""
+                }],
+            "ReplyTo": self.plugin.get_reply_to(message_recip),
+            "Subject": "This is an inbound message",
+            "MessageID": "22c74902-a0c1-4511-804f2-341342852c90",
+            "Date": "Thu, 6 Apr 2012 16:59:01 +0200",
+            "MailboxHash": str(message_recip.id),
+            "TextBody": "[ASCII]",
+            "HtmlBody": "[HTML(encoded)]",
+            "Tag": "",
+            "Headers": [{
+                "Name": "X-Spam-Checker-Version",
+                "Value": "SpamAssassin 3.3.1 (2010-03-16) onrs-ord-pm-inbound1.wildbit.com"
+                }]
+            }
+        client.post(
+            reverse('postmark.handle_inbound'),
+            json.dumps(payload),
+            content_type='application/json')
+
+        # Ok, now there should be two reply objects. We want the most recent.
+        replies = attempt.messages.get().replies.order_by('created_at')
+        message_reply = list(replies)[-1]
+
+        # The alert email goes to the recipient of the reply.
+        to = message_reply.recipient_email()
+        reply_to = self.plugin.get_reply_to(message_reply.message_recip)
+        ctx = dict(
+            message_reply=message_reply,
+            login_url=getattr(settings, 'LOGIN_URL', 'PUT REAL LOGIN URL HERE'))
+
+        path = 'plugins/default/email/forwarded_reply/body.html'
+        body_html = self.plugin.render_template(path, **ctx)
+        path = 'plugins/default/email/forwarded_reply/body.txt'
+        body_txt = self.plugin.render_template(path, **ctx)
+        path = 'plugins/default/email/forwarded_reply/subject.txt'
+        subject = self.plugin.render_template(path, **ctx)
+
+        message = pystmark.Message(
+            sender=settings.EARWIG_EMAIL_SENDER,
+            reply_to=reply_to,
+            to=to,
+            subject=subject,
+            text=body_txt,
+            html=body_html)
+
+        # Verify it was called.
+        pystmark_send.assert_called_with(message, settings.POSTMARK_API_KEY)

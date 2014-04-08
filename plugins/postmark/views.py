@@ -88,7 +88,6 @@ def handle_inbound(request):
             },
         }
     '''
-
     # First, verify that this payload originated from postmark, not from
     # mischeivous teenagers forging flame messages to people in our system.
     allowed_hosts = [

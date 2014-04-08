@@ -94,7 +94,7 @@ class PostmarkPlugin(BasePlugin):
 
     def send_reply_notification(self, message_reply, debug=False):
         reply_to = self.get_reply_to(message_reply.message_recip)
-        to = message_reply.message_recip.message.sender.email
+        to = message_reply.recipient_email()
 
         # Is this wrongish?
         if to is None:
@@ -111,6 +111,7 @@ class PostmarkPlugin(BasePlugin):
         body_txt = self.render_template(path, **ctx)
         path = 'plugins/default/email/forwarded_reply/subject.txt'
         subject = self.render_template(path, **ctx)
+
         self.send(to, reply_to, subject, body_txt, body_html)
 
     def render_template(self, path, **kwargs):
