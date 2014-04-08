@@ -1,6 +1,7 @@
 import uuid
 import hashlib
 import six
+from collections import defaultdict
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -237,6 +238,55 @@ class MessageResponseStatistic(models.Model):
         default=MessageResponseStatisticTypes.reply_unknown,
     )
     delivery_attempt = models.ForeignKey(DeliveryAttempt)
+
+    @classmethod
+    def get_statistics_breakdown_by_template(cls, limit=None):
+        templates = set([
+            x['template'] for x in DeliveryAttempt.objects.values(
+                "template").distinct()
+        ])
+        raw = {x: cls.get_statistics_by_template(
+            x, limit=limit) for x in templates}
+
+        breakdown = {}
+        for key, value in raw.items():
+            if key not in breakdown:
+                breakdown[key] = {
+                    x: 0 for x in [
+                        y[0] for y in MessageResponseStatisticTypes.choices
+                    ]
+                }
+
+            for statistic in value:
+                breakdown[key][statistic.message_feedback] += 1
+
+        return {
+            "raw": raw,
+            "breakdown": breakdown,
+        }
+
+    ####
+
+    @classmethod
+    def get_statistics_by_template(cls, template, limit=None):
+        x = cls.objects.filter(delivery_attempt__template=template)
+        if limit:
+            x = x[:limit]
+        return x
+
+    @classmethod
+    def get_statistics_by_person(cls, person, limit=None):
+        x = cls.objects.filter(delivery_attempt__person=person)
+        if limit:
+            x = x[:limit]
+        return x
+
+    @classmethod
+    def get_statistics_by_contact_detail(cls, contact, limit=None):
+        x = cls.objects.filter(delivery_attempt__contact=contact)
+        if limit:
+            x = x[:limit]
+        return x
 
 
 class MessageReply(models.Model):

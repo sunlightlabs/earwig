@@ -7,7 +7,7 @@ from django.conf import settings
 from .forms import FlaggingForm, StatisticsForm
 from .models import (Application, Sender, Person, Message, MessageRecipient,
                      MessageStatus, DeliveryAttempt, FeedbackType,
-                     MessageResponseStatisticTypes)
+                     MessageResponseStatisticTypes, MessageResponseStatistic)
 from .utils import utcnow
 
 import re
@@ -137,11 +137,23 @@ def submit_statistic(request, attempt_id):
     if request.method == 'POST':
         form = StatisticsForm(request.POST)
         if form.is_valid():
+            feedback = form.cleaned_data['communication_type']
+
+            MessageResponseStatistic(
+                delivery_attempt=attempt,
+                message_feedback=feedback,
+            ).save()
+
+            if hasattr(MessageResponseStatisticTypes, feedback):
+                v = getattr(MessageResponseStatisticTypes, feedback)
+                print(v)
+
             return render(request, 'contact/statistic_thanks.html', {
                 'form': form,
                 "attempt": attempt,
                 "attempt_id": attempt_id,
             })
+
 
     form = StatisticsForm(initial={
         "statistic_type": MessageResponseStatisticTypes.reply_unknown,
