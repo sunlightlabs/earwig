@@ -43,7 +43,13 @@ def import_ocd_person(ocd_id):
     data = requests.get(url).json()
     title = data.get('title', None)
     photo_url = data.get('photo_url', None)
+
     cds = data.get("contact_details", [])
+    if data.get('memberships'):
+        for membership in data['memberships']:
+            if membership.get("contact_details"):
+                for x in membership['contact_details']:
+                    cds.append(x)
 
     try:
         person = Person.objects.get(ocd_id=ocd_id)
@@ -61,7 +67,7 @@ def import_ocd_person(ocd_id):
     person.save()
 
     choices = {x[0] for x in ContactType.choices}
-    saved_cd = False
+    contact_details = set([x.id for x in person.contacts.all()])
 
     for detail in cds:
         type, value = [detail.get(x) for x in ['type', 'value']]
@@ -78,3 +84,15 @@ def import_ocd_person(ocd_id):
             cd.note = detail['note']
 
         cd.save()
+
+        if cd.id in contact_details:
+            contact_details.remove(cd.id)
+
+    for id_ in (contact_details):
+        # OK, We have a CD for an OCD person that we don't know about. Let's
+        # blacklist this so that we don't send it. That would be bad news.
+        detail = ContactDetail.objects.get(id=id_)
+        print("I need to blacklist %s" % (str(detail)))
+        detail.blacklist = True
+        detail.save()
+        # XXX: We should remove this if we've got no related things.
