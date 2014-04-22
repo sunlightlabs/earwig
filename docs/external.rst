@@ -82,12 +82,31 @@ Example response:
 .. code-block:: json
 
     {"message": "Hello, World",
+     "id": "574d4c144ae042c095aaf67232dfe49b",
      "recipients": [],
      "subject": "testing",
      "sender": "01dd9c0570c745b1a6c640a274e3ef9ec18442a6ee86a8818ada5841321f0faa",
      "type": "private"}
 
 
-.. comment::
+``/message/`` endpoint
+++++++++++++++++++++++
 
-  ^ ^message/(?P<message_id>[0-9a-f]{32})/$ [name='get_message']
+The ``/message/<mid>`` endpoint will give you information on the status of the
+message sent by it's Message ID. This endpoint takes no params.
+
+.. code-block:: sh
+
+    curl http://localhost:8000/message/574d4c144ae042c095aaf67232dfe49b/
+
+Example response:
+
+.. code-block:: json
+
+    {"type": "private",
+     "subject": "testing",
+     "message": "Hello, World",
+     "id": "574d4c144ae042c095aaf67232dfe49b",
+     "sender": "01dd9c0570c745b1a6c640a274e3ef9ec18442a6ee86a8818ada5841321f0faa",
+     "recipients": []}
+
