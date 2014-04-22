@@ -89,3 +89,6 @@ like Twilio or Postmark.
 
 Be sure to invoke ``attempt.mark_attempted``, so that the engine doesn't
 continue to attempt to dispatch the message to the plugin.
+
+Plugins may also register URLs with the Earwig API, so that the plugins
+may recieve callbacks from the third party service.
