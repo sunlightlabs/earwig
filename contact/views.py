@@ -18,7 +18,7 @@ import datetime
 
 def _msg_to_json(msg):
     """ util function for returning an entire message as JSON """
-    data = {'type': msg.type, 'sender': msg.sender_id, 'subject': msg.subject,
+    data = {'id': msg.id, 'type': msg.type, 'sender': msg.sender_id, 'subject': msg.subject,
             'message': msg.message, 'recipients': []}
     for recip in MessageRecipient.objects.filter(message=msg):
         data['recipients'].append({'recipient_id': recip.recipient_id, 'status': recip.status})
