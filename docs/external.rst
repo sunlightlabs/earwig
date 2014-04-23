@@ -74,6 +74,7 @@ that would be sent to ``/sender`` anyway in JSON format.
     curl -d "subject=testing" \
          -d "type=private" \
          -d "message=Hello,%20World" \
+         -d "recipients=ocd-person/paultag" \
          -d 'sender={"email": "j@t.com", "name": "j", "ttl": 4}' \
          https://fancy-host.somewhere.example.com/message/
 
@@ -82,11 +83,13 @@ Example response:
 .. code-block:: json
 
     {"message": "Hello, World",
-     "id": "574d4c144ae042c095aaf67232dfe49b",
-     "recipients": [],
-     "subject": "testing",
-     "sender": "01dd9c0570c745b1a6c640a274e3ef9ec18442a6ee86a8818ada5841321f0faa",
-     "type": "private"}
+     "type": "private",
+     "sender": "7ff654d0e56d32cacc46f02e7b67a2f7b00feee128356dbe3c53407fe100695a",
+     "recipients": [
+        {"status": "unscheduled",
+         "recipient_id": 13}
+     ],
+     "subject": "testing"}
 
 
 ``/message/`` endpoint
