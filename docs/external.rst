@@ -83,6 +83,7 @@ Example response:
 .. code-block:: json
 
     {"message": "Hello, World",
+     "id": "952b3d7d95ec41549b777a4336dee701",
      "type": "private",
      "sender": "7ff654d0e56d32cacc46f02e7b67a2f7b00feee128356dbe3c53407fe100695a",
      "recipients": [
