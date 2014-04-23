@@ -101,16 +101,18 @@ message sent by it's Message ID. This endpoint takes no params.
 
 .. code-block:: sh
 
-    curl http://localhost:8000/message/574d4c144ae042c095aaf67232dfe49b/
+    curl https://fancy-host.somewhere.example.com/message/574d4c144ae042c095aaf67232dfe49b/
 
 Example response:
 
 .. code-block:: json
 
-    {"type": "private",
-     "subject": "testing",
-     "message": "Hello, World",
-     "id": "574d4c144ae042c095aaf67232dfe49b",
-     "sender": "01dd9c0570c745b1a6c640a274e3ef9ec18442a6ee86a8818ada5841321f0faa",
-     "recipients": []}
+    {"sender": "7ff654d0e56d32cacc46f02e7b67a2f7b00feee128356dbe3c53407fe100695a",
+     "recipients": [
+        {"status": "pending", "recipient_id": 13}
+    ],
+    "message": "Hello, World",
+    "type": "private",
+    "id": "952b3d7d95ec41549b777a4336dee701",
+    "subject": "testing"}
 
